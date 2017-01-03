@@ -34,6 +34,7 @@ FB_APP_ID = '145223082549936'
 FB_APP_SECRET = 'e03cc02eb74e7a8e2ec53c5667b98aaa'
 
 AUTH_USER_MODEL = 'api.User'
+AUTHENTICATION_BACKENDS = ['api.auth.AuthenticationBackend']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
