@@ -19,8 +19,3 @@ def user(request, user):
             'real_auth_token': token.key
         }
         return JsonResponse(response_dict)
-
-@csrf_exempt
-@custom_authenticate
-def dateslist(request, user):
-    if settings.DEBUG:
