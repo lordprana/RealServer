@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 import json
 
 def custom_authenticate(view):
-    def view_wrapper(request, user=None, user_id=None):
+    def view_wrapper(request, user=None, user_id=None, *args, **kwargs):
         if (request.method == 'POST'):
             json_data = json.loads(request.body)
             fb_user_id = json_data.get('fb_user_id', None)
@@ -35,7 +35,7 @@ def custom_authenticate(view):
             print("No")
             return HttpResponse(status=400)
         if user:
-            return view(request, user)
+            return view(request, user, *args, **kwargs)
         else:
             return HttpResponse(status=403)
     return view_wrapper
