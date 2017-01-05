@@ -38,7 +38,7 @@ date1 = {
                 },
             'place':
                 {
-                    'place_id': '1',
+                    'place_id': 'barcadia-dallas',
                     'name': 'Barcadia',
                     'latitude': 32.81169,
                     'longitude': -96.775201,
@@ -91,7 +91,7 @@ date2 = {
                 },
             'place':
                 {
-                    'place_id': '2',
+                    'place_id': 'white-rock-lake-dallas',
                     'name': 'White Rock Lake',
                     'latitude': 32.828066,
                     'longitude': -96.725316,
@@ -144,7 +144,7 @@ date3 = {
                 },
             'place':
                 {
-                    'place_id': '1',
+                    'place_id': 'barcadia-dallas',
                     'name': 'Barcadia',
                     'latitude': 32.81169,
                     'longitude': -96.775201,
@@ -196,7 +196,7 @@ date4 = {
                 },
             'place':
                 {
-                    'place_id': '2',
+                    'place_id': 'white-rock-lake-dallas',
                     'name': 'White Rock Lake',
                     'latitude': 32.828066,
                     'longitude': -96.725316,
@@ -249,7 +249,7 @@ date5 = {
                 },
             'place':
                 {
-                    'place_id': '1',
+                    'place_id': 'barcadia-dallas',
                     'name': 'Barcadia',
                     'latitude': 32.81169,
                     'longitude': -96.775201,
@@ -301,7 +301,7 @@ date6 = {
                 },
             'place':
                 {
-                    'place_id': '2',
+                    'place_id': 'white-rock-lake-dallas',
                     'name': 'White Rock Lake',
                     'latitude': 32.828066,
                     'longitude': -96.725316,
@@ -355,7 +355,7 @@ date7 = {
                 },
             'place':
                 {
-                    'place_id': '1',
+                    'place_id': 'barcadia-dallas',
                     'name': 'Barcadia',
                     'latitude': 32.81169,
                     'longitude': -96.775201,
