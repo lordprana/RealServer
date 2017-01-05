@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 import json
 
 def custom_authenticate(view):
-    def view_wrapper(request, user=None):
+    def view_wrapper(request, user=None, user_id=None):
         if (request.method == 'POST'):
             json_data = json.loads(request.body)
             fb_user_id = json_data.get('fb_user_id', None)
@@ -17,11 +17,18 @@ def custom_authenticate(view):
             fb_user_id = request.GET.get('fb_user_id', None)
             fb_auth_token = request.GET.get('fb_auth_token', None)
             real_auth_token = request.GET.get('real_auth_token', None)
-            print("1")
-        if fb_auth_token and fb_user_id:
+        elif (request.methon=='PATCH'):
+            fb_user_id = request.GET.get('fb_user_id', None)
+            fb_auth_token = request.GET.get('fb_auth_token', None)
+            real_auth_token = request.GET.get('real_auth_token', None)
+        if user_id:
+            print(user_id)
+            fb_user_id = user_id
+        if fb_auth_token and fb_user_id and real_auth_token:
+            user=authenticate(fb_user_id=fb_user_id, fb_auth_token=fb_auth_token, real_auth_token=real_auth_token)
+        elif fb_auth_token and fb_user_id:
             user = authenticate(fb_user_id=fb_user_id, fb_auth_token=fb_auth_token)
         elif real_auth_token and fb_user_id:
-            print("2")
             user = authenticate(fb_user_id=fb_user_id, real_auth_token=real_auth_token)
         else:
             return HttpResponse(status=400)
@@ -33,7 +40,18 @@ def custom_authenticate(view):
 
 class AuthenticationBackend(object):
     def authenticate(self, fb_user_id, fb_auth_token=None, real_auth_token=None):
-        if fb_auth_token:
+        if real_auth_token:
+            try:
+                user = User.objects.get(fb_user_id=fb_user_id)
+            except User.DoesNotExist:
+                return None
+            token = Token.objects.get(user=user)
+            if (token.key == real_auth_token):
+                if fb_auth_token:
+                    user.most_recent_fb_auth_token = fb_auth_token
+                    user.save()
+                return user
+        elif fb_auth_token:
             request_url = 'https://graph.facebook.com/debug_token?input_token=' + fb_auth_token + \
                           '&access_token=' + FB_APP_ID + '|' + FB_APP_SECRET
             response = requests.get(request_url)
@@ -54,11 +72,6 @@ class AuthenticationBackend(object):
                     return user
             else:
                 return None
-        elif real_auth_token:
-            user = User.objects.get(fb_user_id=fb_user_id)
-            token = Token.objects.get(user=user)
-            if (token.key == real_auth_token):
-                return user
         return None
 
     def get_user(self,fb_user_id):

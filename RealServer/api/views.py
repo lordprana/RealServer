@@ -12,14 +12,21 @@ import json
 
 @csrf_exempt
 @custom_authenticate
-def user(request, user):
+def users(request, user):
     if request.method == 'POST':
         token = Token.objects.get(user=user)
         response_dict = {
             'fb_user_id' : user.fb_user_id,
-            'real_auth_token': token.key
+            'real_auth_token': token.key,
+            'status': 'profile_incomplete'
         }
         return JsonResponse(response_dict)
+
+@csrf_exempt
+@custom_authenticate
+def user(request,user,used_id):
+    if request.method == 'PATCH':
+        return HttpResponse(status=200)
 
 @csrf_exempt
 @custom_authenticate
