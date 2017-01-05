@@ -24,7 +24,7 @@ def users(request, user):
 
 @csrf_exempt
 @custom_authenticate
-def user(request,user,used_id):
+def user(request,user):
     if request.method == 'PATCH':
         return HttpResponse(status=200)
 
