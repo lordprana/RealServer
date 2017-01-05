@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.authtoken.models import Token
 from api.auth import custom_authenticate
+from api import hardcoded_dates
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
@@ -24,3 +25,6 @@ def user(request, user):
 @custom_authenticate
 def dateslist(request, user):
     if settings.DEBUG:
+        response_dict = [hardcoded_dates.date1, hardcoded_dates.date2, hardcoded_dates.date3, hardcoded_dates.date4,
+                         hardcoded_dates.date5, hardcoded_dates.date6, hardcoded_dates.date7]
+        return JsonResponse(response_dict, safe=False)

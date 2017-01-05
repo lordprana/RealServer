@@ -17,14 +17,14 @@ def custom_authenticate(view):
             fb_user_id = request.GET.get('fb_user_id', None)
             fb_auth_token = request.GET.get('fb_auth_token', None)
             real_auth_token = request.GET.get('real_auth_token', None)
-
-        if fb_auth_token:
+            print("1")
+        if fb_auth_token and fb_user_id:
             user = authenticate(fb_user_id=fb_user_id, fb_auth_token=fb_auth_token)
-        elif real_auth_token:
+        elif real_auth_token and fb_user_id:
+            print("2")
             user = authenticate(fb_user_id=fb_user_id, real_auth_token=real_auth_token)
         else:
             return HttpResponse(status=400)
-
         if user:
             return view(request, user)
         else:
