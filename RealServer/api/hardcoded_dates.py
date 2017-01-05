@@ -1,5 +1,8 @@
 from datetime import datetime
 
+now = datetime.now()
+respond_by = datetime(now.year, now.month, now.day, now.hour + 12, now.minute, now.second)
+
 date1 = {
     'Date':
         {
@@ -59,6 +62,7 @@ date2 = {
             'date_id': '2',
             'target_likes': True,
             'primary_user_likes': 'undecided',
+            'respond_by': respond_by,
             'User':
                 {
                     'user_id': '2',
@@ -110,7 +114,7 @@ date3 = {
         {
             'date_id': '3',
             'target_likes': False,
-            'primary_user_likes': 'undecided',
+            'primary_user_likes': 'pass',
             'User':
                 {
                     'user_id': '1',
@@ -162,7 +166,7 @@ date4 = {
     'Date':
         {
             'date_id': '4',
-            'target_likes': True,
+            'target_likes': False,
             'primary_user_likes': 'undecided',
             'User':
                 {
@@ -268,7 +272,7 @@ date6 = {
         {
             'date_id': '6',
             'target_likes': True,
-            'primary_user_likes': 'undecided',
+            'primary_user_likes': 'likes',
             'User':
                 {
                     'user_id': '2',
@@ -315,9 +319,6 @@ date6 = {
         }
     }
 
-
-now = datetime.now()
-respond_by = datetime(now.year, now.month, now.day, now.hour + 12, now.minute, now.second)
 date7 = {
     'Date':
         {
