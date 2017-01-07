@@ -8,7 +8,6 @@ from django.conf import settings
 import json
 # Create your views here.
 
-
 @csrf_exempt
 @custom_authenticate
 def users(request, user):
@@ -20,13 +19,17 @@ def users(request, user):
             'status': 'profile_incomplete'
         }
         return JsonResponse(response_dict)
+    else:
+        return HttpResponse(status=400)
 
+#TODO: Blocking
 @csrf_exempt
 @custom_authenticate
 def user(request,user):
     if request.method == 'PATCH':
         return HttpResponse(status=200)
 
+#TODO: Blocking
 @csrf_exempt
 @custom_authenticate
 def dates(request, user):
@@ -35,6 +38,7 @@ def dates(request, user):
                          hardcoded_dates.date5, hardcoded_dates.date6, hardcoded_dates.date7]
         return JsonResponse(response_dict, safe=False)
 
+#TODO: Blocking
 @csrf_exempt
 @custom_authenticate
 def date(request, user, date_id):
@@ -42,6 +46,7 @@ def date(request, user, date_id):
         request_json = json.loads(request.body)
         return HttpResponse(status=200)
 
+#TODO: Blocking
 @csrf_exempt
 @custom_authenticate
 def report_and_block(request, user):
