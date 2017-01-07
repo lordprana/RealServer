@@ -7,7 +7,7 @@ date1 = {
     'Date':
         {
             'date_id': '1',
-            'target_likes': False,
+            'potential_date_likes': False,
             'primary_user_likes': 'undecided',
             'User':
                 {
@@ -60,7 +60,7 @@ date2 = {
     'Date':
         {
             'date_id': '2',
-            'target_likes': True,
+            'potential_date_likes': True,
             'primary_user_likes': 'undecided',
             'respond_by': respond_by,
             'User':
@@ -113,7 +113,7 @@ date3 = {
     'Date':
         {
             'date_id': '3',
-            'target_likes': False,
+            'potential_date_likes': False,
             'primary_user_likes': 'pass',
             'User':
                 {
@@ -166,7 +166,7 @@ date4 = {
     'Date':
         {
             'date_id': '4',
-            'target_likes': False,
+            'potential_date_likes': False,
             'primary_user_likes': 'undecided',
             'User':
                 {
@@ -218,7 +218,7 @@ date5 = {
     'Date':
         {
             'date_id': '5',
-            'target_likes': False,
+            'potential_date_likes': False,
             'primary_user_likes': 'undecided',
             'User':
                 {
@@ -271,8 +271,9 @@ date6 = {
     'Date':
         {
             'date_id': '6',
-            'target_likes': True,
+            'potential_date_likes': True,
             'primary_user_likes': 'likes',
+            'last_sent_message': 'OMG I\'m so excited about our date!',
             'User':
                 {
                     'user_id': '2',
@@ -323,7 +324,7 @@ date7 = {
     'Date':
         {
             'date_id': '7',
-            'target_likes': False,
+            'potential_date_likes': False,
             'primary_user_likes': 'likes',
             'respond_by': respond_by,
             'User':
