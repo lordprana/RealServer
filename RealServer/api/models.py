@@ -7,8 +7,8 @@ from django.contrib.auth.models import AbstractBaseUser
 class User(AbstractBaseUser):
     USERNAME_FIELD = 'fb_user_id'
 
-    fb_user_id = models.CharField(max_length=200, primary_key=True)
-    most_recent_fb_auth_token = models.CharField(max_length=200)
+    fb_user_id = models.CharField(max_length=300, primary_key=True)
+    most_recent_fb_auth_token = models.CharField(max_length=300)
 
     first_name = models.CharField(max_length=50, null=True)
     last_name = models.CharField(max_length=50, null=True)
