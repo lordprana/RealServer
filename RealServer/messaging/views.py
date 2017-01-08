@@ -45,7 +45,7 @@ def messages(request, user):
         json_data = json.loads(request.body)
         match_user = json_data.get('match_user', None)
         message_content = json_data.get('message_content', None)
-        if not match_user or not message_content:
+        if match_user == None or message_content == None:
             return HttpResponse(status=400)
         try:
             last_message = Message.objects.raw('SELECT * FROM messaging_message '
@@ -53,9 +53,7 @@ def messages(request, user):
                                        'ORDER BY index DESC LIMIT 1',
                                        [user.fb_user_id, match_user, user.fb_user_id, match_user])[0]
             message_index = last_message.index + 1
-            print(message_index)
         except IndexError:
-            print("Index error")
             message_index = 0
         Message.objects.create(index=message_index, content=message_content, sent_by=user, sent_to=User.objects.get(pk=match_user))
         return HttpResponse(status=200)

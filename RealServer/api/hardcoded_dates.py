@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-now = datetime.now()
-respond_by = datetime(now.year, now.month, now.day, now.hour + 12, now.minute, now.second)
+respond_by = datetime.now() + timedelta(hours=24)
 
 date1 = {
     'Date':

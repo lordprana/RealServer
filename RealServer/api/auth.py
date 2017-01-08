@@ -18,7 +18,6 @@ def custom_authenticate(view):
             fb_auth_token = request.GET.get('fb_auth_token', None)
             real_auth_token = request.GET.get('real_auth_token', None)
         if user_id:
-            print("okay")
             fb_user_id = user_id
         if fb_auth_token and fb_user_id and real_auth_token:
             user=authenticate(fb_user_id=fb_user_id, fb_auth_token=fb_auth_token, real_auth_token=real_auth_token)
@@ -27,7 +26,6 @@ def custom_authenticate(view):
         elif real_auth_token and fb_user_id:
             user = authenticate(fb_user_id=fb_user_id, real_auth_token=real_auth_token)
         else:
-            print("No")
             return HttpResponse(status=400)
         if user:
             return view(request, user, *args, **kwargs)
