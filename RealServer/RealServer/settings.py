@@ -46,9 +46,11 @@ INSTALLED_APPS = [
 
     'api.apps.ApiConfig',
     'messaging.apps.MessagingConfig',
+    'matchmaking.apps.MatchmakingConfig',
 
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'django_nose'
 ]
 
 MIDDLEWARE = [
@@ -140,4 +142,6 @@ STATIC_URL = '/static/'
 
 YELP_APP_ID = 's7-DcAMdseJJmTHuki81Wg'
 YELP_APP_SECRET = '47MsTO8LaxzsiU6JK5shKlmMyhXd70a6StGBmsM5CR1xJn9WL9WbzXEdYyzmfYCX'
-YELP_ACCESS_TOKEN = 'dJ9QyD40Ng_g7WW9bB_1BOQz1IG-rP6LIeLomkzhmapA0Dtpv7Q6UeuUw9fpqj5GdJON9cqxQdF2BWEfCBFJoBK1swOYjAh5VUxxXvrQIeal86jxuUNMi6bNDsltWHYx'
+#YELP_ACCESS_TOKEN = 'dJ9QyD40Ng_g7WW9bB_1BOQz1IG-rP6LIeLomkzhmapA0Dtpv7Q6UeuUw9fpqj5GdJON9cqxQdF2BWEfCBFJoBK1swOYjAh5VUxxXvrQIeal86jxuUNMi6bNDsltWHYx'
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

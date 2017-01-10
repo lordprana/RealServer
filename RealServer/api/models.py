@@ -2,6 +2,18 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
+from matchmaking.models import Date
+
+from enum import Enum
+
+class SexualPreference(Enum):
+    WOMEN = 'w'
+    MEN = 'm'
+    BISEXUAL = 'b'
+
+class Gender(Enum):
+    WOMAN = 'w'
+    MAN = 'm'
 
 # Create your models here.
 class User(AbstractBaseUser):
@@ -13,10 +25,22 @@ class User(AbstractBaseUser):
     first_name = models.CharField(max_length=50, null=True)
     last_name = models.CharField(max_length=50, null=True)
     age = models.IntegerField(null=True)
+    gender = models.CharField(max_length=1, null=True)
     interested_in = models.CharField(max_length=1, null=True)
     occupation = models.CharField(max_length=50, null=True)
     education = models.CharField(max_length=50, null=True)
     about_me = models.CharField(max_length=500, null=True)
+
+    min_age_preference = models.IntegerField(default=18)
+    max_age_preference = models.IntegerField(default=35)
+
+    max_price = models.IntegerField(default=2)
+
+    search_radius = models.IntegerField(default=24) #25 is max radius for Yelp API
+    latitude = models.DecimalField(null=True, decimal_places=6, max_digits=13) # Precision within .1 meter resolution
+    longitude = models.DecimalField(null=True, decimal_places=6, max_digits=13)
+
+    passed_matches = models.ManyToManyField('self', related_name='passed_matches')
 
     # Add pictures once we know the correct dimensions
 
@@ -27,6 +51,8 @@ class User(AbstractBaseUser):
     likes_culture = models.NullBooleanField(default=False, null=True)
     likes_active = models.NullBooleanField(default=False, null=True)
 
+    sunday_start_time = models.TimeField(blank=True, null=True)
+    sunday_end_time = models.TimeField(blank=True, null=True)
     monday_start_time = models.TimeField(blank=True, null=True)
     monday_end_time = models.TimeField(blank=True, null=True)
     tuesday_start_time = models.TimeField(blank=True, null=True)
@@ -39,9 +65,22 @@ class User(AbstractBaseUser):
     friday_end_time = models.TimeField(blank=True, null=True)
     saturday_start_time = models.TimeField(blank=True, null=True)
     saturday_end_time = models.TimeField(blank=True, null=True)
-    sunday_start_time = models.TimeField(blank=True, null=True)
-    sunday_end_time = models.TimeField(blank=True, null=True)
 
-class RealAuthTokens(models.Model):
-    token = models.CharField(max_length=30)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    sun_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
+    mon_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
+    tue_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
+    wed_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
+    thur_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
+    fri_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
+    sat_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
+
+
+    def __unicode__(self):
+        if self.first_name and self.last_name:
+            return self.first_name + self.last_name
+        elif self.first_name:
+            return self.first_name
+        elif self.last_name:
+            return self.last_name
+        else:
+            return "No name provided"
