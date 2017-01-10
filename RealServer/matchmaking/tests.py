@@ -2,7 +2,8 @@ from django.test import TestCase
 from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
 from api.models import User, Gender, SexualPreference
-from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, dayToDate
+from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, dayToDate,\
+    generateRandomTimeForDate
 from matchmaking.yelp import getPlacesFromYelp
 from matchmaking.models import YelpAccessToken
 from datetime import datetime, timedelta, time
@@ -67,6 +68,13 @@ class MatchMakingTestCase(TestCase):
         results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
         self.assertEqual(results['sun'][0], man)
 
+        # Test precise overlap
+        man.sunday_start_time = time(hour=18, minute=30)
+        man.sunday_end_time = time(hour=22, minute=0)
+        man.save()
+        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results['sun'][0], man)
+
         # Test match time interval included in user time interval
         man.sunday_start_time = time(hour=19, minute=0)
         man.sunday_end_time = time(hour=20, minute=30)
@@ -77,6 +85,13 @@ class MatchMakingTestCase(TestCase):
         # Test user time interval included in match time interval
         man.sunday_start_time = time(hour=12, minute=0)
         man.sunday_end_time = time(hour=23, minute=30)
+        man.save()
+        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results['sun'][0], man)
+
+        # Test only one hour in match time interval
+        man.sunday_start_time = time(hour=21, minute=0)
+        man.sunday_end_time = time(hour=22, minute=0)
         man.save()
         results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
         self.assertEqual(results['sun'][0], man)
@@ -95,6 +110,27 @@ class MatchMakingTestCase(TestCase):
         results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
         self.assertEqual(results['sun'].count(), 0)
 
+    def test_generate_random_time_for_date(self):
+        # Test if only an hour window
+        woman = self.straight_women_users[0]
+        woman.sunday_start_time = time(hour=18, minute=30)
+        woman.sunday_end_time = time(hour=22, minute=0)
+        woman.save()
+        man = self.straight_men_users[0]
+        man.sunday_start_time = time(hour=21, minute=0)
+        man.sunday_end_time = time(hour=22, minute=0)
+        man.save()
+        random_time = generateRandomTimeForDate(woman,man,'sun')
+        self.assertEqual(random_time, man.sunday_start_time)
+
+        # Test if large range
+        man.sunday_start_time = time(hour=12, minute=0)
+        man.sunday_end_time = time(hour=22, minute=0)
+        man.save()
+        random_time = generateRandomTimeForDate(woman,man,'sun')
+        self.assertGreaterEqual(random_time, woman.sunday_start_time)
+        self.assertLessEqual(random_time, time(hour=21, minute=0))
+
     def test_day_to_date(self):
         # Test when there are no category matches
         man = self.straight_men_users[0]
@@ -102,12 +138,16 @@ class MatchMakingTestCase(TestCase):
         man.latitude = 32.879001
         man.longitude = -96.717515
         man.search_radius = 24
+        man.wednesday_start_time = time(hour=18, minute=30)
+        man.wednesday_end_time = time(hour=22, minute=0)
         man.save()
         woman = self.straight_women_users[0]
         woman.likes_coffee = True
         woman.latitude = 32.897207
         woman.longitude = -96.746212
         woman.search_radius = 24
+        woman.wednesday_start_time = time(hour=18, minute=30)
+        woman.wednesday_end_time = time(hour=22, minute=0)
         woman.save()
 
         date,place = dayToDate(woman, 'wed', User.objects.exclude(pk=woman.pk))
@@ -122,8 +162,12 @@ class MatchMakingTestCase(TestCase):
         self.assertEqual(date.category, 'coffee')
         self.assertEqual(date.user1, woman)
         self.assertEqual(date.user2, man)
+        self.assertEqual(date.day, 'wed')
+        self.assertTrue(date.start_time >= woman.wednesday_start_time)
+        self.assertTrue(date.start_time <= time(hour=21, minute=0))
         self.assertEqual(woman.wed_date, date)
         self.assertEqual(man.wed_date, date)
+
         #print(man.tue_date.pk)
         #print(woman.tue_date.pk)
 

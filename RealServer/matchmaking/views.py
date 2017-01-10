@@ -7,7 +7,7 @@ from api.models import User, SexualPreference, Gender
 from matchmaking.yelp import getPlacesFromYelp, TOP_RATED
 from matchmaking import models
 import datetime
-from random import randint
+from random import randint, randrange
 from geopy.distance import great_circle
 
 # Create your views here.
@@ -92,6 +92,70 @@ def filterTimeAvailableUsers(user, potential_matches):
             .filter(Q(sat_date=None) | Q(sat_date__expires_at__lt=datetime.datetime.now()))
     return days
 
+def generateRandomTimeForDate(user, match, day):
+
+    # Find correct values for day
+    if day == 'sun':
+        user_start_time = user.sunday_start_time
+        user_end_time = user.sunday_end_time
+        match_start_time = match.sunday_start_time
+        match_end_time = match.sunday_end_time
+    elif day == 'mon':
+        user_start_time = user.monday_start_time
+        user_end_time = user.monday_end_time
+        match_start_time = match.monday_start_time
+        match_end_time = match.monday_end_time
+    elif day == 'tue':
+        user_start_time = user.tuesday_start_time
+        user_end_time = user.tuesday_end_time
+        match_start_time = match.tuesday_start_time
+        match_end_time = match.tuesday_end_time
+    elif day == 'wed':
+        user_start_time = user.wednesday_start_time
+        user_end_time = user.wednesday_end_time
+        match_start_time = match.wednesday_start_time
+        match_end_time = match.wednesday_end_time
+    elif day == 'thur':
+        user_start_time = user.thursday_start_time
+        user_end_time = user.thursday_end_time
+        match_start_time = match.thursday_start_time
+        match_end_time = match.thursday_end_time
+    elif day == 'fri':
+        user_start_time = user.friday_start_time
+        user_end_time = user.friday_end_time
+        match_start_time = match.friday_start_time
+        match_end_time = match.friday_end_time
+    elif day == 'sat':
+        user_start_time = user.saturday_start_time
+        user_end_time = user.saturday_end_time
+        match_start_time = match.saturday_start_time
+        match_end_time = match.saturday_end_time
+
+    # Find proper values to use for time interval
+    if user_start_time < match_start_time:
+        date_start_time = match_start_time
+    else:
+        date_start_time = user_start_time
+    if user_end_time > match_end_time:
+        date_end_time = match_end_time
+    else:
+        date_end_time = user_end_time
+
+    # Randomly choose within the time interval with intervals of 1800 seconds (30 minutes)
+    date_earliest_start_td = datetime.datetime.combine(datetime.date.min, date_start_time) - datetime.datetime.min
+    date_latest_start_td = datetime.datetime.combine(datetime.date.min, date_end_time) - datetime.datetime.min \
+                           - datetime.timedelta(hours=1)
+
+    # If times are not equal, generate a random start time in interval. If they are equal, use that as start time.
+    if date_earliest_start_td != date_latest_start_td:
+        date_rand_start_td = datetime.timedelta(seconds=randrange(date_earliest_start_td.seconds,
+                                                                  date_latest_start_td.seconds, 1800))
+    else:
+        date_rand_start_td = date_earliest_start_td
+    date_start_time = (datetime.datetime.min + date_rand_start_td).time()
+    return date_start_time
+
+
 def dayToDate(user, day, potential_matches):
     interests = []
     if user.likes_drinks:
@@ -151,15 +215,14 @@ def dayToDate(user, day, potential_matches):
     if not match:
         return None, None
     else:
-        date = models.Date(user1=user, user2=match, expires_at=(datetime.datetime.now() + datetime.timedelta(hours=24)),
+        time = generateRandomTimeForDate(user, match, day)
+        date = models.Date(user1=user, user2=match, day=day, start_time=time, expires_at=(datetime.datetime.now() + datetime.timedelta(hours=24)),
                     place_id=place['id'], category=interests[category_index])
         date.save()
         setattr(user, day+'_date', date)
         setattr(match, day+'_date', date)
         user.save()
         match.save()
-        print(type(user))
-        print(type(match))
         return date, place
 
 
