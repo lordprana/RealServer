@@ -2,7 +2,7 @@ from django.test import TestCase
 from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
 from api.models import User, Gender, SexualPreference
-from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, dayToDate,\
+from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDates,\
     generateRandomTimeForDate
 from matchmaking.yelp import getPlacesFromYelp
 from matchmaking.models import YelpAccessToken
@@ -31,20 +31,20 @@ class MatchMakingTestCase(TestCase):
                                                     interested_in=SexualPreference.BISEXUAL.value,
                                                     _quantity=25)
     def test_sexual_preference_filter(self):
-        count = filterBySexualPreference(self.straight_women_users[0]).count()
+        count = filterBySexualPreference(self.straight_women_users[0], User.objects.exclude(pk=self.straight_women_users[0].pk)).count()
         self.assertEqual(count, len(self.straight_men_users)+len(self.bisexual_men_users))
-        count = filterBySexualPreference(self.straight_men_users[0]).count()
+        count = filterBySexualPreference(self.straight_men_users[0], User.objects.exclude(pk=self.straight_men_users[0].pk)).count()
         self.assertEqual(count, len(self.straight_women_users)+len(self.bisexual_women_users))
-        count = filterBySexualPreference(self.lesbian_women_users[0]).count()
-        self.assertEqual(count, len(self.lesbian_women_users)+len(self.bisexual_women_users) - 1) # Exclude self
-        count = filterBySexualPreference(self.gay_men_users[0]).count()
-        self.assertEqual(count, len(self.gay_men_users) + len(self.bisexual_men_users) - 1)  # Exclude self
-        count = filterBySexualPreference(self.bisexual_men_users[0]).count()
+        count = filterBySexualPreference(self.lesbian_women_users[0], User.objects.exclude(pk=self.lesbian_women_users[0].pk)).count()
+        self.assertEqual(count, len(self.lesbian_women_users)+len(self.bisexual_women_users) - 1)
+        count = filterBySexualPreference(self.gay_men_users[0], User.objects.exclude(pk=self.gay_men_users[0].pk)).count()
+        self.assertEqual(count, len(self.gay_men_users) + len(self.bisexual_men_users) - 1)
+        count = filterBySexualPreference(self.bisexual_men_users[0], User.objects.exclude(pk=self.bisexual_men_users[0].pk)).count()
         self.assertEqual(count, len(self.gay_men_users) + len(self.bisexual_men_users) +
-                         len(self.straight_women_users) + len(self.bisexual_women_users) - 1)  # Exclude self
-        count = filterBySexualPreference(self.bisexual_women_users[0]).count()
+                         len(self.straight_women_users) + len(self.bisexual_women_users) - 1)
+        count = filterBySexualPreference(self.bisexual_women_users[0], User.objects.exclude(pk=self.bisexual_women_users[0].pk)).count()
         self.assertEqual(count, len(self.straight_men_users) + len(self.bisexual_men_users) +
-                         len(self.lesbian_women_users) + len(self.bisexual_women_users) - 1)  # Exclude self
+                         len(self.lesbian_women_users) + len(self.bisexual_women_users) - 1)
 
     def test_passed_users_filter(self):
         self.straight_women_users[0].passed_matches.add(self.straight_men_users[0])
@@ -150,14 +150,14 @@ class MatchMakingTestCase(TestCase):
         woman.wednesday_end_time = time(hour=22, minute=0)
         woman.save()
 
-        date,place = dayToDate(woman, 'wed', User.objects.exclude(pk=woman.pk))
+        date,place = makeDates(woman, 'wed', User.objects.exclude(pk=woman.pk))
         self.assertEqual(date, None)
         self.assertEqual(place, None)
 
         # Test when there is a category match
         man.likes_coffee = True
         man.save()
-        date, place = dayToDate(woman, 'wed', User.objects.exclude(pk=woman.pk))
+        date = makeDates(woman, 'wed', User.objects.exclude(pk=woman.pk))
         man = User.objects.get(pk=man.pk)
         self.assertEqual(date.category, 'coffee')
         self.assertEqual(date.user1, woman)
@@ -167,10 +167,6 @@ class MatchMakingTestCase(TestCase):
         self.assertTrue(date.start_time <= time(hour=21, minute=0))
         self.assertEqual(woman.wed_date, date)
         self.assertEqual(man.wed_date, date)
-
-        #print(man.tue_date.pk)
-        #print(woman.tue_date.pk)
-
 
 
 

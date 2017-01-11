@@ -6,18 +6,20 @@ from api.auth import custom_authenticate
 from api.models import User, SexualPreference, Gender
 from matchmaking.yelp import getPlacesFromYelp, TOP_RATED
 from matchmaking import models
+from RealServer import facebook
+from messaging.models import Message
 import datetime
-from random import randint, randrange
+import json
+import requests
+from random import randint, randrange, shuffle
 from geopy.distance import great_circle
 
 # Create your views here.
-
-def filterBySexualPreference(user):
+def filterBySexualPreference(user, potential_matches):
     # Filter to correct Gender based on sexual preference
     if user.interested_in != SexualPreference.BISEXUAL.value:
-        potential_matches = User.objects.filter(gender=user.interested_in)
-    else:
-        potential_matches = User.objects.all()
+        potential_matches = potential_matches.filter(gender=user.interested_in)
+
     # Filter for potential_matches sexual preference
     potential_matches = potential_matches.filter(Q(interested_in=user.gender) |
                                                  Q(interested_in=SexualPreference.BISEXUAL.value))
@@ -156,7 +158,7 @@ def generateRandomTimeForDate(user, match, day):
     return date_start_time
 
 
-def dayToDate(user, day, potential_matches):
+def makeDates(user, day, potential_matches):
     interests = []
     if user.likes_drinks:
         interests.append('drinks')
@@ -189,53 +191,148 @@ def dayToDate(user, day, potential_matches):
             category_filtered = potential_matches.filter(likes_culture=True)
         elif category == 'active':
             category_filtered = potential_matches.filter(likes_active=True)
-
+        category_filtered = list(category_filtered)
+        shuffle(category_filtered) # Potential matches are randomly sorted
         # Choose a place randomly from TOP_RATED places. If no match found, iterate through places until all options exhausted
-        places = getPlacesFromYelp(user, category)
-        places = places[0:TOP_RATED]
-        first_place_index = randint(0, len(places)-1)
-        place_index = (first_place_index + 1) % len(places)
-        while True:
-            place = places[place_index]
-            # Calculate distance to place for each potential match
-            for potential_match in category_filtered:
-                match_coordinates = (potential_match.latitude, potential_match.longitude)
-                place_coordinates = (place['coordinates']['latitude'], place['coordinates']['longitude'])
-                if great_circle(match_coordinates, place_coordinates).miles < potential_match.search_radius:
-                    match = potential_match
+        if category_filtered:
+            places = getPlacesFromYelp(user, category)
+            places = places[0:TOP_RATED]
+            first_place_index = randint(0, len(places)-1)
+            place_index = (first_place_index + 1) % len(places)
+            while True:
+                place = places[place_index]
+                # Calculate distance to place for each potential match
+                for potential_match in category_filtered:
+                    match_coordinates = (potential_match.latitude, potential_match.longitude)
+                    place_coordinates = (place['coordinates']['latitude'], place['coordinates']['longitude'])
+                    if great_circle(match_coordinates, place_coordinates).miles < potential_match.search_radius:
+                        match = potential_match
+                        # Only match if user is not already matched with match this week
+                        if (user.sun_date and (user.sun_date.user1 == match or user.sun_date.user2 == match)) or\
+                            (user.mon_date and (user.mon_date.user1 == match or user.mon_date.user2 == match)) or\
+                            (user.tue_date and (user.tue_date.user1 == match or user.tue_date.user2 == match)) or\
+                            (user.wed_date and (user.wed_date.user1 == match or user.wed_date.user2 == match)) or\
+                            (user.thur_date and (user.thur_date.user1 == match or user.thur_date.user2 == match)) or\
+                            (user.fri_date and (user.fri_date.user1 == match or user.fri_date.user2 == match)) or\
+                            (user.sat_date and (user.sat_date.user1 == match or user.sat_date.user2 == match)):
+                            match = None
+                            continue
+                        break
+
+                if match or place_index == first_place_index:
                     break
-            if match or place_index == first_place_index:
-                break
-            place_index = (place_index + 1) % len(places)
+                place_index = (place_index + 1) % len(places)
 
         if match or category_index == first_category_index:
             break
         category_index = (category_index + 1) % len(interests)
 
     if not match:
-        return None, None
+        return None
     else:
         time = generateRandomTimeForDate(user, match, day)
         date = models.Date(user1=user, user2=match, day=day, start_time=time, expires_at=(datetime.datetime.now() + datetime.timedelta(hours=24)),
-                    place_id=place['id'], category=interests[category_index])
+                    place_id=place['id'], place_name=place['name'], category=interests[category_index])
         date.save()
         setattr(user, day+'_date', date)
         setattr(match, day+'_date', date)
         user.save()
         match.save()
-        return date, place
+        return date
 
+def convertDateToJson(user,date):
+
+    # Add fields that don't have ambiguity around user
+    json = {
+        'date_id': date.pk,
+        'respond_by': date.expires_at,
+        'time':
+            {
+                'day': date.day,
+                'start_time': date.start_time
+            },
+        'place':
+            {
+                'place_id': date.place_id,
+                'name': date.place_name,
+            }
+    }
+
+    try:
+        last_sent_message = date.message_set.order_by('-index')[0]
+        json['last_sent_message'] = last_sent_message.content
+        json['message_read'] = last_sent_message.read
+    except IndexError:
+        pass
+
+    # Determine to which user the Date fields are relative
+    if date.user1 == user:
+        potential_match = date.user2
+        if date.user2_likes == models.DateStatus.LIKES.value:
+            json['potential_match_likes'] = True
+        else:
+            json['potential_match_likes'] = False
+        json['primary_user_likes'] = date.user1_likes
+    else:
+        potential_match = date.user1
+        if date.user1_likes == models.DateStatus.LIKES.value:
+            json['potential_match_likes'] = True
+        else:
+            json['potential_match_likes'] = False
+        json['primary_user_likes'] = date.user2_likes
+
+    json['match'] = {
+        'user_id': potential_match.pk,
+        'name': potential_match.first_name + ' ' + potential_match.last_name,
+        'age': potential_match.age,
+        'occupation': potential_match.occupation,
+        'education': potential_match.education,
+        'about': potential_match.about,
+        'main_picture': potential_match.picture1,
+        'additional_pictures': [
+            potential_match.picture2, potential_match.picture3, potential_match.picture4, potential_match.picture5,
+            potential_match.picture6
+        ]
+    }
+
+    # Get Mutual Friends
+    mutual_friends_json = facebook.getMutualFriends(user, potential_match)['data']
+    mutual_friends = []
+    for friend in mutual_friends_json:
+        mutual_friends.append({
+            'friend': {
+                'name': friend['name'],
+                'picture': friend['picture']['data']['url']
+            }
+        })
+    json['match']['mutual_friends'] = mutual_friends
+
+    return json
 
 
 
 @csrf_exempt
 @custom_authenticate
 def dateslist(request, user):
-    potential_matches = filterBySexualPreference(user)
+    potential_matches = filterBySexualPreference(user, User.objects.exclude(pk=user.pk))
     potential_matches = filterPassedMatches(user, potential_matches)
     days = filterTimeAvailableUsers(user, potential_matches)
     for day, potential_matches in days.viewitems():
-        # Randomly choose a date category
-        date, place = dayToDate(user, day, potential_matches)
-        print(date)
-        print(place)
+        makeDates(user, day, potential_matches)
+    dateslist = []
+    if user.sun_date and user.sun_date.expires_at >= datetime.datetime.now():
+        dateslist.append(convertDateToJson(user, user.sun_date))
+    if user.mon_date and user.mon_date.expires_at >= datetime.datetime.now():
+        dateslist.append(convertDateToJson(user, user.mon_date))
+    if user.tue_date and user.tue_date.expires_at >= datetime.datetime.now():
+        dateslist.append(convertDateToJson(user, user.tue_date))
+    if user.wed_date and user.wed_date.expires_at >= datetime.datetime.now():
+        dateslist.append(convertDateToJson(user, user.wed_date))
+    if user.thur_date and user.thur_date.expires_at >= datetime.datetime.now():
+        dateslist.append(convertDateToJson(user, user.thur_date))
+    if user.fri_date and user.fri_date.expires_at >= datetime.datetime.now():
+        dateslist.append(convertDateToJson(user, user.fri_date))
+    if user.sat_date and user.sat_date.expires_at >= datetime.datetime.now():
+        dateslist.append(convertDateToJson(user, user.sat_date))
+
+    return JsonResponse(json.dumps(dateslist), safe=False)

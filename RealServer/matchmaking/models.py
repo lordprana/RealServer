@@ -27,6 +27,7 @@ class Date(models.Model):
     user1_likes = models.CharField(max_length=1, default=DateStatus.UNDECIDED.value)
     user2_likes = models.CharField(max_length=1, default=DateStatus.UNDECIDED.value)
     place_id = models.CharField(max_length=300)
+    place_name = models.CharField(max_length=300)
     category = models.CharField(max_length=20)
 
 class YelpAccessToken(models.Model):

@@ -22,14 +22,13 @@ class User(AbstractBaseUser):
     fb_user_id = models.CharField(max_length=300, primary_key=True)
     most_recent_fb_auth_token = models.CharField(max_length=300)
 
-    first_name = models.CharField(max_length=50, null=True)
-    last_name = models.CharField(max_length=50, null=True)
+    name = models.CharField(max_length=200, null=True)
     age = models.IntegerField(null=True)
     gender = models.CharField(max_length=1, null=True)
     interested_in = models.CharField(max_length=1, null=True)
     occupation = models.CharField(max_length=50, null=True)
     education = models.CharField(max_length=50, null=True)
-    about_me = models.CharField(max_length=500, null=True)
+    about = models.CharField(max_length=500, null=True)
 
     min_age_preference = models.IntegerField(default=18)
     max_age_preference = models.IntegerField(default=35)
@@ -73,6 +72,13 @@ class User(AbstractBaseUser):
     thur_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
     fri_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
     sat_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
+
+    picture1 = models.URLField(null=True)
+    picture2 = models.URLField(null=True)
+    picture3 = models.URLField(null=True)
+    picture4 = models.URLField(null=True)
+    picture5 = models.URLField(null=True)
+    picture6 = models.URLField(null=True)
 
 
     def __unicode__(self):

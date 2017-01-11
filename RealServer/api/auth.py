@@ -4,6 +4,7 @@ from api.models import User
 from rest_framework.authtoken.models import Token
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
+from RealServer import facebook
 import json
 
 def custom_authenticate(view):
@@ -47,11 +48,8 @@ class AuthenticationBackend(object):
                     user.save()
                 return user
         elif fb_auth_token:
-            request_url = 'https://graph.facebook.com/debug_token?input_token=' + fb_auth_token + \
-                          '&access_token=' + FB_APP_ID + '|' + FB_APP_SECRET
-            response = requests.get(request_url)
             try:
-                response_user_id = response.json()['data']['user_id']
+                response_user_id = facebook.getUserId(fb_auth_token)
             except KeyError:
                 return None
             if fb_user_id == response_user_id:
