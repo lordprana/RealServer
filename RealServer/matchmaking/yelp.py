@@ -2,6 +2,7 @@ import requests
 from RealServer.settings import YELP_APP_ID, YELP_APP_SECRET
 from matchmaking.models import YelpAccessToken
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 CATEGORY_MAPPING = {
     'drinks': 'bars',
@@ -23,12 +24,12 @@ def refreshAccessToken():
     }
     response = requests.post(request_url, data=data)
     token = response.json()['access_token']
-    expires_at = timedelta(seconds=response.json()['expires_in']) + datetime.now()
+    expires_at = timedelta(seconds=response.json()['expires_in']) + timezone.now()
     YelpAccessToken.objects.create(access_token=token, expires_at=expires_at)
     return token
 
 def getPlacesFromYelp(user, category):
-    access_token = YelpAccessToken.objects.filter(expires_at__gt=datetime.now())
+    access_token = YelpAccessToken.objects.filter(expires_at__gt=timezone.now())
     if access_token.count() == 0:
         token = refreshAccessToken()
     else:

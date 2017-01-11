@@ -1,9 +1,11 @@
+import json
+
 from django.test import TestCase
 from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
 from api.models import User, Gender, SexualPreference
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDates,\
-    generateRandomTimeForDate
+    generateRandomTimeForDate, dateslist
 from matchmaking.yelp import getPlacesFromYelp
 from matchmaking.models import YelpAccessToken
 from datetime import datetime, timedelta, time
@@ -130,7 +132,7 @@ class MatchMakingTestCase(TestCase):
         random_time = generateRandomTimeForDate(woman,man,'sun')
         self.assertGreaterEqual(random_time, woman.sunday_start_time)
         self.assertLessEqual(random_time, time(hour=21, minute=0))
-
+    """
     def test_day_to_date(self):
         # Test when there are no category matches
         man = self.straight_men_users[0]
@@ -150,9 +152,8 @@ class MatchMakingTestCase(TestCase):
         woman.wednesday_end_time = time(hour=22, minute=0)
         woman.save()
 
-        date,place = makeDates(woman, 'wed', User.objects.exclude(pk=woman.pk))
+        date = makeDates(woman, 'wed', User.objects.exclude(pk=woman.pk))
         self.assertEqual(date, None)
-        self.assertEqual(place, None)
 
         # Test when there is a category match
         man.likes_coffee = True
@@ -168,10 +169,133 @@ class MatchMakingTestCase(TestCase):
         self.assertEqual(woman.wed_date, date)
         self.assertEqual(man.wed_date, date)
 
+    """
+    def test_dateslist(self):
+        # Man is our user making the request for dateslist
+        man = self.straight_men_users[0]
+        man.name = 'Joe Rad'
+        man.age = 28
+        man.occupation = 'Musician'
+        man.education = 'School of Hard Knocks'
+        man.about = 'Nothing to see here'
+        man.latitude = 32.8972250
+        man.longitude = -96.7460090
+        man.likes_coffee = True
+        man.likes_nature = True
+        man.sunday_start_time = time(hour=18)
+        man.sunday_end_time = time(hour=23)
+        man.monday_start_time = time(hour=18)
+        man.monday_end_time = time(hour=23)
+        man.tuesday_start_time = time(hour=18)
+        man.tuesday_end_time = time(hour=23)
+        man.wednesday_start_time = time(hour=18)
+        man.wednesday_end_time = time(hour=23)
+        man.thursday_start_time = time(hour=18)
+        man.thursday_end_time = time(hour=23)
+        man.friday_start_time = time(hour=18)
+        man.friday_end_time = time(hour=23)
+        man.saturday_start_time = time(hour=18)
+        man.saturday_end_time = time(hour=23)
+        man.save()
 
+        # Create man's matches
 
+        woman1 = self.straight_women_users[0]
+        woman1.name = 'Hailey Zok'
+        woman1.age = 28
+        woman1.occupation = 'Waitress'
+        woman1.education = ''
+        woman1.about = 'Nothing to see here'
+        woman1.latitude = 32.8972250
+        woman1.longitude = -96.7460090
+        woman1.likes_coffee = True
+        woman1.likes_nature = True
+        woman1.sunday_start_time = time(hour=18)
+        woman1.sunday_end_time = time(hour=23)
+        woman1.save()
 
+        woman2 = self.straight_women_users[1]
+        woman2.name = 'Natalie Jen'
+        woman2.age = 27
+        woman2.occupation = 'Waitress'
+        woman2.education = ''
+        woman2.about = 'Nothing to see here'
+        woman2.latitude = 32.8972250
+        woman2.longitude = -96.7460090
+        woman2.likes_coffee = True
+        woman2.likes_nature = True
+        woman2.monday_start_time = time(hour=18)
+        woman2.monday_end_time = time(hour=23)
+        woman2.save()
 
+        woman3 = self.straight_women_users[2]
+        woman3.name = 'Christina Hey'
+        woman3.age = 27
+        woman3.occupation = 'Waitress'
+        woman3.education = ''
+        woman3.about = 'Nothing to see here'
+        woman3.latitude = 32.8972250
+        woman3.longitude = -96.7460090
+        woman3.likes_coffee = True
+        woman3.likes_nature = True
+        woman3.tuesday_start_time = time(hour=18)
+        woman3.tuesday_end_time = time(hour=23)
+        woman3.save()
+
+        woman4 = self.straight_women_users[3]
+        woman4.name = 'Zoe Edwards'
+        woman4.age = 27
+        woman4.occupation = 'Waitress'
+        woman4.education = ''
+        woman4.about = 'Nothing to see here'
+        woman4.latitude = 32.8972250
+        woman4.longitude = -96.7460090
+        woman4.likes_nature = True
+        woman4.wednesday_start_time = time(hour=18)
+        woman4.wednesday_end_time = time(hour=23)
+        woman4.save()
+
+        woman5 = self.straight_women_users[4]
+        woman5.name = 'Cynthia Jones'
+        woman5.age = 27
+        woman5.occupation = 'Waitress'
+        woman5.education = ''
+        woman5.about = 'Nothing to see here'
+        woman5.latitude = 32.8972250
+        woman5.longitude = -96.7460090
+        woman5.likes_coffee = True
+        woman5.thursday_start_time = time(hour=18)
+        woman5.thursday_end_time = time(hour=23)
+        woman5.save()
+
+        woman6 = self.straight_women_users[5]
+        woman6.name = 'Christa Cakeface'
+        woman6.age = 27
+        woman6.occupation = 'Waitress'
+        woman6.education = ''
+        woman6.about = 'Nothing to see here'
+        woman6.latitude = 32.8972250
+        woman6.longitude = -96.7460090
+        woman6.likes_coffee = True
+        woman6.friday_start_time = time(hour=18)
+        woman6.friday_end_time = time(hour=23)
+        woman6.save()
+
+        woman7 = self.straight_women_users[6]
+        woman7.name = 'Melanie Melonmouth'
+        woman7.age = 27
+        woman7.occupation = 'Waitress'
+        woman7.education = ''
+        woman7.about = 'Nothing to see here'
+        woman7.latitude = 32.8972250
+        woman7.longitude = -96.7460090
+        woman7.likes_coffee = True
+        woman7.saturday_start_time = time(hour=18)
+        woman7.saturday_end_time = time(hour=23)
+        woman7.save()
+
+        dl = json.loads(json.loads(dateslist(None, man).content))
+        self.assertEqual(len(dl), 7)
 
 class YelpTestCase(TestCase):
     def setUp(self):

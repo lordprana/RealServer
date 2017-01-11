@@ -35,7 +35,7 @@ class User(AbstractBaseUser):
 
     max_price = models.IntegerField(default=2)
 
-    search_radius = models.IntegerField(default=24) #25 is max radius for Yelp API
+    search_radius = models.IntegerField(default=24) #24 is max radius for Yelp API
     latitude = models.DecimalField(null=True, decimal_places=6, max_digits=13) # Precision within .1 meter resolution
     longitude = models.DecimalField(null=True, decimal_places=6, max_digits=13)
 
@@ -82,11 +82,7 @@ class User(AbstractBaseUser):
 
 
     def __unicode__(self):
-        if self.first_name and self.last_name:
-            return self.first_name + self.last_name
-        elif self.first_name:
-            return self.first_name
-        elif self.last_name:
-            return self.last_name
+        if self.name:
+            return self.name
         else:
             return "No name provided"

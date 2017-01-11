@@ -25,5 +25,7 @@ def getMutualFriends(user, match):
                   '?fields=context.fields(all_mutual_friends.limit(10))&'+\
                   'access_token=' + user.most_recent_fb_auth_token +\
                   '&appsecret_proof=' + app_secret_proof
-
-    return requests.get(request_url).json()['context']['all_mutual_friends']
+    try:
+        return requests.get(request_url).json()['context']['all_mutual_friends']
+    except KeyError:
+        return None

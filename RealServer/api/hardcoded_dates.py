@@ -1,6 +1,7 @@
+from django.utils import timezone
 from datetime import datetime, timedelta
 
-respond_by = datetime.now() + timedelta(hours=24)
+respond_by = timezone.now() + timedelta(hours=24)
 
 date1 = {
     'Date':
