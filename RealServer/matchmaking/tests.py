@@ -4,7 +4,7 @@ from django.test import TestCase
 from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
 from api.models import User, Gender, SexualPreference
-from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDates,\
+from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
     generateRandomTimeForDate, dateslist
 from matchmaking.yelp import getPlacesFromYelp
 from matchmaking.models import YelpAccessToken
@@ -132,8 +132,8 @@ class MatchMakingTestCase(TestCase):
         random_time = generateRandomTimeForDate(woman,man,'sun')
         self.assertGreaterEqual(random_time, woman.sunday_start_time)
         self.assertLessEqual(random_time, time(hour=21, minute=0))
-    """
-    def test_day_to_date(self):
+
+    def test_make_date(self):
         # Test when there are no category matches
         man = self.straight_men_users[0]
         man.likes_coffee = False
@@ -152,13 +152,13 @@ class MatchMakingTestCase(TestCase):
         woman.wednesday_end_time = time(hour=22, minute=0)
         woman.save()
 
-        date = makeDates(woman, 'wed', User.objects.exclude(pk=woman.pk))
+        date = makeDate(woman, 'wed', User.objects.exclude(pk=woman.pk))
         self.assertEqual(date, None)
 
         # Test when there is a category match
         man.likes_coffee = True
         man.save()
-        date = makeDates(woman, 'wed', User.objects.exclude(pk=woman.pk))
+        date = makeDate(woman, 'wed', User.objects.exclude(pk=woman.pk))
         man = User.objects.get(pk=man.pk)
         self.assertEqual(date.category, 'coffee')
         self.assertEqual(date.user1, woman)
@@ -169,7 +169,6 @@ class MatchMakingTestCase(TestCase):
         self.assertEqual(woman.wed_date, date)
         self.assertEqual(man.wed_date, date)
 
-    """
     def test_dateslist(self):
         # Man is our user making the request for dateslist
         man = self.straight_men_users[0]

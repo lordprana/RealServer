@@ -81,16 +81,6 @@ def filterTimeAvailableUsers(user, potential_matches):
                                                  (datetime.datetime.combine(datetime.date.today(), user.thursday_end_time) - datetime.timedelta(
                                                      hours=1)).time()))\
             .filter(Q(thur_date=None) | Q(thur_date__expires_at__lt=timezone.now()))
-    """
-    if user.thursday_start_time and (not user.thur_date or (user.thur_date.expires_at < timezone.now())):
-        days['thur'] = potential_matches.filter(Q(thursday_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.thursday_start_time) + datetime.timedelta(
-                                                     hours=1)).time()) &
-                                               Q(thursday_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.thursday_end_time) - datetime.timedelta(
-                                                     hours=1)).time()))\
-            .filter(Q(thur_date=None) | Q(thur_date__expires_at__lt=timezone.now()))
-    """
     if user.friday_start_time and (not user.fri_date or (user.fri_date.expires_at < timezone.now())):
         days['fri'] = potential_matches.filter(Q(friday_end_time__gte=
                                                  (datetime.datetime.combine(datetime.date.today(), user.friday_start_time) + datetime.timedelta(
@@ -173,7 +163,7 @@ def generateRandomTimeForDate(user, match, day):
     return date_start_time
 
 
-def makeDates(user, day, potential_matches):
+def makeDate(user, day, potential_matches):
     interests = []
     if user.likes_drinks:
         interests.append('drinks')
@@ -336,7 +326,7 @@ def dateslist(request, user):
     potential_matches = filterPassedMatches(user, potential_matches)
     days = filterTimeAvailableUsers(user, potential_matches)
     for day, potential_matches in days.viewitems():
-        makeDates(user, day, potential_matches)
+        makeDate(user, day, potential_matches)
     dateslist = []
     if user.sun_date and user.sun_date.expires_at >= timezone.now():
         dateslist.append(convertDateToJson(user, user.sun_date))
