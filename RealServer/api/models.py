@@ -74,12 +74,17 @@ class User(AbstractBaseUser):
     sat_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
 
     picture1 = models.URLField(null=True)
+    picture1_thumb = models.URLField(null=True)
     picture2 = models.URLField(null=True)
     picture3 = models.URLField(null=True)
     picture4 = models.URLField(null=True)
     picture5 = models.URLField(null=True)
     picture6 = models.URLField(null=True)
 
+    new_likes_notification = models.BooleanField(default=True)
+    new_matches_notification = models.BooleanField(default=True)
+    new_messages_notification = models.BooleanField(default=True)
+    upcoming_dates_notification = models.BooleanField(default=True)
 
     def __unicode__(self):
         if self.name:
