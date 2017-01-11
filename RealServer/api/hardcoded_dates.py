@@ -39,18 +39,6 @@ date1 = {
                 {
                     'place_id': 'barcadia-dallas',
                     'name': 'Barcadia',
-                    'latitude': 32.81169,
-                    'longitude': -96.775201,
-                    'price': 2,
-                    'rating': 4.5,
-                    'review_count': 327,
-                    'phone': '(214) 721-7300',
-                    'photos': [
-                        'http://127.0.0.1:8000/media/Barcadia_image.png',
-                        'http://127.0.0.1:8000/media/Barcadia_image_2.png',
-                    ],
-                    'category': 'Drinks',
-                    'address1': '1917 N Henderson Ave'
                 }
         }
     }
@@ -92,18 +80,6 @@ date2 = {
                 {
                     'place_id': 'white-rock-lake-dallas',
                     'name': 'White Rock Lake',
-                    'latitude': 32.828066,
-                    'longitude': -96.725316,
-                    'price': 0,
-                    'rating': 4.5,
-                    'review_count': 199,
-                    'phone': None,
-                    'photos': [
-                        'http://127.0.0.1:8000/media/White_rock_lake_image.png',
-                        'http://127.0.0.1:8000/media/White_rock_lake_image_2.png',
-                    ],
-                    'category': 'Nature',
-                    'address1': None
                 }
         }
     }
@@ -145,18 +121,6 @@ date3 = {
                 {
                     'place_id': 'barcadia-dallas',
                     'name': 'Barcadia',
-                    'latitude': 32.81169,
-                    'longitude': -96.775201,
-                    'price': 2,
-                    'rating': 4.5,
-                    'review_count': 327,
-                    'phone': '(214) 721-7300',
-                    'photos': [
-                        'http://127.0.0.1:8000/media/Barcadia_image.png',
-                        'http://127.0.0.1:8000/media/Barcadia_image_2.png',
-                    ],
-                    'category': 'Drinks',
-                    'address1': '1917 N Henderson Ave'
                 }
         }
     }
@@ -197,18 +161,6 @@ date4 = {
                 {
                     'place_id': 'white-rock-lake-dallas',
                     'name': 'White Rock Lake',
-                    'latitude': 32.828066,
-                    'longitude': -96.725316,
-                    'price': 0,
-                    'rating': 4.5,
-                    'review_count': 199,
-                    'phone': None,
-                    'photos': [
-                        'http://127.0.0.1:8000/media/White_rock_lake_image.png',
-                        'http://127.0.0.1:8000/media/White_rock_lake_image_2.png',
-                    ],
-                    'category': 'Nature',
-                    'address1': None
                 }
         }
     }
@@ -250,18 +202,6 @@ date5 = {
                 {
                     'place_id': 'barcadia-dallas',
                     'name': 'Barcadia',
-                    'latitude': 32.81169,
-                    'longitude': -96.775201,
-                    'price': 2,
-                    'rating': 4.5,
-                    'review_count': 327,
-                    'phone': '(214) 721-7300',
-                    'photos': [
-                        'http://127.0.0.1:8000/media/Barcadia_image.png',
-                        'http://127.0.0.1:8000/media/Barcadia_image_2.png',
-                    ],
-                    'category': 'Drinks',
-                    'address1': '1917 N Henderson Ave'
                 }
         }
     }
@@ -303,18 +243,6 @@ date6 = {
                 {
                     'place_id': 'white-rock-lake-dallas',
                     'name': 'White Rock Lake',
-                    'latitude': 32.828066,
-                    'longitude': -96.725316,
-                    'price': 0,
-                    'rating': 4.5,
-                    'review_count': 199,
-                    'phone': None,
-                    'photos': [
-                        'http://127.0.0.1:8000/media/White_rock_lake_image.png',
-                        'http://127.0.0.1:8000/media/White_rock_lake_image_2.png',
-                    ],
-                    'category': 'Nature',
-                    'address1': None
                 }
         }
     }
@@ -357,18 +285,6 @@ date7 = {
                 {
                     'place_id': 'barcadia-dallas',
                     'name': 'Barcadia',
-                    'latitude': 32.81169,
-                    'longitude': -96.775201,
-                    'price': 2,
-                    'rating': 4.5,
-                    'review_count': 327,
-                    'phone': '(214) 721-7300',
-                    'photos': [
-                        'http://127.0.0.1:8000/media/Barcadia_image.png',
-                        'http://127.0.0.1:8000/media/Barcadia_image_2.png',
-                    ],
-                    'category': 'Drinks',
-                    'address1': '1917 N Henderson Ave'
                 }
         }
     }
