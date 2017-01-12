@@ -5,10 +5,11 @@ from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
 from api.models import User, Gender, SexualPreference
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
-    generateRandomTimeForDate, dateslist
+    generateRandomTimeForDate, date
 from matchmaking.yelp import getPlacesFromYelp
 from matchmaking.models import YelpAccessToken
 from datetime import datetime, timedelta, time
+from django.utils import timezone
 
 # Create your tests here.
 class MatchMakingTestCase(TestCase):
@@ -67,50 +68,50 @@ class MatchMakingTestCase(TestCase):
         man.sunday_start_time = time(hour=12, minute=0)
         man.sunday_end_time = time(hour=20, minute=0)
         man.save()
-        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
-        self.assertEqual(results['sun'][0], man)
+        results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results[0], man)
 
         # Test precise overlap
         man.sunday_start_time = time(hour=18, minute=30)
         man.sunday_end_time = time(hour=22, minute=0)
         man.save()
-        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
-        self.assertEqual(results['sun'][0], man)
+        results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results[0], man)
 
         # Test match time interval included in user time interval
         man.sunday_start_time = time(hour=19, minute=0)
         man.sunday_end_time = time(hour=20, minute=30)
         man.save()
-        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
-        self.assertEqual(results['sun'][0], man)
+        results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results[0], man)
 
         # Test user time interval included in match time interval
         man.sunday_start_time = time(hour=12, minute=0)
         man.sunday_end_time = time(hour=23, minute=30)
         man.save()
-        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
-        self.assertEqual(results['sun'][0], man)
+        results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results[0], man)
 
         # Test only one hour in match time interval
         man.sunday_start_time = time(hour=21, minute=0)
         man.sunday_end_time = time(hour=22, minute=0)
         man.save()
-        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
-        self.assertEqual(results['sun'][0], man)
+        results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results[0], man)
 
         # Test No overlap
         man.sunday_start_time = time(hour=12, minute=0)
         man.sunday_end_time = time(hour=18, minute=0)
         man.save()
-        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
-        self.assertEqual(results['sun'].count(), 0)
+        results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results.count(), 0)
 
         # Test overlap too short
         man.sunday_start_time = time(hour=12, minute=0)
         man.sunday_end_time = time(hour=18, minute=30)
         man.save()
-        results = filterTimeAvailableUsers(woman, User.objects.exclude(pk=woman.pk))
-        self.assertEqual(results['sun'].count(), 0)
+        results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results.count(), 0)
 
     def test_generate_random_time_for_date(self):
         # Test if only an hour window
@@ -169,7 +170,7 @@ class MatchMakingTestCase(TestCase):
         self.assertEqual(woman.wed_date, date)
         self.assertEqual(man.wed_date, date)
 
-    def test_dateslist(self):
+    def test_dates(self):
         # Man is our user making the request for dateslist
         man = self.straight_men_users[0]
         man.name = 'Joe Rad'
@@ -199,6 +200,7 @@ class MatchMakingTestCase(TestCase):
 
         # Create man's matches
 
+        # woman1 should match with man
         woman1 = self.straight_women_users[0]
         woman1.name = 'Hailey Zok'
         woman1.age = 28
@@ -212,7 +214,10 @@ class MatchMakingTestCase(TestCase):
         woman1.sunday_start_time = time(hour=18)
         woman1.sunday_end_time = time(hour=23)
         woman1.save()
+        dl = json.loads(json.loads(date(None, man, 'sun').content))
+        self.assertEqual(dl['match']['name'], woman1.name)
 
+        # woman2 shouldn't match because man already has date with woman1
         woman2 = self.straight_women_users[1]
         woman2.name = 'Natalie Jen'
         woman2.age = 27
@@ -223,10 +228,23 @@ class MatchMakingTestCase(TestCase):
         woman2.longitude = -96.7460090
         woman2.likes_coffee = True
         woman2.likes_nature = True
-        woman2.monday_start_time = time(hour=18)
-        woman2.monday_end_time = time(hour=23)
+        woman2.sunday_start_time = time(hour=18)
+        woman2.sunday_end_time = time(hour=23)
         woman2.save()
+        dl = json.loads(json.loads(date(None, man, 'sun').content))
+        self.assertEqual(dl['match']['name'], woman1.name)
 
+        # woman2 should match because the date has expired woman1 is no longer matching on categories
+        man.sun_date.expires_at = timezone.now() - timedelta(hours=25)
+        man.sun_date.save()
+        man.save()
+        woman1.likes_coffee = False
+        woman1.likes_nature = False
+        woman1.save()
+        dl = json.loads(json.loads(date(None, man, 'sun').content))
+        self.assertEqual(dl['match']['name'], woman2.name)
+
+        # woman3 should match because it's a different day
         woman3 = self.straight_women_users[2]
         woman3.name = 'Christina Hey'
         woman3.age = 27
@@ -240,7 +258,10 @@ class MatchMakingTestCase(TestCase):
         woman3.tuesday_start_time = time(hour=18)
         woman3.tuesday_end_time = time(hour=23)
         woman3.save()
+        dl = json.loads(json.loads(date(None, man, 'tue').content))
+        self.assertEqual(dl['match']['name'], woman3.name)
 
+        # woman 4 shouldn't match because she doesn't like the same categories
         woman4 = self.straight_women_users[3]
         woman4.name = 'Zoe Edwards'
         woman4.age = 27
@@ -249,37 +270,30 @@ class MatchMakingTestCase(TestCase):
         woman4.about = 'Nothing to see here'
         woman4.latitude = 32.8972250
         woman4.longitude = -96.7460090
-        woman4.likes_nature = True
+        woman4.likes_active = True
         woman4.wednesday_start_time = time(hour=18)
         woman4.wednesday_end_time = time(hour=23)
         woman4.save()
+        dl = json.loads(json.loads(date(None, man, 'wed').content))
+        self.assertEqual(dl, None)
 
-        woman5 = self.straight_women_users[4]
-        woman5.name = 'Cynthia Jones'
-        woman5.age = 27
-        woman5.occupation = 'Waitress'
-        woman5.education = ''
-        woman5.about = 'Nothing to see here'
-        woman5.latitude = 32.8972250
-        woman5.longitude = -96.7460090
-        woman5.likes_coffee = True
-        woman5.thursday_start_time = time(hour=18)
-        woman5.thursday_end_time = time(hour=23)
-        woman5.save()
-
+        # woman 6 shouldn't match because she is in another city
         woman6 = self.straight_women_users[5]
         woman6.name = 'Christa Cakeface'
         woman6.age = 27
         woman6.occupation = 'Waitress'
         woman6.education = ''
         woman6.about = 'Nothing to see here'
-        woman6.latitude = 32.8972250
-        woman6.longitude = -96.7460090
+        woman6.latitude = 30.263946
+        woman6.longitude = -97.695592
         woman6.likes_coffee = True
         woman6.friday_start_time = time(hour=18)
         woman6.friday_end_time = time(hour=23)
         woman6.save()
+        dl = json.loads(json.loads(date(None, man, 'fri').content))
+        self.assertEqual(dl, None)
 
+        # woman 7 shouldn't match because she's not free at the right times
         woman7 = self.straight_women_users[6]
         woman7.name = 'Melanie Melonmouth'
         woman7.age = 27
@@ -289,12 +303,11 @@ class MatchMakingTestCase(TestCase):
         woman7.latitude = 32.8972250
         woman7.longitude = -96.7460090
         woman7.likes_coffee = True
-        woman7.saturday_start_time = time(hour=18)
-        woman7.saturday_end_time = time(hour=23)
+        woman7.saturday_start_time = time(hour=16)
+        woman7.saturday_end_time = time(hour=18, minute=30)
         woman7.save()
-
-        dl = json.loads(json.loads(dateslist(None, man).content))
-        self.assertEqual(len(dl), 7)
+        dl = json.loads(json.loads(date(None, man, 'sat').content))
+        self.assertEqual(dl, None)
 
 class YelpTestCase(TestCase):
     def setUp(self):
