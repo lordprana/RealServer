@@ -27,6 +27,13 @@ def users(request, user):
 @custom_authenticate
 def user(request,user):
     if request.method == 'PATCH':
+        json_data = json.loads(request.body)
+        print(type(json_data['likes_coffee']))
+        for key, value in json_data.iteritems():
+            if key == 'real_auth_token':
+                continue
+            setattr(user, key, value)
+        user.save()
         return HttpResponse(status=200)
 
 #TODO: Blocking

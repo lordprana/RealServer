@@ -1,7 +1,9 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from api.auth import AuthenticationBackend
 from api.models import User
 from rest_framework.authtoken.models import Token
+import json
+
 
 # Create your tests here.
 class AuthenticationTestCase(TestCase):
@@ -41,3 +43,29 @@ class AuthenticationTestCase(TestCase):
         authenticated_user = self.auth_backend.authenticate(fb_user_id=authenticated_user.fb_user_id,
                                                             real_auth_token=bad_real_auth_token)
         self.assertEqual(authenticated_user, None)
+
+class UserTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(fb_user_id='131453847271362',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABANb4jkcIiUKSLfXGKU15TRrQ6yRyTXZBT4MeD2l0M3eMJ6E86aoJ1149vL5E7ZAtVAisipCOQH7E5UN9XuAhSIaWnpZCJe9ZApmC0AZBFXkZA6ZC1U7uI8j9WpfCGs0qnmFUkbYKy1vDO83jiAIZCWwuqn5CUwc3tOAG2xKucDN3")
+        self.real_auth_token = Token.objects.create(user=self.user)
+        self.c = Client()
+    def test_patch_user(self):
+        data = {
+            "real_auth_token": self.real_auth_token.key,
+            "likes_drinks": True,
+            "likes_food": False,
+            "likes_coffee": True,
+            "likes_nature": True,
+            "likes_culture": True,
+            "likes_active": True
+        }
+        response = self.c.patch('/users/'+self.user.fb_user_id, json.dumps(data))
+        load_user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(load_user.likes_drinks, True)
+        self.assertEqual(load_user.likes_food, False)
+        self.assertEqual(load_user.likes_coffee, True)
+        self.assertEqual(load_user.likes_nature, True)
+        self.assertEqual(load_user.likes_culture, True)
+        self.assertEqual(load_user.likes_active, True)
