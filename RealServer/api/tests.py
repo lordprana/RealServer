@@ -2,6 +2,8 @@ from django.test import TestCase, Client
 from api.auth import AuthenticationBackend
 from api.models import User
 from rest_framework.authtoken.models import Token
+from django.utils import dateparse
+from datetime import time
 import json
 
 
@@ -51,6 +53,8 @@ class UserTestCase(TestCase):
         self.real_auth_token = Token.objects.create(user=self.user)
         self.c = Client()
     def test_patch_user(self):
+
+        # Test request from Places screen
         data = {
             "real_auth_token": self.real_auth_token.key,
             "likes_drinks": True,
@@ -69,3 +73,55 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.likes_nature, True)
         self.assertEqual(load_user.likes_culture, True)
         self.assertEqual(load_user.likes_active, True)
+
+        # Test request update from Places screen
+        data = {
+            "real_auth_token": self.real_auth_token.key,
+            "likes_drinks": False,
+            "likes_food": True,
+            "likes_coffee": False,
+            "likes_nature": True,
+            "likes_culture": True,
+            "likes_active": True
+        }
+        response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
+        load_user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(load_user.likes_drinks, False)
+        self.assertEqual(load_user.likes_food, True)
+        self.assertEqual(load_user.likes_coffee, False)
+        self.assertEqual(load_user.likes_nature, True)
+        self.assertEqual(load_user.likes_culture, True)
+        self.assertEqual(load_user.likes_active, True)
+
+        # Test request from Time input screen
+        data = {
+            "real_auth_token": self.real_auth_token.key,
+            "sunday_start_time": time(hour=16, minute=30).isoformat(),
+            "sunday_end_time": time(hour=18, minute=30).isoformat(),
+            "monday_start_time": time(hour=14, minute=0).isoformat(),
+            "monday_end_time": time(hour=20, minute=0).isoformat(),
+        }
+        response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
+        load_user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(load_user.sunday_start_time, dateparse.parse_time(data["sunday_start_time"]))
+        self.assertEqual(load_user.sunday_end_time, dateparse.parse_time(data["sunday_end_time"]))
+        self.assertEqual(load_user.monday_start_time, dateparse.parse_time(data["monday_start_time"]))
+        self.assertEqual(load_user.monday_end_time, dateparse.parse_time(data["monday_end_time"]))
+
+        # Test request update from Time input screen
+        data = {
+            "real_auth_token": self.real_auth_token.key,
+            "sunday_start_time": time(hour=17, minute=30).isoformat(),
+            "sunday_end_time": time(hour=19, minute=30).isoformat(),
+            "monday_start_time": time(hour=10, minute=0).isoformat(),
+            "monday_end_time": time(hour=21, minute=0).isoformat(),
+        }
+        response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
+        load_user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(load_user.sunday_start_time, dateparse.parse_time(data["sunday_start_time"]))
+        self.assertEqual(load_user.sunday_end_time, dateparse.parse_time(data["sunday_end_time"]))
+        self.assertEqual(load_user.monday_start_time, dateparse.parse_time(data["monday_start_time"]))
+        self.assertEqual(load_user.monday_end_time, dateparse.parse_time(data["monday_end_time"]))

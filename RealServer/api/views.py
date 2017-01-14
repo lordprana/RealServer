@@ -6,6 +6,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import json
+import re
 # Create your views here.
 
 @csrf_exempt
@@ -28,10 +29,13 @@ def users(request, user):
 def user(request,user):
     if request.method == 'PATCH':
         json_data = json.loads(request.body)
-        print(type(json_data['likes_coffee']))
         for key, value in json_data.iteritems():
             if key == 'real_auth_token':
                 continue
+            elif re.match('^picture') and re.match('_url$'):
+                if re.match('^picture') and not re.match('_url$'):
+                    #TODO: Add image processing
+                    continue
             setattr(user, key, value)
         user.save()
         return HttpResponse(status=200)
