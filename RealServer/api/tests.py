@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from api.auth import AuthenticationBackend
-from api.models import User
+from api.models import User, SexualPreference, Gender
 from rest_framework.authtoken.models import Token
 from django.utils import dateparse
 from datetime import time
@@ -56,6 +56,25 @@ class UserTestCase(TestCase):
     #TODO: Implement this test once we have a functioning test user
     def test_create_user(self):
         pass
+
+    def test_get_user(self):
+        self.user.interested_in = SexualPreference.WOMEN.value
+        self.user.occupation = 'Lawyer'
+        self.user.name = 'Chad Potter'
+        self.user.age = 28
+        self.user.gender = Gender.MAN.value
+        self.user.education = 'Common University'
+        self.user.save()
+        response = self.c.get('/users/'+self.user.fb_user_id+'?real_auth_token='+self.real_auth_token.key,
+                              HTTP_HOST = 'www.getrealdating.com')
+        response = json.loads(response.content)
+        self.assertEqual(response['name'], self.user.name)
+        self.assertEqual(response['interested_in'], self.user.interested_in)
+        self.assertEqual(response['occupation'], self.user.occupation)
+        self.assertEqual(response['age'], self.user.age)
+        self.assertEqual(response['gender'], self.user.gender)
+        self.assertEqual(response['education'], self.user.education)
+        self.assertEqual('www.getrealdating.com/media/131453847271362/picture_1.jpg', response['profile_picture'])
 
     def test_patch_user(self):
 

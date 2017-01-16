@@ -5,9 +5,11 @@ from api import hardcoded_dates
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.utils import timezone
 import json
 import re
 import os
+import datetime
 from RealServer import facebook
 # Create your views here.
 
@@ -27,16 +29,29 @@ def users(request, user):
         user.gender = user_json['gender']
         user.interested_in = user_json['interested_in']
         user.name = user_json['name']
-        user.work = user_json['work']
+        user.occupation = user_json['work']
 
+        # Convert birthday to age
+        try:
+            bd = datetime.datetime.strptime(user_json['birthday'], '%m/%d/%Y')
+        except ValueError:
+            try:
+                bd = datetime.datetime.strptime(user_json['birthday'], '%Y')
+            except:
+                bd = None
+        if bd:
+            today = timezone.now()
+        user.age = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
+
+        # Save picture to disk
         user_picture = facebook.getUserProfilePicture(user)
         if not os.path.exists(settings.MEDIA_ROOT + user.fb_user_id):
             os.makedirs(settings.MEDIA_ROOT + user.fb_user_id)
         f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture_1.jpg', 'w')
         f.write(user_picture.content)
+        user.picture1_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture_1.jpg'
 
-
-
+        user.save()
         return JsonResponse(response_dict)
     else:
         return HttpResponse(status=400)
@@ -57,6 +72,18 @@ def user(request,user):
             setattr(user, key, value)
         user.save()
         return HttpResponse(status=200)
+
+    elif request.method == 'GET':
+        details = {
+            'interested_in': user.interested_in,
+            'occupation': user.occupation,
+            'name': user.name,
+            'age': user.age,
+            'gender': user.gender,
+            'education': user.education,
+            'profile_picture': request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture_1.jpg'
+        }
+        return JsonResponse(details)
 
 #TODO: Blocking
 @csrf_exempt
