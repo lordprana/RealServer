@@ -52,6 +52,11 @@ class UserTestCase(TestCase):
                                         most_recent_fb_auth_token="EAACEFGIZCorABANb4jkcIiUKSLfXGKU15TRrQ6yRyTXZBT4MeD2l0M3eMJ6E86aoJ1149vL5E7ZAtVAisipCOQH7E5UN9XuAhSIaWnpZCJe9ZApmC0AZBFXkZA6ZC1U7uI8j9WpfCGs0qnmFUkbYKy1vDO83jiAIZCWwuqn5CUwc3tOAG2xKucDN3")
         self.real_auth_token = Token.objects.create(user=self.user)
         self.c = Client()
+
+    #TODO: Implement this test once we have a functioning test user
+    def test_create_user(self):
+        pass
+
     def test_patch_user(self):
 
         # Test request from Places screen

@@ -7,6 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import json
 import re
+import os
+from RealServer import facebook
 # Create your views here.
 
 @csrf_exempt
@@ -19,6 +21,22 @@ def users(request, user):
             'real_auth_token': token.key,
             'status': 'profile_incomplete'
         }
+        #TODO test this once we have full permissions from users
+        user_json = facebook.getUserInfo(user)
+        user.education = user_json['education']
+        user.gender = user_json['gender']
+        user.interested_in = user_json['interested_in']
+        user.name = user_json['name']
+        user.work = user_json['work']
+
+        user_picture = facebook.getUserProfilePicture(user)
+        if not os.path.exists(settings.MEDIA_ROOT + user.fb_user_id):
+            os.makedirs(settings.MEDIA_ROOT + user.fb_user_id)
+        f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture_1.jpg', 'w')
+        f.write(user_picture.content)
+
+
+
         return JsonResponse(response_dict)
     else:
         return HttpResponse(status=400)
