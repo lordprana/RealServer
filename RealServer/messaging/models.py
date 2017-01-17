@@ -12,8 +12,7 @@ class Message(models.Model):
     sent_by = models.ForeignKey('api.User', related_name='sent_by')
     sent_to = models.ForeignKey('api.User', related_name='sent_to')
     read = models.BooleanField(default=False)
-    date = models.ForeignKey(Date,)
-#TODO:Blocking Add Foreign Key to Date associated with this message
+    date = models.ForeignKey(Date)
 
 
 
