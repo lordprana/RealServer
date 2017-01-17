@@ -292,10 +292,11 @@ def convertDateToJson(user,date):
         'occupation': potential_match.occupation,
         'education': potential_match.education,
         'about': potential_match.about,
-        'main_picture': potential_match.picture1,
+        'main_picture': potential_match.picture1_portrait_url,
         'additional_pictures': [
-            potential_match.picture2, potential_match.picture3, potential_match.picture4, potential_match.picture5,
-            potential_match.picture6
+            potential_match.picture2_portrait_url, potential_match.picture3_portrait_url,
+            potential_match.picture4_portrait_url, potential_match.picture5_portrait_url,
+            potential_match.picture6_portrait_url
         ]
     }
 

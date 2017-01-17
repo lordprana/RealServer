@@ -2,6 +2,8 @@ import requests
 from settings import FB_APP_ID, FB_APP_SECRET
 import hashlib
 import hmac
+import urllib
+import json
 
 """
 Takes a fb_auth_token and returns a fb_user_id
@@ -41,12 +43,14 @@ def getUserInfo(user):
 
 def getUserProfilePicture(user):
     app_secret_proof = getAppSecretProof(FB_APP_SECRET, user.most_recent_fb_auth_token)
-    request_url = 'https://graph.facebook.com/v2.8/' + user.fb_user_id + '/picture' + \
-                  '?access_token=' + user.most_recent_fb_auth_token + \
-                  '&appsecret_proof=' + app_secret_proof + \
-                  '&type=large'
+    # Picture.height > 960 for highest resolution
+    request_url = 'https://graph.facebook.com/v2.8/' + user.fb_user_id + '?fields=picture.height(961)' + \
+                  '&access_token=' + user.most_recent_fb_auth_token + \
+                  '&appsecret_proof=' + app_secret_proof
     response = requests.get(request_url)
-    if response.status_code == 200:
-        return requests.get(request_url).content
+    response_json = json.loads(response.content)
+    if response.status_code == 200 and response_json['picture']['data']['url']:
+        picture = urllib.urlopen(response_json['picture']['data']['url'])
+        return picture.read()
     else:
         return None

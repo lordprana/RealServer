@@ -4,14 +4,16 @@ from datetime import timedelta, datetime
 import facebook
 import settings
 import os
-from tools import nextDayOfWeekToDatetime
+from cStringIO import StringIO
+from PIL import Image
+from tools import nextDayOfWeekToDatetime, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates, cropImage
 from api.models import User
 
 class FacebookTests(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141', most_recent_fb_auth_token='EAACEFGIZCorABABwneNGNfqZAmeQI2QlftiHN7gkf2Ok4kJaZCbOo10XbD3wZAeaOFzYVaZBYOPoLPoF3VpygpZAZAOmOJbRgfp09h7Wp1g5vIpsZAuVpqVu3k8lYXkt6GJgCPsH43hecd7o8TueBOxt9lZAgWcyoCRuBjhLZBl5WBFvMW3RhQS5VohkYzTJgpQDGDHMM8t3oNjAZDZD')
         self.user2 = User.objects.create(fb_user_id='116474138858424', most_recent_fb_auth_token='EAACEFGIZCorABADEzDQtokRhCZCv7jFt6mXCvZCXxwNiNL58sM9rHD6raZCcSTQfDkkEEr2X7MbwxrwLMU6ypLg3Or8XyfG1ezAvZCYpGL4CubswaZCn7ZBvEePLCcDhZBYe3Gzq6qhqEPKQNLvRKB43VtwC5jrpG4KzDz2i9seXfrMZBhCsoHf40dhPl9M3r54tAxxP64Ge90wZDZD')
-
+        self.user3 = User.objects.create(fb_user_id='2959531196950', most_recent_fb_auth_token='EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum')
     def test_mutual_friends(self):
         mutual_friends_json = facebook.getMutualFriends(self.user1, self.user2)
         self.assertEqual(mutual_friends_json['summary']['total_count'], 2)
@@ -24,16 +26,19 @@ class FacebookTests(TestCase):
 
     def test_user_profile_picture(self):
         # Test returns .jpeg if good request
-        user_picture = facebook.getUserProfilePicture(self.user1)
+        user_picture = facebook.getUserProfilePicture(self.user3)
         self.assertEqual(user_picture[:11], '\xff\xd8\xff\xe0\x00\x10JFIF\x00') # This string begins every picture returned by Facebook
 
         # Test returns none if bad request
-        self.user1.most_recent_fb_auth_token = 'EAACE'
-        self.user1.save()
+        self.user3.most_recent_fb_auth_token = 'EAACE'
+        self.user3.save()
         user_picture = facebook.getUserProfilePicture(self.user1)
         self.assertEqual(user_picture, None)
 
 class ToolsTest(TestCase):
+    def setUp(self):
+        self.user2 = User.objects.create(fb_user_id='122700428234141',most_recent_fb_auth_token='EAACEFGIZCorABAJ6TTrnVfxoyP2xs5jqQYgemBaqZBgQhV1ZC2VkFwzdarZAuTsRI6HJte7olP712H2FV73UbprxHA94Dq8twNLKZCPwZB57ZBhheXWFBPH5XWCtVk9sAmr65ZCKVneFufSplL0DbqoRnvTLdBkaS86KrWCNxypQtq9ZBxSBW9ym8zmaBoKsBPskZD')
+        self.user3 = User.objects.create(fb_user_id='2959531196950', most_recent_fb_auth_token='EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum')
     def test_day_of_week_difference(self):
         dt = datetime(year=2017, month=1, day=16)
         dt = nextDayOfWeekToDatetime(dt, 'wed')
@@ -43,3 +48,62 @@ class ToolsTest(TestCase):
         self.assertEqual(dt, datetime(year=2017, month=1, day=22))
         dt = nextDayOfWeekToDatetime(dt, 'tue')
         self.assertEqual(dt, datetime(year=2017, month=1, day=24))
+
+    def test_crop_image_to_square(self):
+        # Test Portrait Orientation
+        user_picture = facebook.getUserProfilePicture(self.user3)
+        file_jpgdata = StringIO(user_picture)
+        image = Image.open(file_jpgdata)
+        w, h = image.size
+        self.assertNotEqual(w, h)
+        image = cropImageToSquare(user_picture)
+        self.assertEqual(image.size[0], image.size[1])
+
+        # Test Landscape Orientation
+        user_picture = facebook.getUserProfilePicture(self.user2)
+        file_jpgdata = StringIO(user_picture)
+        image = Image.open(file_jpgdata)
+        w, h = image.size
+        self.assertNotEqual(w, h)
+        image = cropImageToSquare(user_picture)
+        self.assertEqual(image.size[0], image.size[1])
+
+    def test_crop_image_by_aspect_ratio(self):
+        # Test Portrait Orientation
+        user_picture = facebook.getUserProfilePicture(self.user3)
+        file_jpgdata = StringIO(user_picture)
+        image = Image.open(file_jpgdata)
+        w, h = image.size
+        aspect_width = 205.0
+        aspect_height = 365.0
+        self.assertNotEqual(aspect_width/aspect_height, float(w)/float(h))
+        image = cropImageByAspectRatio(user_picture, aspect_width, aspect_height)
+        w, h = image.size
+        self.assertEqual(round(aspect_width/aspect_height, 2), round(float(w)/float(h), 2))
+
+    def test_crop_image(self):
+        user_picture = facebook.getUserProfilePicture(self.user3)
+        file_jpgdata = StringIO(user_picture)
+        image = Image.open(file_jpgdata)
+        w, h = image.size
+        start_cropx = 460
+        start_cropy = 87
+        end_cropx = 889
+        end_cropy = 513
+        image = cropImage(user_picture, start_cropx, start_cropy, end_cropx, end_cropy)
+        w, h = image.size
+        self.assertEqual(w, end_cropx - start_cropx)
+        self.assertEqual(h, end_cropy- start_cropy)
+        image.show()
+
+    def test_crop_image_by_aspect_ratio_and_coordinates(self):
+        user_picture = facebook.getUserProfilePicture(self.user3)
+        file_jpgdata = StringIO(user_picture)
+        image = Image.open(file_jpgdata)
+        w, h = image.size
+        aspect_width = 205.0
+        aspect_height = 365.0
+        self.assertNotEqual(aspect_width / aspect_height, float(w) / float(h))
+        image = cropImageByAspectRatioAndCoordinates(user_picture, 460, 87, 889, 513, aspect_width, aspect_height)
+        w, h = image.size
+        self.assertEqual(round(aspect_width/aspect_height, 2), round(float(w)/float(h), 2))

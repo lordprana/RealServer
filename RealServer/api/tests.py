@@ -78,7 +78,7 @@ class UserTestCase(TestCase):
         self.assertEqual(response['age'], self.user.age)
         self.assertEqual(response['gender'], self.user.gender)
         self.assertEqual(response['education'], self.user.education)
-        self.assertEqual('www.getrealdating.com/media/131453847271362/picture_1.jpg', response['profile_picture'])
+        self.assertEqual('www.getrealdating.com/media/131453847271362/picture1.jpg', response['profile_picture'])
 
     def test_patch_user(self):
 

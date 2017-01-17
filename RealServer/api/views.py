@@ -8,12 +8,13 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
-from RealServer.tools import nextDayOfWeekToDatetime
+from RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates
 from django.db import transaction
 import json
 import re
 import os
 import datetime
+import urllib
 from RealServer import facebook
 # Create your views here.
 
@@ -29,11 +30,11 @@ def users(request, user):
         }
         #TODO test this once we have full permissions from users
         user_json = facebook.getUserInfo(user)
-        user.education = user_json['education']
-        user.gender = user_json['gender']
-        user.interested_in = user_json['interested_in']
-        user.name = user_json['name']
-        user.occupation = user_json['work']
+        user.education = user_json.get('education', None)
+        user.gender = user_json.get('gender', None)
+        user.interested_in = user_json.get('interested_in', None)
+        user.name = user_json.get('name', None)
+        user.occupation = user_json.get('work', None)
 
         # Convert birthday to age
         try:
@@ -43,18 +44,32 @@ def users(request, user):
                 bd = datetime.datetime.strptime(user_json['birthday'], '%Y')
             except:
                 bd = None
+        except KeyError:
+            bd = None
+
         if bd:
             today = timezone.now()
-        user.age = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
+            user.age = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
 
-        # Save picture to disk
-        user_picture = facebook.getUserProfilePicture(user)
+        # Save pictures to disk. Images come in original, square, and portrait flavors
+        original_user_picture = facebook.getUserProfilePicture(user)
+        # TODO resize picture for optimal performance
         if not os.path.exists(settings.MEDIA_ROOT + user.fb_user_id):
             os.makedirs(settings.MEDIA_ROOT + user.fb_user_id)
-        f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture_1.jpg', 'w')
-        f.write(user_picture.content)
-        user.picture1_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture_1.jpg'
+        f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_original.jpg', 'w')
+        f.write(original_user_picture.content)
 
+        square_user_picture = cropImageToSquare(original_user_picture)
+        f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_square.jpg', 'w')
+        f.write(square_user_picture.content)
+        user.picture1_square_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_square.jpg'
+
+        aspect_width = 205
+        aspect_height = 365
+        portrait_user_picture = cropImageByAspectRatio(original_user_picture, aspect_width, aspect_height)
+        f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_portrait.jpg', 'w')
+        f.write(portrait_user_picture.content)
+        user.picture1_portrait_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_portrait.jpg'
         user.save()
         return JsonResponse(response_dict)
     else:
@@ -69,10 +84,37 @@ def user(request,user):
         for key, value in json_data.iteritems():
             if key == 'real_auth_token':
                 continue
-            elif re.match('^picture') and re.match('_url$'):
-                if re.match('^picture') and not re.match('_url$'):
-                    #TODO: Add image processing
-                    continue
+            elif re.match('^picture', key) and re.match('_url$', key):
+                picture_url = value
+                picture_startx = json_data[key[:8]+'_startx']
+                picture_endx = json_data[key[:8] + '_endx']
+                picture_starty = json_data[key[:8] + '_starty']
+                picture_endy = json_data[key[:8] + '_endy']
+                aspect_width = 205
+                aspect_height = 365
+                picture = urllib.urlopen(picture_url)
+
+                original_picture = picture.read()
+                f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + key[:8] + '_original.jpg', 'w')
+                f.write(original_picture.content)
+
+                square_picture = cropImage(original_picture, picture_startx, picture_starty, picture_endx, picture_endy)
+                f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' +  key[:8] + '_square.jpg', 'w')
+                f.write(square_picture.content)
+                setattr(user, key[:8] + '_square_url', request.META['HTTP_HOST'] + '/' + settings.MEDIA_URL + \
+                                                       user.fb_user_id + '/' + key[:8] + '_square.jpg')
+
+                portrait_picture = cropImageByAspectRatioAndCoordinates(original_picture, picture_startx, picture_starty,
+                                                                        picture_endx, picture_endy,
+                                                                        aspect_width, aspect_height)
+                f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + key[:8] + '_portrait.jpg', 'w')
+                f.write(portrait_picture.content)
+                setattr(user, key[:8] + '_portrait_url', request.META['HTTP_HOST'] + '/' + settings.MEDIA_URL + \
+                        user.fb_user_id + '/' + key[:8] + '_portrait.jpg')
+
+
+            elif re.match('^picture', key) and not re.match('_url$', key):
+                continue
             setattr(user, key, value)
         user.save()
         return HttpResponse(status=200)
