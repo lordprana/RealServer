@@ -21,6 +21,7 @@ class DateCategories(Enum):
 class Date(models.Model):
     user1 = models.ForeignKey('api.User', related_name="+")
     user2 = models.ForeignKey('api.User', related_name="+")
+    original_expires_at = models.DateTimeField() # The expires_at field set when this Date is first created.
     expires_at = models.DateTimeField()
     day = models.CharField(max_length=4)
     start_time = models.TimeField()

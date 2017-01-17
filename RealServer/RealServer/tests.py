@@ -1,7 +1,10 @@
 from django.test import TestCase
+from django.utils import timezone
+from datetime import timedelta, datetime
 import facebook
 import settings
 import os
+from tools import nextDayOfWeekToDatetime
 from api.models import User
 
 class FacebookTests(TestCase):
@@ -29,3 +32,14 @@ class FacebookTests(TestCase):
         self.user1.save()
         user_picture = facebook.getUserProfilePicture(self.user1)
         self.assertEqual(user_picture, None)
+
+class ToolsTest(TestCase):
+    def test_day_of_week_difference(self):
+        dt = datetime(year=2017, month=1, day=16)
+        dt = nextDayOfWeekToDatetime(dt, 'wed')
+        self.assertEqual(dt, datetime(year=2017, month=1, day=18))
+        dt = datetime(year=2017, month=1, day=16)
+        dt = nextDayOfWeekToDatetime(dt, 'sun')
+        self.assertEqual(dt, datetime(year=2017, month=1, day=22))
+        dt = nextDayOfWeekToDatetime(dt, 'tue')
+        self.assertEqual(dt, datetime(year=2017, month=1, day=24))

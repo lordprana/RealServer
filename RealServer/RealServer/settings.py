@@ -50,7 +50,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'django_nose'
+    'django_nose',
+    'django_celery_results'
 ]
 
 MIDDLEWARE = [
@@ -145,3 +146,8 @@ YELP_APP_SECRET = '47MsTO8LaxzsiU6JK5shKlmMyhXd70a6StGBmsM5CR1xJn9WL9WbzXEdYyzmf
 #YELP_ACCESS_TOKEN = 'dJ9QyD40Ng_g7WW9bB_1BOQz1IG-rP6LIeLomkzhmapA0Dtpv7Q6UeuUw9fpqj5GdJON9cqxQdF2BWEfCBFJoBK1swOYjAh5VUxxXvrQIeal86jxuUNMi6bNDsltWHYx'
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+CELERY_RESULT_BACKEND = 'amqp://localhost'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'

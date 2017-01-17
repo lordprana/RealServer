@@ -236,6 +236,7 @@ def makeDate(user, day, potential_matches):
         time = generateRandomTimeForDate(user, match, day)
         date = models.Date(user1=user, user2=match, day=day, start_time=time, expires_at=(timezone.now() + datetime.timedelta(hours=24)),
                     place_id=place['id'], place_name=place['name'], category=interests[category_index])
+        date.original_expires_at = date.expires_at
         date.save()
         setattr(user, day+'_date', date)
         setattr(match, day+'_date', date)
