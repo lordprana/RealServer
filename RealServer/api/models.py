@@ -96,3 +96,9 @@ class User(AbstractBaseUser):
             return self.name
         else:
             return "No name provided"
+
+class BlockedReports(models.Model):
+    blocking_user = models.ForeignKey(User, related_name='blocking_user')
+    blocked_user = models.ForeignKey(User, related_name='blocked_user')
+    associated_date = models.ForeignKey(Date, related_name='associated_date')
+    report_content = models.CharField(max_length=10000)

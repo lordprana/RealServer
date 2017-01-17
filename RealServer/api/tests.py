@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from api.auth import AuthenticationBackend
-from api.models import User, SexualPreference, Gender
+from api.models import User, SexualPreference, Gender, BlockedReports
 from api.tasks import notifyUserPassedOn
 from matchmaking.models import Date, DateStatus, DateCategories
 from rest_framework.authtoken.models import Token
@@ -219,3 +219,42 @@ class DateTestCase(TestCase):
         date = Date.objects.get(pk=date.pk)
         self.assertEqual(date.expires_at, date.original_expires_at)
 
+class ReportAndBlockTestCase(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create(fb_user_id='122700428234141',
+                                         most_recent_fb_auth_token='EAACEFGIZCorABABwneNGNfqZAmeQI2QlftiHN7gkf2Ok4kJaZCbOo10XbD3wZAeaOFzYVaZBYOPoLPoF3VpygpZAZAOmOJbRgfp09h7Wp1g5vIpsZAuVpqVu3k8lYXkt6GJgCPsH43hecd7o8TueBOxt9lZAgWcyoCRuBjhLZBl5WBFvMW3RhQS5VohkYzTJgpQDGDHMM8t3oNjAZDZD')
+        self.user2 = User.objects.create(fb_user_id='116474138858424',
+                                         most_recent_fb_auth_token='EAACEFGIZCorABADEzDQtokRhCZCv7jFt6mXCvZCXxwNiNL58sM9rHD6raZCcSTQfDkkEEr2X7MbwxrwLMU6ypLg3Or8XyfG1ezAvZCYpGL4CubswaZCn7ZBvEePLCcDhZBYe3Gzq6qhqEPKQNLvRKB43VtwC5jrpG4KzDz2i9seXfrMZBhCsoHf40dhPl9M3r54tAxxP64Ge90wZDZD')
+        self.real_auth_token1 = Token.objects.create(user=self.user1)
+        self.real_auth_token2 = Token.objects.create(user=self.user2)
+        self.c = Client()
+    def test_report_and_block(self):
+        date = Date(user1=self.user1, user2=self.user2,
+                    expires_at=timezone.now()+timedelta(hours=24),
+                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                    category=DateCategories.COFFEE.value)
+        date.original_expires_at = date.expires_at
+        date.user1_likes = DateStatus.LIKES.value
+        date.user2_likes = DateStatus.LIKES.value
+        date.save()
+        data = {
+            "fb_user_id": self.user1.pk,
+            "real_auth_token": self.real_auth_token1.key,
+            "blocked_user_id": self.user2.pk,
+            "report_content": "He was saying lewd things to me in the chat. He sent me a picture of his you know what.",
+            "date_id": date.pk
+        }
+
+        response = self.c.post('/reportandblock/', data=json.dumps(data), content_type='application/json')
+        date = Date.objects.get(pk=date.pk)
+        report = BlockedReports.objects.first()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(date.user1_likes, DateStatus.PASS.value)
+        self.assertEqual(date.user2_likes, DateStatus.PASS.value)
+        self.assertEqual(date.user1.passed_matches.count(), 1)
+        self.assertEqual(date.user2.passed_matches.count(), 1)
+        self.assertLess(date.expires_at, timezone.now())
+        self.assertEqual(report.report_content, data['report_content'])
+        self.assertEqual(report.blocking_user, self.user1)
+        self.assertEqual(report.blocked_user, self.user2)
+        self.assertEqual(report.associated_date, date)

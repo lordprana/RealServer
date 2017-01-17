@@ -3,6 +3,7 @@ from rest_framework.authtoken.models import Token
 from api.auth import custom_authenticate
 from api.tasks import notifyUserPassedOn
 from api import hardcoded_dates
+from api.models import User, BlockedReports
 from matchmaking.models import Date, DateStatus
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -75,7 +76,7 @@ def users(request, user):
     else:
         return HttpResponse(status=400)
 
-#TODO: Blocking
+
 @csrf_exempt
 @custom_authenticate
 def user(request,user):
@@ -187,7 +188,25 @@ def date(request, user, date_id):
 @custom_authenticate
 def report_and_block(request, user):
     if request.method == 'POST':
-        request_json = json.loads(request.body)
-        print request_json.get('blocked_user_id', None)
-        print request_json.get('report_text' , None)
-        return HttpResponse(status=200)
+        try:
+            request_json = json.loads(request.body)
+            blocked_user = User.objects.get(pk=request_json['blocked_user_id'])
+
+            date = Date.objects.get(pk=request_json['date_id'])
+            date.user1_likes = DateStatus.PASS.value
+            date.user2_likes = DateStatus.PASS.value
+            date.expires_at = timezone.now() - datetime.timedelta(days=1)
+            date.save()
+
+            user.passed_matches.add(blocked_user)
+            blocked_user.passed_matches.add(user)
+            user.save()
+            blocked_user.save()
+
+            BlockedReports.objects.create(blocking_user=user, blocked_user=blocked_user, associated_date=date,
+                                          report_content=request_json['report_content'])
+            return HttpResponse(status=200)
+        except:
+            return HttpResponse(status=400)
+
+
