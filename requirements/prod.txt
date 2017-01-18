@@ -1,13 +1,13 @@
 amqp==2.1.4
 billiard==3.5.0.2
-boto==2.5.2
+boto==2.45.0
 celery==4.0.2
 cffi==1.9.1
 cryptography==1.7.1
 Django==1.10.4
 django-celery-results==1.0.1
 django-nose==1.4.4
-django-storages==1.1.8
+django-storages==1.5.2
 djangorestframework==3.5.3
 enum34==1.1.6
 Fabric==1.13.1
@@ -23,9 +23,9 @@ Pillow==4.0.0
 psycopg2==2.6.2
 pyasn1==0.1.9
 pycparser==2.17
-pycrypto==2.6
+pycrypto==2.6.1
 pytz==2016.10
 requests==2.12.4
 six==1.10.0
-ssh==1.7.14
+ssh==1.8.0
 vine==1.1.3

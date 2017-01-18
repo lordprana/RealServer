@@ -132,14 +132,17 @@ USE_L10N = True
 
 USE_TZ = True
 
-ENV_PATH = os.path.abspath(os.path.dirname(__file__))
-MEDIA_ROOT = os.path.join(ENV_PATH, '../media/')
-MEDIA_URL = "media/"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
+ENV_PATH = os.path.abspath(os.path.dirname(__file__))
+MEDIA_ROOT = os.path.join(ENV_PATH, '../media/')
+MEDIA_URL = "media/"
+STATIC_ROOT =  os.path.join(ENV_PATH, '../static/')
 STATIC_URL = '/static/'
+
 
 YELP_APP_ID = 's7-DcAMdseJJmTHuki81Wg'
 YELP_APP_SECRET = '47MsTO8LaxzsiU6JK5shKlmMyhXd70a6StGBmsM5CR1xJn9WL9WbzXEdYyzmfYCX'
