@@ -25,7 +25,7 @@ fabconf['PROJECT_NAME'] = "RealServer"
 
 # Username for connecting to EC2 instaces - Do not edit unless you have a
 # reason to
-fabconf['SERVER_USERNAME'] = "real_trial"
+fabconf['SERVER_USERNAME'] = "ubuntu"
 
 # Full local path for .ssh
 fabconf['SSH_PATH'] = "~/.ssh"
