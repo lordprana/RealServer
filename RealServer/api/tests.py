@@ -1,14 +1,16 @@
+import json
+from datetime import time, datetime, timedelta
+
+import pytz
 from django.test import TestCase, Client
+from django.utils import dateparse, timezone
+from rest_framework.authtoken.models import Token
+
+from RealServer.settings import common
 from api.auth import AuthenticationBackend
 from api.models import User, SexualPreference, Gender, BlockedReports
 from api.tasks import notifyUserPassedOn
 from matchmaking.models import Date, DateStatus, DateCategories
-from rest_framework.authtoken.models import Token
-from django.utils import dateparse, timezone
-from datetime import time, datetime, timedelta
-import json
-import pytz
-from RealServer import settings
 
 
 # Create your tests here.
@@ -163,7 +165,7 @@ class DateTestCase(TestCase):
         self.real_auth_token1 = Token.objects.create(user=self.user1)
         self.real_auth_token2 = Token.objects.create(user=self.user2)
         self.c = Client()
-        settings.CELERY_ALWAYS_EAGER = True
+        common.CELERY_ALWAYS_EAGER = True
     def test_date_patch(self):
         # Test both users like each other
         date = Date(user1=self.user1, user2=self.user2, expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0, tzinfo=pytz.UTC),

@@ -1,11 +1,12 @@
-import requests
-from RealServer.settings import FB_APP_SECRET, FB_APP_ID
-from api.models import User
-from rest_framework.authtoken.models import Token
-from django.http import HttpResponse
-from django.contrib.auth import authenticate
-from RealServer import facebook
 import json
+
+from django.contrib.auth import authenticate
+from django.http import HttpResponse
+from rest_framework.authtoken.models import Token
+
+from RealServer import facebook
+from api.models import User
+
 
 def custom_authenticate(view):
     def view_wrapper(request, user=None, user_id=None, *args, **kwargs):

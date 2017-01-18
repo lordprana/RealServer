@@ -1,8 +1,10 @@
+from datetime import timedelta
+
 import requests
-from RealServer.settings import YELP_APP_ID, YELP_APP_SECRET
-from matchmaking.models import YelpAccessToken
-from datetime import datetime, timedelta
 from django.utils import timezone
+
+from RealServer.settings.common import YELP_APP_ID, YELP_APP_SECRET
+from matchmaking.models import YelpAccessToken
 
 CATEGORY_MAPPING = {
     'drinks': 'bars',

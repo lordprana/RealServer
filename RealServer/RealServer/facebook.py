@@ -1,9 +1,11 @@
-import requests
-from settings import FB_APP_ID, FB_APP_SECRET
 import hashlib
 import hmac
-import urllib
 import json
+import urllib
+
+import requests
+
+from RealServer.settings.common import FB_APP_ID, FB_APP_SECRET
 
 """
 Takes a fb_auth_token and returns a fb_user_id

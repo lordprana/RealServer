@@ -1,13 +1,13 @@
-from django.test import TestCase
-from django.utils import timezone
-from datetime import timedelta, datetime
-import facebook
-import settings
-import os
 from cStringIO import StringIO
+from datetime import datetime
+
 from PIL import Image
-from tools import nextDayOfWeekToDatetime, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates, cropImage
+from django.test import TestCase
+
+import facebook
 from api.models import User
+from tools import nextDayOfWeekToDatetime, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates, cropImage
+
 
 class FacebookTests(TestCase):
     def setUp(self):

@@ -133,7 +133,7 @@ USE_L10N = True
 USE_TZ = True
 
 ENV_PATH = os.path.abspath(os.path.dirname(__file__))
-MEDIA_ROOT = os.path.join(ENV_PATH, 'media/')
+MEDIA_ROOT = os.path.join(ENV_PATH, '../media/')
 MEDIA_URL = "media/"
 
 # Static files (CSS, JavaScript, Images)
