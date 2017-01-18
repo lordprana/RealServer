@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework.authtoken.models import Token
 
-from RealServer import facebook
+import facebook
 from api.models import User
 
 

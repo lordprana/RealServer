@@ -1,1 +1,1 @@
-from RealServer.settings.common import *
+from settings.common import *

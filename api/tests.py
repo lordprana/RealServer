@@ -6,7 +6,7 @@ from django.test import TestCase, Client
 from django.utils import dateparse, timezone
 from rest_framework.authtoken.models import Token
 
-from RealServer.settings import common
+from settings import common
 from api.auth import AuthenticationBackend
 from api.models import User, SexualPreference, Gender, BlockedReports
 from api.tasks import notifyUserPassedOn
@@ -80,7 +80,7 @@ class UserTestCase(TestCase):
         self.assertEqual(response['age'], self.user.age)
         self.assertEqual(response['gender'], self.user.gender)
         self.assertEqual(response['education'], self.user.education)
-        self.assertEqual('www.getrealdating.com/media/131453847271362/picture1.jpg', response['profile_picture'])
+        self.assertEqual('www.getrealdating.com/media/131453847271362/picture1_square.jpg', response['profile_picture'])
 
     def test_patch_user(self):
 

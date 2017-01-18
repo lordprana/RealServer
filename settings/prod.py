@@ -1,4 +1,4 @@
-from RealServer.settings.common import *
+from settings.common import *
 
 INSTALLED_APPS += ('storages',)
 AWS_STORAGE_BUCKET_NAME = 'realdatingbucket'

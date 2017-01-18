@@ -9,14 +9,14 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
-from RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates
+from tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates
 from django.db import transaction
 import json
 import re
 import os
 import datetime
 import urllib
-from RealServer import facebook
+import facebook
 # Create your views here.
 
 @csrf_exempt
@@ -54,6 +54,8 @@ def users(request, user):
 
         # Save pictures to disk. Images come in original, square, and portrait flavors
         original_user_picture = facebook.getUserProfilePicture(user)
+        if not original_user_picture:
+            return HttpResponse(status=400)
         # TODO resize picture for optimal performance
         if not os.path.exists(settings.MEDIA_ROOT + user.fb_user_id):
             os.makedirs(settings.MEDIA_ROOT + user.fb_user_id)
@@ -128,7 +130,7 @@ def user(request,user):
             'age': user.age,
             'gender': user.gender,
             'education': user.education,
-            'profile_picture': request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture_1.jpg'
+            'profile_picture': request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_square.jpg'
         }
         return JsonResponse(details)
 
