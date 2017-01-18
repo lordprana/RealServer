@@ -7,7 +7,7 @@ from api.auth import custom_authenticate
 from api.models import User, SexualPreference, Gender
 from matchmaking.yelp import getPlacesFromYelp, TOP_RATED
 from matchmaking import models
-import facebook
+from RealServer import facebook
 from messaging.models import Message
 import datetime
 import json

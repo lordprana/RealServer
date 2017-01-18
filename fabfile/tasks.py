@@ -131,7 +131,10 @@ configure_instance = [
 
   # Run collectstatic and migrate
   {"action":"virtualenv", "params":"python %(PROJECT_PATH)s/manage.py collectstatic -v 0 --noinput"},
-  {"action":"virtualenv", "params": "%(RUN_MIGRATIONS_CMD)s"},
+  {"action":"virtualenv", "params":"python %(PROJECT_PATH)s/manage.py makemigrations api"},
+  {"action":"virtualenv", "params":"python %(PROJECT_PATH)s/manage.py makemigrations matchmaking"},
+  {"action":"virtualenv", "params":"python %(PROJECT_PATH)s/manage.py makemigrations messaging"},
+  {"action":"virtualenv", "params":"python %(PROJECT_PATH)s/manage.py migrate"},
 
 
   # Setup supervisor

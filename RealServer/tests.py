@@ -4,7 +4,7 @@ from datetime import datetime
 from PIL import Image
 from django.test import TestCase
 
-import facebook
+from RealServer import facebook
 from api.models import User
 from tools import nextDayOfWeekToDatetime, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates, cropImage
 

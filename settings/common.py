@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'messaging.apps.MessagingConfig',
     'matchmaking.apps.MatchmakingConfig',
+    'RealServer.apps.RealServerConfig',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -64,7 +65,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'RealServer.urls'
 
 TEMPLATES = [
     {
