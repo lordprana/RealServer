@@ -248,6 +248,7 @@ class ReportAndBlockTestCase(TestCase):
         }
 
         response = self.c.post('/reportandblock/', data=json.dumps(data), content_type='application/json')
+        print(response)
         date = Date.objects.get(pk=date.pk)
         report = BlockedReports.objects.first()
         self.assertEqual(response.status_code, 200)
