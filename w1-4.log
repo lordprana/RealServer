@@ -1,0 +1,2 @@
+[2017-01-17 01:15:00,600: WARNING/PoolWorker-4] 5
+[2017-01-17 01:15:00,700: INFO/PoolWorker-4] Task api.tasks.add[a7884941-cfe0-42c7-af0e-e65f4f4748c3] succeeded in 0.10049643s: 5
