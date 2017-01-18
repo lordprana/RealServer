@@ -45,7 +45,7 @@ fabconf[
     'PROJECT_PATH'] = "%s/%s" % (fabconf['APPS_DIR'], fabconf['PROJECT_NAME'])
 
 # Your Django's version "run migrations" command
-fabconf['RUN_MIGRATIONS_CMD'] = "python %s/manage.py syncdb" % fabconf['PROJECT_PATH']
+fabconf['RUN_MIGRATIONS_CMD'] = "python %s/manage.py makemigrations" % fabconf['PROJECT_PATH']
 
 # App domains
 fabconf['DOMAINS'] = "getrealdating.com www.getrealdating.com"
