@@ -61,7 +61,7 @@ def users(request, user):
         if not original_user_picture:
             return HttpResponse(status=400)
         # TODO resize picture for optimal performance
-        if not os.path.exists(settings.MEDIA_ROOT + user.fb_user_id):
+        if not os.path.exists(settings.MEDIA_ROOT + '/' + user.fb_user_id):
             os.makedirs(settings.MEDIA_ROOT + user.fb_user_id)
         f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_original.jpg', 'w')
         f.write(original_user_picture)

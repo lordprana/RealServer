@@ -5,7 +5,7 @@ import urllib
 
 import requests
 
-from settings import FB_APP_ID, FB_APP_SECRET
+from RealServer.settings import FB_APP_ID, FB_APP_SECRET
 
 """
 Takes a fb_auth_token and returns a fb_user_id

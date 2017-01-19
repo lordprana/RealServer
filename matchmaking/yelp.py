@@ -3,7 +3,7 @@ from datetime import timedelta
 import requests
 from django.utils import timezone
 
-from settings import YELP_APP_ID, YELP_APP_SECRET
+from RealServer.settings import YELP_APP_ID, YELP_APP_SECRET
 from matchmaking.models import YelpAccessToken
 
 CATEGORY_MAPPING = {
