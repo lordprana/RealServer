@@ -64,7 +64,7 @@ class User(AbstractBaseUser):
     friday_end_time = models.TimeField(blank=True, null=True)
     saturday_start_time = models.TimeField(blank=True, null=True)
     saturday_end_time = models.TimeField(blank=True, null=True)
-    """
+
     sun_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
     mon_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
     tue_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
@@ -72,7 +72,7 @@ class User(AbstractBaseUser):
     thur_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
     fri_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
     sat_date = models.ForeignKey('matchmaking.Date', related_name="+", null=True, unique=False)
-    """
+
     picture1_portrait_url = models.URLField(null=True)
     picture1_square_url = models.URLField(null=True)
     picture2_portrait_url = models.URLField(null=True)

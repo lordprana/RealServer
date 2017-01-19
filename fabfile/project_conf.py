@@ -112,4 +112,4 @@ ec2_secgroups = ['RealSecurityGroup']
 ec2_instancetype = 't2.micro'
 
 # Existing instances - add the public dns of your instances here when you have spawned them
-fabconf['EC2_INSTANCES'] = [""]
+fabconf['EC2_INSTANCES'] = ["ec2-54-202-165-175.us-west-2.compute.amazonaws.com"]
