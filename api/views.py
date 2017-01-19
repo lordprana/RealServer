@@ -4,6 +4,7 @@ from api.auth import custom_authenticate
 from api.tasks import notifyUserPassedOn
 from api import hardcoded_dates
 from api.models import User, BlockedReports, Gender
+from matchmaking import views as matchmaking
 from matchmaking.models import Date, DateStatus
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -139,18 +140,23 @@ def user(request,user):
         }
         return JsonResponse(details)
 
-#TODO: Blocking
+"""
 @csrf_exempt
 @custom_authenticate
-def dates(request, user):
+def dates(request, user, day):
     if settings.DEBUG:
         response_dict = [hardcoded_dates.date1, hardcoded_dates.date2, hardcoded_dates.date3, hardcoded_dates.date4,
                          hardcoded_dates.date5, hardcoded_dates.date6, hardcoded_dates.date7]
         return JsonResponse(response_dict, safe=False)
+"""
 
 @csrf_exempt
 @custom_authenticate
 def date(request, user, date_id):
+    if request.method == 'GET':
+        day = request.GET.get('day', None)
+        return matchmaking.date(request, user, day)
+
     if request.method == 'PATCH':
         date = Date.objects.get(pk=date_id)
         request_json = json.loads(request.body)
@@ -190,7 +196,6 @@ def date(request, user, date_id):
         date.save()
         return HttpResponse(status=200)
 
-#TODO: Blocking
 @csrf_exempt
 @custom_authenticate
 def report_and_block(request, user):
