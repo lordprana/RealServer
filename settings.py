@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+from decouple import config
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,9 +23,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'a6k!h$u$49@o#at@7-!=5^_)(a7c13$48n@@r2v-ge4ae9e3v7'
+#SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+#DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
 
@@ -99,7 +103,13 @@ DATABASES = {
         'PORT': '',
     }
 }
-
+"""
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL')
+    )
+}
+"""
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -139,11 +149,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 ENV_PATH = os.path.abspath(os.path.dirname(__file__))
-MEDIA_ROOT = os.path.join(ENV_PATH, '../media/')
-MEDIA_URL = "media/"
-STATIC_ROOT =  os.path.join(ENV_PATH, '../static/')
+MEDIA_ROOT = os.path.join(ENV_PATH, 'mediafiles')
+MEDIA_URL = "/media/"
+STATIC_ROOT =  os.path.join(ENV_PATH, 'staticfiles')
 STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
+STATICFILES_DIRS = (
+    os.path.join(ENV_PATH, 'static'),
+)
 
 YELP_APP_ID = 's7-DcAMdseJJmTHuki81Wg'
 YELP_APP_SECRET = '47MsTO8LaxzsiU6JK5shKlmMyhXd70a6StGBmsM5CR1xJn9WL9WbzXEdYyzmfYCX'

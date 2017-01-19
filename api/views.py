@@ -3,7 +3,7 @@ from rest_framework.authtoken.models import Token
 from api.auth import custom_authenticate
 from api.tasks import notifyUserPassedOn
 from api import hardcoded_dates
-from api.models import User, BlockedReports
+from api.models import User, BlockedReports, Gender
 from matchmaking.models import Date, DateStatus
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -32,7 +32,10 @@ def users(request, user):
         #TODO test this once we have full permissions from users
         user_json = facebook.getUserInfo(user)
         user.education = user_json.get('education', None)
-        user.gender = user_json.get('gender', None)
+        if user_json.get('gender', None) == 'male':
+            user.gender = Gender.MAN.value
+        elif user_json.get('gender', None) == 'female':
+            user.gender = Gender.WOMAN.value
         user.interested_in = user_json.get('interested_in', None)
         user.name = user_json.get('name', None)
         user.occupation = user_json.get('work', None)
@@ -60,18 +63,20 @@ def users(request, user):
         if not os.path.exists(settings.MEDIA_ROOT + user.fb_user_id):
             os.makedirs(settings.MEDIA_ROOT + user.fb_user_id)
         f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_original.jpg', 'w')
-        f.write(original_user_picture.content)
+        f.write(original_user_picture)
 
         square_user_picture = cropImageToSquare(original_user_picture)
-        f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_square.jpg', 'w')
-        f.write(square_user_picture.content)
+        square_user_picture.save(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_square.jpg')
+        #f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_square.jpg', 'w')
+        #f.write(square_user_picture)
         user.picture1_square_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_square.jpg'
 
         aspect_width = 205
         aspect_height = 365
         portrait_user_picture = cropImageByAspectRatio(original_user_picture, aspect_width, aspect_height)
-        f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_portrait.jpg', 'w')
-        f.write(portrait_user_picture.content)
+        #f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_portrait.jpg', 'w')
+        #f.write(portrait_user_picture)
+        portrait_user_picture.save(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_portrait.jpg')
         user.picture1_portrait_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_portrait.jpg'
         user.save()
         return JsonResponse(response_dict)
@@ -99,11 +104,11 @@ def user(request,user):
 
                 original_picture = picture.read()
                 f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + key[:8] + '_original.jpg', 'w')
-                f.write(original_picture.content)
+                f.write(original_picture)
 
                 square_picture = cropImage(original_picture, picture_startx, picture_starty, picture_endx, picture_endy)
                 f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' +  key[:8] + '_square.jpg', 'w')
-                f.write(square_picture.content)
+                f.write(square_picture)
                 setattr(user, key[:8] + '_square_url', request.META['HTTP_HOST'] + '/' + settings.MEDIA_URL + \
                                                        user.fb_user_id + '/' + key[:8] + '_square.jpg')
 
@@ -111,7 +116,7 @@ def user(request,user):
                                                                         picture_endx, picture_endy,
                                                                         aspect_width, aspect_height)
                 f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + key[:8] + '_portrait.jpg', 'w')
-                f.write(portrait_picture.content)
+                f.write(portrait_picture)
                 setattr(user, key[:8] + '_portrait_url', request.META['HTTP_HOST'] + '/' + settings.MEDIA_URL + \
                         user.fb_user_id + '/' + key[:8] + '_portrait.jpg')
 
