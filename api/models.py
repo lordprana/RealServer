@@ -16,24 +16,6 @@ class Gender(Enum):
     MAN = 'm'
 
 # Create your models here.
-class UserManager(BaseUserManager):
-    def create_user(self, fb_user_id, most_recent_fb_auth_token, password=None):
-        user = self.model(
-            fb_user_id=fb_user_id,
-            most_recent_fb_auth_token=most_recent_fb_auth_token,
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, fb_user_id, password):
-        user = self.create_user(fb_user_id=fb_user_id, password=password, most_recent_fb_auth_token='1')
-        user.is_admin = True
-        user.is_superuser = True
-        user.is_staff = True
-        user.save(using=self._db)
-        return user
-
 class User(AbstractBaseUser):
     USERNAME_FIELD = 'fb_user_id'
 
@@ -108,8 +90,6 @@ class User(AbstractBaseUser):
     new_matches_notification = models.BooleanField(default=True)
     new_messages_notification = models.BooleanField(default=True)
     upcoming_dates_notification = models.BooleanField(default=True)
-
-    objects = UserManager()
 
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
