@@ -91,10 +91,6 @@ class User(AbstractBaseUser):
     new_messages_notification = models.BooleanField(default=True)
     upcoming_dates_notification = models.BooleanField(default=True)
 
-    is_admin = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
-
     def __unicode__(self):
         if self.name:
             return self.name
