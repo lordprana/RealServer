@@ -3,6 +3,8 @@ import json
 from django.contrib.auth import authenticate
 from django.http import HttpResponse
 from rest_framework.authtoken.models import Token
+from django.contrib.auth.hashers import check_password
+from RealServer import settings
 
 from RealServer import facebook
 from api.models import User
@@ -36,7 +38,7 @@ def custom_authenticate(view):
     return view_wrapper
 
 class AuthenticationBackend(object):
-    def authenticate(self, fb_user_id, fb_auth_token=None, real_auth_token=None):
+    def authenticate(self, fb_user_id, fb_auth_token=None, real_auth_token=None, password=None):
         if real_auth_token:
             try:
                 user = User.objects.get(fb_user_id=fb_user_id)
@@ -67,6 +69,22 @@ class AuthenticationBackend(object):
             else:
                 return None
         return None
+    def authenticate(self, fb_user_id=None, password=None):
+        login_valid = (settings.ADMIN_LOGIN == fb_user_id)
+        pwd_valid = check_password(password, settings.ADMIN_PASSWORD)
+        if login_valid and pwd_valid:
+            try:
+                user = User.objects.get(fb_user_id=fb_user_id)
+            except User.DoesNotExist:
+                # Create a new user. There's no need to set a password
+                # because only the password from settings.py is checked.
+                user = User(fb_user_id=fb_user_id)
+                user.is_staff = True
+                user.is_superuser = True
+                user.save()
+            return user
+        return None
+
 
     def get_user(self,fb_user_id):
         try:

@@ -45,6 +45,9 @@ FB_APP_SECRET = 'e03cc02eb74e7a8e2ec53c5667b98aaa'
 
 AUTH_USER_MODEL = 'api.User'
 AUTHENTICATION_BACKENDS = ['api.auth.AuthenticationBackend']
+ADMIN_LOGIN = 'admin'
+ADMIN_PASSWORD = '4960Qn9GFLgj'
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -151,7 +154,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles')
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'mediafiles/')
 MEDIA_URL = '/media/'
 STATIC_ROOT =  os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_URL = '/static/'
