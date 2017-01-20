@@ -26,8 +26,8 @@ class User(AbstractBaseUser):
     age = models.IntegerField(null=True)
     gender = models.CharField(max_length=1, null=True)
     interested_in = models.CharField(max_length=1, null=True)
-    occupation = models.CharField(max_length=50, null=True)
-    education = models.CharField(max_length=50, null=True)
+    occupation = models.CharField(max_length=200, null=True)
+    education = models.CharField(max_length=200, null=True)
     about = models.CharField(max_length=500, null=True)
 
     min_age_preference = models.IntegerField(default=18)

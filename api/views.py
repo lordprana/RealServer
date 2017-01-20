@@ -32,14 +32,21 @@ def users(request, user):
         }
         #TODO test this once we have full permissions from users
         user_json = facebook.getUserInfo(user)
-        user.education = user_json.get('education', None)
         if user_json.get('gender', None) == 'male':
             user.gender = Gender.MAN.value
         elif user_json.get('gender', None) == 'female':
             user.gender = Gender.WOMAN.value
         user.interested_in = user_json.get('interested_in', None)
         user.name = user_json.get('name', None)
+
+        # Parse json for education and occupation
+        user.education = user_json.get('education', None)
+        if user.education:
+            user.education = user.education[-1]['school']['name']
+
         user.occupation = user_json.get('work', None)
+        if user.occupation:
+            user.occupation = user.occupation[0]['position']['name']
 
         # Convert birthday to age
         try:
