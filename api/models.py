@@ -15,6 +15,11 @@ class Gender(Enum):
     WOMAN = 'w'
     MAN = 'm'
 
+class Status(Enum):
+    NEW_USER = 'new'
+    FINISHED_PROFILE = 'finished_profile'
+    INACTIVE = 'inactive'
+
 # Create your models here.
 class User(AbstractBaseUser):
     USERNAME_FIELD = 'fb_user_id'
@@ -29,6 +34,8 @@ class User(AbstractBaseUser):
     occupation = models.CharField(max_length=200, null=True)
     education = models.CharField(max_length=200, null=True)
     about = models.CharField(max_length=500, null=True)
+
+    status = models.CharField(max_length=20)
 
     min_age_preference = models.IntegerField(default=18)
     max_age_preference = models.IntegerField(default=35)

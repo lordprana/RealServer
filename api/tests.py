@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 
 from RealServer import settings
 from api.auth import AuthenticationBackend
-from api.models import User, SexualPreference, Gender, BlockedReports
+from api.models import User, SexualPreference, Gender, BlockedReports, Status
 from api.tasks import notifyUserPassedOn
 from matchmaking.models import Date, DateStatus, DateCategories
 
@@ -54,16 +54,42 @@ class AuthenticationTestCase(TestCase):
 
 class UserTestCase(TestCase):
     def setUp(self):
-        self.user = User.objects.create(fb_user_id='131453847271362',
-                                        most_recent_fb_auth_token="EAACEFGIZCorABANb4jkcIiUKSLfXGKU15TRrQ6yRyTXZBT4MeD2l0M3eMJ6E86aoJ1149vL5E7ZAtVAisipCOQH7E5UN9XuAhSIaWnpZCJe9ZApmC0AZBFXkZA6ZC1U7uI8j9WpfCGs0qnmFUkbYKy1vDO83jiAIZCWwuqn5CUwc3tOAG2xKucDN3")
-        self.real_auth_token = Token.objects.create(user=self.user)
         self.c = Client()
 
-    #TODO: Implement this test once we have a functioning test user
     def test_create_user(self):
+        fb_user_id = '2959531196950'
+        fb_auth_token = 'EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum'
+        data = {
+            'fb_user_id': fb_user_id,
+            'fb_auth_token': fb_auth_token
+        }
+        self.assertEqual(User.objects.all().count(), 0)
+        self.assertEqual(Token.objects.all().count(), 0)
+        response = self.c.post('/users', data=json.dumps(data), content_type='application/json',
+                               HTTP_HOST='www.getrealdating.com')
+        self.assertEqual(User.objects.all().count(), 1)
+        self.assertEqual(Token.objects.all().count(), 1)
+        response_json = json.loads(response.content)
+        self.assertEqual(response_json['real_auth_token'], Token.objects.first().key)
+        self.assertEqual(response_json['fb_user_id'], User.objects.first().fb_user_id)
+        self.assertEqual(response_json['status'], Status.NEW_USER.value)
+        user = User.objects.first()
+        self.assertEqual(user.name, 'Matthew Gaba')
+        self.assertEqual(user.gender, Gender.MAN.value)
+        #TODO Update when we have correct permissions
+        #self.assertEqual(user.interested_in)
+        self.assertEqual(user.education, 'Yale University')
+        self.assertEqual(user.occupation, 'Certified Yoga & Meditation Teacher')
+        self.assertEqual(user.age, 27)
+        self.assertEqual(user.picture1_square_url, 'www.getrealdating.com/media/2959531196950/picture1_square.jpg')
+        self.assertEqual(user.picture1_portrait_url, 'www.getrealdating.com/media/2959531196950/picture1_portrait.jpg')
+
         pass
 
     def test_get_user(self):
+        self.user = User.objects.create(fb_user_id='2959531196950',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token = Token.objects.create(user=self.user)
         self.user.interested_in = SexualPreference.WOMEN.value
         self.user.occupation = 'Lawyer'
         self.user.name = 'Chad Potter'
@@ -83,7 +109,9 @@ class UserTestCase(TestCase):
         self.assertEqual('www.getrealdating.com/media/131453847271362/picture1_square.jpg', response['profile_picture'])
 
     def test_patch_user(self):
-
+        self.user = User.objects.create(fb_user_id='2959531196950',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token = Token.objects.create(user=self.user)
         # Test request from Places screen
         data = {
             "real_auth_token": self.real_auth_token.key,
@@ -140,7 +168,7 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.monday_start_time, dateparse.parse_time(data["monday_start_time"]))
         self.assertEqual(load_user.monday_end_time, dateparse.parse_time(data["monday_end_time"]))
 
-        # Test request update from Time input screen
+        # Test request from Time input screen when user is simply updating and not creating new values
         data = {
             "real_auth_token": self.real_auth_token.key,
             "sunday_start_time": time(hour=17, minute=30).isoformat(),
@@ -155,6 +183,23 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.sunday_end_time, dateparse.parse_time(data["sunday_end_time"]))
         self.assertEqual(load_user.monday_start_time, dateparse.parse_time(data["monday_start_time"]))
         self.assertEqual(load_user.monday_end_time, dateparse.parse_time(data["monday_end_time"]))
+
+        # Test request from setup profile screen
+        data = {
+            "real_auth_token": self.real_auth_token.key,
+            "interested_in": SexualPreference.BISEXUAL.value,
+            "occupation": "Plumber",
+            "education": None,
+            "about": "I love women and men."
+        }
+        response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
+        load_user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(load_user.interested_in, data["interested_in"])
+        self.assertEqual(load_user.occupation, data["occupation"])
+        self.assertEqual(load_user.education, data["education"])
+        self.assertEqual(load_user.about, data["about"])
+        self.assertEqual(load_user.status, Status.FINISHED_PROFILE.value)
 
 class DateTestCase(TestCase):
     def setUp(self):

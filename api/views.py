@@ -3,7 +3,7 @@ from rest_framework.authtoken.models import Token
 from api.auth import custom_authenticate
 from api.tasks import notifyUserPassedOn
 from api import hardcoded_dates
-from api.models import User, BlockedReports, Gender
+from api.models import User, BlockedReports, Gender, Status, SexualPreference
 from matchmaking import views as matchmaking
 from matchmaking.models import Date, DateStatus
 from django.http import JsonResponse, HttpResponse
@@ -25,18 +25,39 @@ from RealServer import facebook
 def users(request, user):
     if request.method == 'POST':
         token = Token.objects.get(user=user)
+        if user.status == Status.FINISHED_PROFILE.value or user.status == Status.INACTIVE:
+            user.status = Status.FINISHED_PROFILE.value
+            response_dict = {
+                'fb_user_id' : user.fb_user_id,
+                'real_auth_token': token.key,
+                'status': user.status
+            }
+            user.save()
+            return  JsonResponse(response_dict)
+
+        user.status = Status.NEW_USER.value
         response_dict = {
-            'fb_user_id' : user.fb_user_id,
-            'real_auth_token': token.key,
-            'status': 'profile_incomplete'
-        }
+                'fb_user_id' : user.fb_user_id,
+                'real_auth_token': token.key,
+                'status': user.status
+            }
+
         #TODO test this once we have full permissions from users
         user_json = facebook.getUserInfo(user)
         if user_json.get('gender', None) == 'male':
             user.gender = Gender.MAN.value
         elif user_json.get('gender', None) == 'female':
             user.gender = Gender.WOMAN.value
-        user.interested_in = user_json.get('interested_in', None)
+
+        #TODO test interested in once we have full permissions
+        interested_in = user_json.get('interested_in', None)
+        if interested_in:
+            if len(interested_in) > 1:
+                user.interested_in = SexualPreference.BISEXUAL.value
+            elif interested_in[0] == 'male':
+                user.interested_in = SexualPreference.MEN.value
+            elif interested_in[0] == 'female':
+                user.interested_in = SexualPreference.WOMEN.value
         user.name = user_json.get('name', None)
 
         # Parse json for education and occupation
@@ -74,13 +95,14 @@ def users(request, user):
 
         square_user_picture = cropImageToSquare(original_user_picture)
         square_user_picture.save(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_square.jpg')
-        user.picture1_square_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_square.jpg'
+        user.picture1_square_url = request.META['HTTP_HOST'] + settings.MEDIA_URL + user.fb_user_id + '/picture1_square.jpg'
 
         aspect_width = 205
         aspect_height = 365
         portrait_user_picture = cropImageByAspectRatio(original_user_picture, aspect_width, aspect_height)
         portrait_user_picture.save(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_portrait.jpg')
-        user.picture1_portrait_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_portrait.jpg'
+        user.picture1_portrait_url = request.META['HTTP_HOST'] + settings.MEDIA_URL + user.fb_user_id + '/picture1_portrait.jpg'
+
         user.save()
         return JsonResponse(response_dict)
     else:
@@ -95,6 +117,10 @@ def user(request,user):
         for key, value in json_data.iteritems():
             if key == 'real_auth_token':
                 continue
+            # Education is provided in the last step of setting up a profile, so if it's here, we know to change the
+            # user status.
+            elif key == 'education':
+                user.status = Status.FINISHED_PROFILE.value
             elif re.match('^picture', key) and re.match('_url$', key):
                 picture_url = value
                 picture_startx = json_data[key[:8]+'_startx']
