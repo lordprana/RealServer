@@ -31,6 +31,3 @@ def notifyUserPassedOn(user1_id, user2_id, date_id):
     date.expires_at = date.original_expires_at
     date.save()
     user1.passed_matches.add(user2)
-    user2.passed_matches.add(user1)
-    user1.save()
-    user2.save()

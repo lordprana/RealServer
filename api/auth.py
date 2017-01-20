@@ -38,7 +38,7 @@ def custom_authenticate(view):
     return view_wrapper
 
 class AuthenticationBackend(object):
-    def authenticate(self, fb_user_id, fb_auth_token=None, real_auth_token=None, password=None):
+    def authenticate(self, fb_user_id, fb_auth_token=None, real_auth_token=None):
         if real_auth_token:
             try:
                 user = User.objects.get(fb_user_id=fb_user_id)
@@ -68,21 +68,6 @@ class AuthenticationBackend(object):
                     return user
             else:
                 return None
-        return None
-    def authenticate(self, fb_user_id=None, password=None):
-        login_valid = (settings.ADMIN_LOGIN == fb_user_id)
-        pwd_valid = check_password(password, settings.ADMIN_PASSWORD)
-        if login_valid and pwd_valid:
-            try:
-                user = User.objects.get(fb_user_id=fb_user_id)
-            except User.DoesNotExist:
-                # Create a new user. There's no need to set a password
-                # because only the password from settings.py is checked.
-                user = User(fb_user_id=fb_user_id)
-                user.is_staff = True
-                user.is_superuser = True
-                user.save()
-            return user
         return None
 
 

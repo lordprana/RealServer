@@ -55,8 +55,10 @@ class MatchMakingTestCase(TestCase):
         self.straight_women_users[0].passed_matches.add(self.straight_men_users[2])
         self.straight_women_users[0].passed_matches.add(self.straight_men_users[3])
         self.straight_women_users[0].passed_matches.add(self.straight_men_users[4])
+
         count = filterPassedMatches(self.straight_women_users[0],User.objects.all()).count()
         self.assertEqual(User.objects.all().count()-self.straight_women_users[0].passed_matches.all().count(), count)
+        self.assertEqual(self.straight_men_users[4].passed_matches.all().count(), 1)
 
     def test_time_available_filter(self):
         # Test time overlapping

@@ -221,6 +221,23 @@ class DateTestCase(TestCase):
         date = Date.objects.get(pk=date.pk)
         self.assertEqual(date.expires_at, date.original_expires_at)
 
+        # Test user 1 passed, user 2 undecided
+        date = Date(user1=self.user1, user2=self.user2,
+                    expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                        tzinfo=pytz.UTC),
+                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                    category=DateCategories.COFFEE.value)
+        date.original_expires_at = date.expires_at
+        date.user2_likes = DateStatus.UNDECIDED.value
+        date.save()
+        data = {
+            "real_auth_token": self.real_auth_token1.key,
+            "status": DateStatus.PASS.value
+        }
+        response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
+        self.user1 = User.objects.get(pk=self.user1.pk)
+        self.assertEqual(self.user1.passed_matches.all().count(), 1)
+
 class ReportAndBlockTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',

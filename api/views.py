@@ -51,7 +51,6 @@ def users(request, user):
                 bd = None
         except KeyError:
             bd = None
-
         if bd:
             today = timezone.now()
             user.age = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
@@ -68,15 +67,11 @@ def users(request, user):
 
         square_user_picture = cropImageToSquare(original_user_picture)
         square_user_picture.save(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_square.jpg')
-        #f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_square.jpg', 'w')
-        #f.write(square_user_picture)
         user.picture1_square_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_square.jpg'
 
         aspect_width = 205
         aspect_height = 365
         portrait_user_picture = cropImageByAspectRatio(original_user_picture, aspect_width, aspect_height)
-        #f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_portrait.jpg', 'w')
-        #f.write(portrait_user_picture)
         portrait_user_picture.save(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_portrait.jpg')
         user.picture1_portrait_url = request.META['HTTP_HOST']+ '/' + settings.MEDIA_URL + user.fb_user_id + '/picture1_portrait.jpg'
         user.save()
@@ -140,15 +135,6 @@ def user(request,user):
         }
         return JsonResponse(details)
 
-"""
-@csrf_exempt
-@custom_authenticate
-def dates(request, user, day):
-    if settings.DEBUG:
-        response_dict = [hardcoded_dates.date1, hardcoded_dates.date2, hardcoded_dates.date3, hardcoded_dates.date4,
-                         hardcoded_dates.date5, hardcoded_dates.date6, hardcoded_dates.date7]
-        return JsonResponse(response_dict, safe=False)
-"""
 
 @csrf_exempt
 @custom_authenticate
@@ -168,10 +154,11 @@ def date(request, user, date_id):
         else:
             request_user = 'user2'
             match_user = 'user1'
+
         setattr(date, request_user+'_likes', request_json['status'])
         # If both users like each other, then set the date to expire at the last minute on the day of the date
         if request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
-            date.expires_at = nextDayOfWeekToDatetime(timezone.now(), date.day)
+            date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
             date.expires_at = date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0)
             #TODO: Send notification to match_user
         # If it's a like, but other user has passed notify user after two hours that they've been passed on
@@ -193,6 +180,11 @@ def date(request, user, date_id):
                                                                          user2_id=getattr(date, request_user).pk,
                                                                          date_id=date.pk,
                                                                          countdown=60 * 60 * 2))
+        elif request_json['status'] == DateStatus.PASS.value and getattr(date, match_user + '_likes') == DateStatus.UNDECIDED.value:
+            getattr(date, request_user).passed_matches.add(getattr(date, match_user))
+        elif request_json['status'] == DateStatus.PASS.value and getattr(date,
+                                                                             match_user + '_likes') == DateStatus.PASS.value:
+            getattr(date, request_user).passed_matches.add(getattr(date, match_user))
         date.save()
         return HttpResponse(status=200)
 

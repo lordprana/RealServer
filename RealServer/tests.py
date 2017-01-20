@@ -48,6 +48,9 @@ class ToolsTest(TestCase):
         self.assertEqual(dt, datetime(year=2017, month=1, day=22))
         dt = nextDayOfWeekToDatetime(dt, 'tue')
         self.assertEqual(dt, datetime(year=2017, month=1, day=24))
+        dt = datetime(year=2017, month=1, day=19)
+        dt = nextDayOfWeekToDatetime(dt, 'thur')
+        self.assertEqual(dt, datetime(year=2017, month=1, day=19))
 
     def test_crop_image_to_square(self):
         # Test Portrait Orientation
