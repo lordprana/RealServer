@@ -52,7 +52,8 @@ def getUserProfilePicture(user):
     response = requests.get(request_url)
     response_json = json.loads(response.content)
     if response.status_code == 200 and response_json['picture']['data']['url']:
-        picture = urllib.urlopen(response_json['picture']['data']['url'])
-        return picture.read()
+        #picture = urllib.urlopen(response_json['picture']['data']['url'])
+        picture = requests.get(response_json['picture']['data']['url'])
+        return picture.content
     else:
         return None

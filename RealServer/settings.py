@@ -37,6 +37,9 @@ else:
 
 ALLOWED_HOSTS = ['*']
 
+AWS_ACCESS_KEY_ID = 'AKIAI4755USWAQYAFTUA'
+AWS_SECRET_ACCESS_KEY = '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'
+S3_BUCKET = 'realdatingbucket'
 
 # Application definition
 

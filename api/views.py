@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
 from  RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates
+from RealServer.aws import s3_generate_presigned_post
 from django.db import transaction
 import json
 import re
@@ -20,6 +21,9 @@ import urllib
 import boto3
 import random
 import string
+import os
+from StringIO import StringIO
+import requests
 from RealServer import facebook
 # Create your views here.
 
@@ -86,26 +90,37 @@ def users(request, user):
             today = timezone.now()
             user.age = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
 
-        # Save pictures to disk. Images come in original, square, and portrait flavors
+        # Save pictures to S3. Images come in original, square, and portrait flavors
         original_user_picture = facebook.getUserProfilePicture(user)
+
         if not original_user_picture:
             return HttpResponse(status=400)
         # TODO resize picture for optimal performance
         # TODO Post these pictures to S3
-        if not os.path.exists(settings.MEDIA_ROOT + '/' + user.fb_user_id):
-            os.makedirs(settings.MEDIA_ROOT + user.fb_user_id)
-        f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_original.jpg', 'w')
-        f.write(original_user_picture)
-
         square_user_picture = cropImageToSquare(original_user_picture)
-        square_user_picture.save(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_square.jpg')
-        user.picture1_square_url = request.META['HTTP_HOST'] + settings.MEDIA_URL + user.fb_user_id + '/picture1_square.jpg'
+        request_json = json.loads(s3_generate_presigned_post('.jpg', user))
+        # Save Pillow image to StringIO to send in post request
+        img_io = StringIO()
+        square_user_picture.save(img_io, 'JPEG', quality=100)
+        img_io.seek(0)
+        files = {'file': img_io.read()}
+        r = requests.post(request_json['data']['url'], data=request_json['data']['fields'], files=files)
+        if r.status_code == 204:
+            user.picture1_square_url = request_json['url']
+        #TODO: Specify behavior for failure case
 
         aspect_width = 205
         aspect_height = 365
         portrait_user_picture = cropImageByAspectRatio(original_user_picture, aspect_width, aspect_height)
-        portrait_user_picture.save(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_portrait.jpg')
-        user.picture1_portrait_url = request.META['HTTP_HOST'] + settings.MEDIA_URL + user.fb_user_id + '/picture1_portrait.jpg'
+        request_json = json.loads(s3_generate_presigned_post('.jpg', user))
+        # Save Pillow image to StringIO to send in post request
+        img_io = StringIO()
+        portrait_user_picture.save(img_io, 'JPEG', quality=100)
+        img_io.seek(0)
+        files = {'file': img_io.read()}
+        r = requests.post(request_json['data']['url'], data=request_json['data']['fields'], files=files)
+        if r.status_code == 204:
+            user.picture1_portrait_url = request_json['url']
 
         user.save()
         return JsonResponse(response_dict)
@@ -255,26 +270,5 @@ def report_and_block(request, user):
 @custom_authenticate
 # TODO test this
 def sign_s3(request, user):
-  S3_BUCKET = os.environ.get('S3_BUCKET')
-
   file_type = request.args.get('file_type')
-  # Generate a random name for the file
-  file_name = user.pk + '/' + ''.join(random.choice(string.lowercase) for i in range(12))
-
-  s3 = boto3.client('s3')
-
-  presigned_post = s3.generate_presigned_post(
-    Bucket = S3_BUCKET,
-    Key = file_name,
-    Fields = {"acl": "public-read", "Content-Type": file_type},
-    Conditions = [
-      {"acl": "public-read"},
-      {"Content-Type": file_type}
-    ],
-    ExpiresIn = 3600
-  )
-
-  return JsonResponse(json.dumps({
-    'data': presigned_post,
-    'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
-  }))
+  return JsonResponse(s3_generate_presigned_post(file_type, user))
