@@ -17,6 +17,9 @@ import re
 import os
 import datetime
 import urllib
+import boto3
+import random
+import string
 from RealServer import facebook
 # Create your views here.
 
@@ -88,6 +91,7 @@ def users(request, user):
         if not original_user_picture:
             return HttpResponse(status=400)
         # TODO resize picture for optimal performance
+        # TODO Post these pictures to S3
         if not os.path.exists(settings.MEDIA_ROOT + '/' + user.fb_user_id):
             os.makedirs(settings.MEDIA_ROOT + user.fb_user_id)
         f = open(settings.MEDIA_ROOT + user.fb_user_id + '/' + 'picture1_original.jpg', 'w')
@@ -122,6 +126,8 @@ def user(request,user):
             elif key == 'education':
                 user.status = Status.FINISHED_PROFILE.value
             elif re.match('^picture', key) and re.match('_url$', key):
+                pass
+                """
                 picture_url = value
                 picture_startx = json_data[key[:8]+'_startx']
                 picture_endx = json_data[key[:8] + '_endx']
@@ -148,10 +154,9 @@ def user(request,user):
                 f.write(portrait_picture)
                 setattr(user, key[:8] + '_portrait_url', request.META['HTTP_HOST'] + '/' + settings.MEDIA_URL + \
                         user.fb_user_id + '/' + key[:8] + '_portrait.jpg')
-
-
+                """
             elif re.match('^picture', key) and not re.match('_url$', key):
-                continue
+                pass
             setattr(user, key, value)
         user.save()
         return HttpResponse(status=200)
@@ -246,4 +251,30 @@ def report_and_block(request, user):
         except:
             return HttpResponse(status=400)
 
+@csrf_exempt
+@custom_authenticate
+# TODO test this
+def sign_s3(request, user):
+  S3_BUCKET = os.environ.get('S3_BUCKET')
 
+  file_type = request.args.get('file_type')
+  # Generate a random name for the file
+  file_name = user.pk + '/' + ''.join(random.choice(string.lowercase) for i in range(12))
+
+  s3 = boto3.client('s3')
+
+  presigned_post = s3.generate_presigned_post(
+    Bucket = S3_BUCKET,
+    Key = file_name,
+    Fields = {"acl": "public-read", "Content-Type": file_type},
+    Conditions = [
+      {"acl": "public-read"},
+      {"Content-Type": file_type}
+    ],
+    ExpiresIn = 3600
+  )
+
+  return JsonResponse(json.dumps({
+    'data': presigned_post,
+    'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
+  }))
