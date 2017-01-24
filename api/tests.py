@@ -1,5 +1,6 @@
 import json
 from datetime import time, datetime, timedelta
+import os
 
 import pytz
 from django.test import TestCase, Client
@@ -57,6 +58,9 @@ class UserTestCase(TestCase):
         self.c = Client()
 
     def test_create_user(self):
+        os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
+        os.environ['S3_BUCKET'] = 'realdatingbucket'
         fb_user_id = '2959531196950'
         fb_auth_token = 'EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum'
         data = {
@@ -76,15 +80,12 @@ class UserTestCase(TestCase):
         user = User.objects.first()
         self.assertEqual(user.name, 'Matthew Gaba')
         self.assertEqual(user.gender, Gender.MAN.value)
-        #TODO Update when we have correct permissions
-        #self.assertEqual(user.interested_in)
         self.assertEqual(user.education, 'Yale University')
         self.assertEqual(user.occupation, 'Certified Yoga & Meditation Teacher')
         self.assertEqual(user.age, 27)
-        #self.assertEqual(user.picture1_square_url, 'www.getrealdating.com/media/2959531196950/picture1_square.jpg')
-        #self.assertEqual(user.picture1_portrait_url, 'www.getrealdating.com/media/2959531196950/picture1_portrait.jpg')
-        print(user.picture1_square_url)
-        print(user.picture1_portrait_url)
+        self.assertEqual(user.interested_in, SexualPreference.WOMEN.value)
+        self.assertTrue('realdatingbucket.s3.amazonaws.com' in user.picture1_square_url)
+        self.assertTrue('realdatingbucket.s3.amazonaws.com' in user.picture1_portrait_url)
 
     def test_get_user(self):
         self.user = User.objects.create(fb_user_id='2959531196950',
