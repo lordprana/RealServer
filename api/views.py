@@ -219,6 +219,8 @@ def date(request, user, date_id):
         elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
             # TODO: Test this in production. This code is not properly being tested
             date.expires_at = timezone.now() + datetime.timedelta(hours=24)
+            print("This is the URL:")
+            print(settings.CLOUDAMQP_URL)
             transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
                                                                           getattr(date, match_user).pk,
                                                                          date.pk),
