@@ -22,6 +22,7 @@ import boto3
 import random
 import string
 import os
+from RealServer import settings
 from StringIO import StringIO
 import requests
 from RealServer import facebook
@@ -229,6 +230,8 @@ def date(request, user, date_id):
         elif request_json['status'] == DateStatus.PASS.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
             # Notify user after two hours that they've been passed on
             # TODO: Test this in production. This code is not properly being tested
+            print("This is the URL:")
+            print(settings.CLOUDAMQP_URL)
             transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
                                                                          getattr(date, request_user).pk,
                                                                          date.pk),
