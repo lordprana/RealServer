@@ -1,2 +1,2 @@
-web: gunicorn RealServer.wsgi --log-file -w 1
+web: gunicorn RealServer.wsgi --log-file
 worker: celery -A RealServer worker -l info -c 1
