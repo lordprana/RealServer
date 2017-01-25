@@ -173,7 +173,7 @@ YELP_APP_SECRET = '47MsTO8LaxzsiU6JK5shKlmMyhXd70a6StGBmsM5CR1xJn9WL9WbzXEdYyzmf
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-BROKER_URL = os.environ.get("REDIS_URL", "redis://")
+CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://")
 CELERY_BROKER_POOL_LIMIT = 1
 CELERY_BROKER_CONNECTION_MAX_RETRIES = None
 
