@@ -221,7 +221,7 @@ def date(request, user, date_id):
             transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
                                                                           getattr(date, match_user).pk,
                                                                          date.pk),
-                                                                         countdown=60 * 60 * 2))
+                                                                         countdown=2))
         # If it's a like and the other user hasn't responded, add 24 hours to the expires_at time
         elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.UNDECIDED.value:
             date.expires_at = timezone.now() + datetime.timedelta(hours=24)
@@ -232,7 +232,7 @@ def date(request, user, date_id):
             transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
                                                                          getattr(date, request_user).pk,
                                                                          date.pk),
-                                                                         countdown=60 * 60 * 2))
+                                                                         countdown=2))
         elif request_json['status'] == DateStatus.PASS.value and getattr(date, match_user + '_likes') == DateStatus.UNDECIDED.value:
             getattr(date, request_user).passed_matches.add(getattr(date, match_user))
         elif request_json['status'] == DateStatus.PASS.value and getattr(date,
