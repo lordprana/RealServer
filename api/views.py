@@ -220,7 +220,7 @@ def date(request, user, date_id):
             # TODO: Test this in production. This code is not properly being tested
             date.expires_at = timezone.now() + datetime.timedelta(hours=24)
             print("This is the URL:")
-            print(settings.CLOUDAMQP_URL)
+            print(settings.CELERY_BROKER_URL)
             transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
                                                                           getattr(date, match_user).pk,
                                                                          date.pk),
@@ -233,7 +233,7 @@ def date(request, user, date_id):
             # Notify user after two hours that they've been passed on
             # TODO: Test this in production. This code is not properly being tested
             print("This is the URL:")
-            print(settings.CLOUDAMQP_URL)
+            print(settings.CELERY_BROKER_URL)
             transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
                                                                          getattr(date, request_user).pk,
                                                                          date.pk),
