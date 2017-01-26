@@ -5,9 +5,9 @@ from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
 from api.models import User, Gender, SexualPreference
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
-    generateRandomTimeForDate, date
+    generateRandomTimeForDate, date, generateDateOfDateFromDay
 from matchmaking.yelp import getPlacesFromYelp
-from matchmaking.models import YelpAccessToken
+from matchmaking.models import YelpAccessToken, Date
 from datetime import datetime, timedelta, time
 from django.utils import timezone
 
@@ -115,6 +115,18 @@ class MatchMakingTestCase(TestCase):
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results.count(), 0)
 
+    def test_generate_date_of_date_from_day(self):
+        # This test must be rewritten for current time
+        date = generateDateOfDateFromDay('thur')
+        self.assertEqual(date.day, 26)
+        self.assertEqual(date.month, 1)
+        date = generateDateOfDateFromDay('mon')
+        self.assertEqual(date.day, 30)
+        self.assertEqual(date.month, 1)
+        date = generateDateOfDateFromDay('wed')
+        self.assertEqual(date.day, 1)
+        self.assertEqual(date.month, 2)
+
     def test_generate_random_time_for_date(self):
         # Test if only an hour window
         woman = self.straight_women_users[0]
@@ -198,6 +210,8 @@ class MatchMakingTestCase(TestCase):
         man.friday_end_time = time(hour=23)
         man.saturday_start_time = time(hour=18)
         man.saturday_end_time = time(hour=23)
+        man.fb_user_id = '110000369505832'
+        man.most_recent_fb_auth_token = 'EAACEFGIZCorABAGsVlCIHsV815c9PTU1yT2iufkAbyiCn3yNb8MfczAqh7FPBt02s7k4yDVeI5TUac6sa1ylYbEZBl7oIVNjPtS4PopS7Oi7Mrgj4N9Lz7ND5036DziaEehKRdHUucvsNZC900v8YIp0pSagqWXBJyDNj74ZCl2whBDYJKPfrCRKXC4ZCFR3Xl45gXDZApa1ZCbfJvoNRnf'
         man.save()
 
         # Create man's matches
@@ -215,9 +229,14 @@ class MatchMakingTestCase(TestCase):
         woman1.likes_nature = True
         woman1.sunday_start_time = time(hour=18)
         woman1.sunday_end_time = time(hour=23)
+        woman1.fb_user_id = '131453847271362'
+        woman1.most_recent_fb_auth_token = 'EAACEFGIZCorABAICptUHpj0A91yU3iJ6gVv97ZB3cChHZB6Md1OMOuIM9YWTC322NfmxuMV5Jt2FMlfZBS4Occ5ZApyZAWhC8aQgta5o7u2uGfvfCMn5Br3JXXtvZCt2pVBs5MJeJXMCZBUHjnJZCmaVlZAUF1oVZAao0pb3TZCfqyZB3B9QOaGMqryLnBDy9hLxNZAGVZAyNCQcgnqq4PQCZCNQT6GQ'
         woman1.save()
         dl = json.loads(json.loads(date(None, man, 'sun').content))
         self.assertEqual(dl['match']['name'], woman1.name)
+        self.assertEqual(len(dl['match']['mutual_friends']), 2)
+        d = Date.objects.first()
+        self.assertEqual(len(d.mutualfriend_set.all()), 2)
 
         # woman2 shouldn't match because man already has date with woman1
         woman2 = self.straight_women_users[1]
@@ -310,6 +329,7 @@ class MatchMakingTestCase(TestCase):
         woman7.save()
         dl = json.loads(json.loads(date(None, man, 'sat').content))
         self.assertEqual(dl, None)
+
 
 class YelpTestCase(TestCase):
     def setUp(self):

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from enum import Enum
 from datetime import date
+from django.utils import timezone
 
 class DateStatus(Enum):
     LIKES = 'l'
@@ -25,6 +26,7 @@ class Date(models.Model):
     original_expires_at = models.DateTimeField() # The expires_at field set when this Date is first created.
     expires_at = models.DateTimeField()
     day = models.CharField(max_length=4)
+    date_of_date = models.DateField(default=timezone.now()) # Added this default value to fix bug
     start_time = models.TimeField()
     user1_likes = models.CharField(max_length=1, default=DateStatus.UNDECIDED.value)
     user2_likes = models.CharField(max_length=1, default=DateStatus.UNDECIDED.value)
@@ -36,3 +38,8 @@ class YelpAccessToken(models.Model):
     access_token = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
+
+class MutualFriend(models.Model):
+    name = models.CharField(max_length=200)
+    picture = models.URLField()
+    date = models.ForeignKey(Date)

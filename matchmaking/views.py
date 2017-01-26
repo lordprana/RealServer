@@ -97,6 +97,15 @@ def filterTimeAvailableUsers(user, day, potential_matches):
             .filter(Q(sat_date=None) | Q(sat_date__expires_at__lt=timezone.now()))
     return None
 
+def generateDateOfDateFromDay(day):
+    days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']
+    date_of_date = timezone.now().date()
+    current_day = date_of_date.weekday()
+    while days[current_day] != day:
+        date_of_date = date_of_date + datetime.timedelta(days=1)
+        current_day = date_of_date.weekday()
+    return date_of_date
+
 def generateRandomTimeForDate(user, match, day):
 
     # Find correct values for day
@@ -242,6 +251,14 @@ def makeDate(user, day, potential_matches):
         setattr(match, day+'_date', date)
         user.save()
         match.save()
+
+        # Get Mutual Friends
+        mutual_friends_json = facebook.getMutualFriends(user, potential_match)
+        if mutual_friends_json:
+            mutual_friends_json = mutual_friends_json['data']
+            for friend in mutual_friends_json:
+                date.mutualfriend_set.create(name=friend['name'], picture=friend['picture']['data']['url'])
+
         return date
 
 def convertDateToJson(user,date):
@@ -300,19 +317,15 @@ def convertDateToJson(user,date):
         ]
     }
 
-    # Get Mutual Friends
-    mutual_friends_json = facebook.getMutualFriends(user, potential_match)
-    if mutual_friends_json:
-        mutual_friends_json = mutual_friends_json['data']
-        mutual_friends = []
-        for friend in mutual_friends_json:
-            mutual_friends.append({
-                'friend': {
-                    'name': friend['name'],
-                    'picture': friend['picture']['data']['url']
-                }
-            })
-        json['match']['mutual_friends'] = mutual_friends
+    mutual_friends = []
+    for friend in date.mutualfriend_set.all():
+        mutual_friends.append({
+            'friend': {
+                'name': friend.name,
+                'picture': friend.picture
+            }
+        })
+    json['match']['mutual_friends'] = mutual_friends
 
     return json
 

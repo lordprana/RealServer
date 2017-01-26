@@ -283,6 +283,33 @@ class DateTestCase(TestCase):
         self.user1 = User.objects.get(pk=self.user1.pk)
         self.assertEqual(self.user1.passed_matches.all().count(), 1)
 
+    def test_past_dates(self):
+        date1 = Date(user1=self.user1, user2=self.user2,
+                    expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                        tzinfo=pytz.UTC),
+                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                    category=DateCategories.COFFEE.value)
+        date1.original_expires_at = date1.expires_at
+        date1.user1_likes = DateStatus.LIKES.value
+        date1.user2_likes = DateStatus.LIKES.value
+        date1.date_of_date = timezone.now().date() - timedelta(days=2)
+        date1.save()
+        date2 = Date(user1=self.user1, user2=self.user2,
+                     expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                         tzinfo=pytz.UTC),
+                     day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                     category=DateCategories.COFFEE.value)
+        date2.original_expires_at = date2.expires_at
+        date2.user1_likes = DateStatus.LIKES.value
+        date2.user2_likes = DateStatus.LIKES.value
+        date2.date_of_date = timezone.now().date() - timedelta(days=7)
+        date2.save()
+        response = self.c.get('/users/' + self.user1.fb_user_id + '/past_dates?real_auth_token=' + self.real_auth_token1.key)
+        response_json = json.loads(response.content)
+        self.assertEqual(len(response_json), 2)
+        self.assertEqual(response_json[0]['date_id'], 1)
+        self.assertEqual(response_json[1]['date_id'], 2)
+
 class ReportAndBlockTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',

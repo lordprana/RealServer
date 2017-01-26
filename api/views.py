@@ -271,3 +271,15 @@ def report_and_block(request, user):
 def sign_s3(request, user):
   file_type = request.args.get('file_type')
   return JsonResponse(s3_generate_presigned_post(file_type, user))
+
+@csrf_exempt
+@custom_authenticate
+def past_dates(request, user):
+    past_dates = Date.objects.filter(user1_likes=DateStatus.LIKES.value, user2_likes=DateStatus.LIKES.value,
+                                     date_of_date__lt=timezone.now().date()).order_by('-date_of_date')
+    dates_json = []
+    for d in past_dates:
+        dates_json.append(matchmaking.convertDateToJson(user, d))
+    return JsonResponse(dates_json, safe=False)
+
+
