@@ -3,7 +3,7 @@ from rest_framework.authtoken.models import Token
 from api.auth import custom_authenticate
 from api.tasks import notifyUserPassedOn
 from api import hardcoded_dates
-from api.models import User, BlockedReports, Gender, Status, SexualPreference
+from api.models import User, BlockedReports, Gender, Status, SexualPreference, FCMDevice
 from matchmaking import views as matchmaking
 from matchmaking.models import Date, DateStatus
 from django.http import JsonResponse, HttpResponse
@@ -281,5 +281,15 @@ def past_dates(request, user):
     for d in past_dates:
         dates_json.append(matchmaking.convertDateToJson(user, d))
     return JsonResponse(dates_json, safe=False)
+
+@csrf_exempt
+@custom_authenticate
+def register_fcm_device(request, user):
+    registration_token = request.GET.get('registration_token', None)
+    if not registration_token:
+        return HttpResponse(status=400)
+    FCMDevice.objects.create(registration_token=registration_token, user=user)
+    return HttpResponse(status=200)
+
 
 

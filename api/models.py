@@ -109,3 +109,7 @@ class BlockedReports(models.Model):
     blocked_user = models.ForeignKey(User, related_name='blocked_user')
     associated_date = models.ForeignKey(Date, related_name='associated_date')
     report_content = models.CharField(max_length=10000)
+
+class FCMDevice(models.Model):
+    registration_token = models.CharField(max_length=100)
+    user = models.ForeignKey(User)
