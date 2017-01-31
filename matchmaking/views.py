@@ -39,63 +39,17 @@ def filterByAge(user, potential_matches):
 def filterTimeAvailableUsers(user, day, potential_matches):
     # Filter to match only users who are available at same time as this user.
     # Structure query so that there is at least a one-hour meeting period for potential matches
-    if day == 'sun' and user.sun_start_time and (not user.sun_date or (user.sun_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(sun_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.sun_start_time) + datetime.timedelta(
-                                                     hours=1)).time()) &
-                                               Q(sun_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.sun_end_time) - datetime.timedelta(
-                                                     hours=1)).time()))\
-            .filter(Q(sun_date=None) | Q(sun_date__expires_at__lt=timezone.now()))
-    elif day == 'mon' and user.mon_start_time and (not user.mon_date or (user.mon_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(mon_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.mon_start_time) + datetime.timedelta(
-                                                     hours=1)).time()) &
-                                               Q(mon_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.mon_end_time) - datetime.timedelta(
-                                                     hours=1)).time()))\
-            .filter(Q(mon_date=None) | Q(mon_date__expires_at__lt=timezone.now()))
-    elif day == 'tue' and user.tue_start_time and (not user.tue_date or (user.tue_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(tue_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.tue_start_time) + datetime.timedelta(
-                                                     hours=1)).time()) &
-                                               Q(tue_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.tue_end_time) - datetime.timedelta(
-                                                     hours=1)).time()))\
-            .filter(Q(tue_date=None) | Q(tue_date__expires_at__lt=timezone.now()))
-    elif day == 'wed' and user.wed_start_time and (not user.wed_date or (user.wed_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(wed_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.wed_start_time) + datetime.timedelta(
-                                                     hours=1)).time()) &
-                                               Q(wed_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.wed_end_time) - datetime.timedelta(
-                                                     hours=1)).time()))\
-            .filter(Q(wed_date=None) | Q(wed_date__expires_at__lt=timezone.now()))
-    elif day == 'thur' and user.thur_start_time and (not user.thur_date or (user.thur_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(thur_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.thur_start_time) + datetime.timedelta(
-                                                     hours=1)).time()) &
-                                               Q(thur_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.thur_end_time) - datetime.timedelta(
-                                                     hours=1)).time()))\
-            .filter(Q(thur_date=None) | Q(thur_date__expires_at__lt=timezone.now()))
-    elif day == 'fri' and user.fri_start_time and (not user.fri_date or (user.fri_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(fri_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.fri_start_time) + datetime.timedelta(
-                                                     hours=1)).time()) &
-                                               Q(fri_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.fri_end_time) - datetime.timedelta(
-                                                     hours=1)).time()))\
-            .filter(Q(fri_date=None) | Q(fri_date__expires_at__lt=timezone.now()))
-    elif day == 'sat' and user.sat_start_time and (not user.sat_date or (user.sat_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(sat_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.sat_start_time) + datetime.timedelta(
-                                                     hours=1)).time()) &
-                                               Q(sat_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.sat_end_time) - datetime.timedelta(
-                                                     hours=1)).time()))\
-            .filter(Q(sat_date=None) | Q(sat_date__expires_at__lt=timezone.now()))
-    return None
+
+    if getattr(user, day + '_start_time') and (not getattr(user, day + '_date') or getattr(user, day + '_date').expires_at < timezone.now()):
+        q1_dict = { day + '_end_time__gte': (datetime.datetime.combine(datetime.date.today(), getattr(user, day + '_start_time')) + datetime.timedelta(
+                                                     hours=1)).time() }
+        q2_dict = { day + '_start_time__lte': (datetime.datetime.combine(datetime.date.today(), user.sun_end_time) - datetime.timedelta(
+                                                     hours=1)).time() }
+        q3_dict = { day + '_date': None }
+        q4_dict = { day + '_date__expires_at__lt': timezone.now()}
+        return potential_matches.filter(Q(**q1_dict) & Q(**q2_dict)).filter(Q(**q3_dict) | Q(**q4_dict))
+    else:
+        return None
 
 def generateDateOfDateFromDay(day):
     days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']
