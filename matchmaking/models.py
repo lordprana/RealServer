@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from enum import Enum
-from datetime import date
+from datetime import date, time
 from django.utils import timezone
 
 class DateStatus(Enum):
@@ -33,6 +33,39 @@ class Date(models.Model):
     place_id = models.CharField(max_length=300)
     place_name = models.CharField(max_length=300)
     category = models.CharField(max_length=20)
+
+    appropriate_times = {
+        'drinks':
+        {
+            'start': time(hour=15),
+            'end': time(hour=23, minute=59, second=59)
+        },
+        'food':
+        {
+            'start': time(hour=12),
+            'end': time(hour=21)
+        },
+        'coffee':
+        {
+            'start': time(hour=7),
+            'end': time(hour=16)
+        },
+        'nature':
+        {
+            'start': time(hour=7),
+            'end': time(hour=19)
+        },
+        'culture':
+        {
+            'start': time(hour=10),
+            'end': time(hour=22)
+        },
+        'active':
+        {
+            'start': time(hour=7),
+            'end': time(hour=22)
+        }
+    }
 
 class YelpAccessToken(models.Model):
     access_token = models.CharField(max_length=200)

@@ -156,34 +156,34 @@ class UserTestCase(TestCase):
         # Test request from Time input screen
         data = {
             "real_auth_token": self.real_auth_token.key,
-            "sunday_start_time": time(hour=16, minute=30).isoformat(),
-            "sunday_end_time": time(hour=18, minute=30).isoformat(),
-            "monday_start_time": time(hour=14, minute=0).isoformat(),
-            "monday_end_time": time(hour=20, minute=0).isoformat(),
+            "sun_start_time": time(hour=16, minute=30).isoformat(),
+            "sun_end_time": time(hour=18, minute=30).isoformat(),
+            "mon_start_time": time(hour=14, minute=0).isoformat(),
+            "mon_end_time": time(hour=20, minute=0).isoformat(),
         }
         response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
         load_user = User.objects.get(pk=self.user.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(load_user.sunday_start_time, dateparse.parse_time(data["sunday_start_time"]))
-        self.assertEqual(load_user.sunday_end_time, dateparse.parse_time(data["sunday_end_time"]))
-        self.assertEqual(load_user.monday_start_time, dateparse.parse_time(data["monday_start_time"]))
-        self.assertEqual(load_user.monday_end_time, dateparse.parse_time(data["monday_end_time"]))
+        self.assertEqual(load_user.sun_start_time, dateparse.parse_time(data["sun_start_time"]))
+        self.assertEqual(load_user.sun_end_time, dateparse.parse_time(data["sun_end_time"]))
+        self.assertEqual(load_user.mon_start_time, dateparse.parse_time(data["mon_start_time"]))
+        self.assertEqual(load_user.mon_end_time, dateparse.parse_time(data["mon_end_time"]))
 
         # Test request from Time input screen when user is simply updating and not creating new values
         data = {
             "real_auth_token": self.real_auth_token.key,
-            "sunday_start_time": time(hour=17, minute=30).isoformat(),
-            "sunday_end_time": time(hour=19, minute=30).isoformat(),
-            "monday_start_time": time(hour=10, minute=0).isoformat(),
-            "monday_end_time": time(hour=21, minute=0).isoformat(),
+            "sun_start_time": time(hour=17, minute=30).isoformat(),
+            "sun_end_time": time(hour=19, minute=30).isoformat(),
+            "mon_start_time": time(hour=10, minute=0).isoformat(),
+            "mon_end_time": time(hour=21, minute=0).isoformat(),
         }
         response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
         load_user = User.objects.get(pk=self.user.pk)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(load_user.sunday_start_time, dateparse.parse_time(data["sunday_start_time"]))
-        self.assertEqual(load_user.sunday_end_time, dateparse.parse_time(data["sunday_end_time"]))
-        self.assertEqual(load_user.monday_start_time, dateparse.parse_time(data["monday_start_time"]))
-        self.assertEqual(load_user.monday_end_time, dateparse.parse_time(data["monday_end_time"]))
+        self.assertEqual(load_user.sun_start_time, dateparse.parse_time(data["sun_start_time"]))
+        self.assertEqual(load_user.sun_end_time, dateparse.parse_time(data["sun_end_time"]))
+        self.assertEqual(load_user.mon_start_time, dateparse.parse_time(data["mon_start_time"]))
+        self.assertEqual(load_user.mon_end_time, dateparse.parse_time(data["mon_end_time"]))
 
         # Test request from setup profile screen
         data = {

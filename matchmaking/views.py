@@ -39,60 +39,60 @@ def filterByAge(user, potential_matches):
 def filterTimeAvailableUsers(user, day, potential_matches):
     # Filter to match only users who are available at same time as this user.
     # Structure query so that there is at least a one-hour meeting period for potential matches
-    if day == 'sun' and user.sunday_start_time and (not user.sun_date or (user.sun_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(sunday_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.sunday_start_time) + datetime.timedelta(
+    if day == 'sun' and user.sun_start_time and (not user.sun_date or (user.sun_date.expires_at < timezone.now())):
+        return potential_matches.filter(Q(sun_end_time__gte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.sun_start_time) + datetime.timedelta(
                                                      hours=1)).time()) &
-                                               Q(sunday_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.sunday_end_time) - datetime.timedelta(
+                                               Q(sun_start_time__lte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.sun_end_time) - datetime.timedelta(
                                                      hours=1)).time()))\
             .filter(Q(sun_date=None) | Q(sun_date__expires_at__lt=timezone.now()))
-    elif day == 'mon' and user.monday_start_time and (not user.mon_date or (user.mon_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(monday_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.monday_start_time) + datetime.timedelta(
+    elif day == 'mon' and user.mon_start_time and (not user.mon_date or (user.mon_date.expires_at < timezone.now())):
+        return potential_matches.filter(Q(mon_end_time__gte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.mon_start_time) + datetime.timedelta(
                                                      hours=1)).time()) &
-                                               Q(monday_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.monday_end_time) - datetime.timedelta(
+                                               Q(mon_start_time__lte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.mon_end_time) - datetime.timedelta(
                                                      hours=1)).time()))\
             .filter(Q(mon_date=None) | Q(mon_date__expires_at__lt=timezone.now()))
-    elif day == 'tue' and user.tuesday_start_time and (not user.tue_date or (user.tue_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(tuesday_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.tuesday_start_time) + datetime.timedelta(
+    elif day == 'tue' and user.tue_start_time and (not user.tue_date or (user.tue_date.expires_at < timezone.now())):
+        return potential_matches.filter(Q(tue_end_time__gte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.tue_start_time) + datetime.timedelta(
                                                      hours=1)).time()) &
-                                               Q(tuesday_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.tuesday_end_time) - datetime.timedelta(
+                                               Q(tue_start_time__lte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.tue_end_time) - datetime.timedelta(
                                                      hours=1)).time()))\
             .filter(Q(tue_date=None) | Q(tue_date__expires_at__lt=timezone.now()))
-    elif day == 'wed' and user.wednesday_start_time and (not user.wed_date or (user.wed_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(wednesday_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.wednesday_start_time) + datetime.timedelta(
+    elif day == 'wed' and user.wed_start_time and (not user.wed_date or (user.wed_date.expires_at < timezone.now())):
+        return potential_matches.filter(Q(wed_end_time__gte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.wed_start_time) + datetime.timedelta(
                                                      hours=1)).time()) &
-                                               Q(wednesday_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.wednesday_end_time) - datetime.timedelta(
+                                               Q(wed_start_time__lte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.wed_end_time) - datetime.timedelta(
                                                      hours=1)).time()))\
             .filter(Q(wed_date=None) | Q(wed_date__expires_at__lt=timezone.now()))
-    elif day == 'thur' and user.thursday_start_time and (not user.thur_date or (user.thur_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(thursday_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.thursday_start_time) + datetime.timedelta(
+    elif day == 'thur' and user.thur_start_time and (not user.thur_date or (user.thur_date.expires_at < timezone.now())):
+        return potential_matches.filter(Q(thur_end_time__gte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.thur_start_time) + datetime.timedelta(
                                                      hours=1)).time()) &
-                                               Q(thursday_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.thursday_end_time) - datetime.timedelta(
+                                               Q(thur_start_time__lte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.thur_end_time) - datetime.timedelta(
                                                      hours=1)).time()))\
             .filter(Q(thur_date=None) | Q(thur_date__expires_at__lt=timezone.now()))
-    elif day == 'fri' and user.friday_start_time and (not user.fri_date or (user.fri_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(friday_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.friday_start_time) + datetime.timedelta(
+    elif day == 'fri' and user.fri_start_time and (not user.fri_date or (user.fri_date.expires_at < timezone.now())):
+        return potential_matches.filter(Q(fri_end_time__gte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.fri_start_time) + datetime.timedelta(
                                                      hours=1)).time()) &
-                                               Q(friday_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.friday_end_time) - datetime.timedelta(
+                                               Q(fri_start_time__lte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.fri_end_time) - datetime.timedelta(
                                                      hours=1)).time()))\
             .filter(Q(fri_date=None) | Q(fri_date__expires_at__lt=timezone.now()))
-    elif day == 'sat' and user.saturday_start_time and (not user.sat_date or (user.sat_date.expires_at < timezone.now())):
-        return potential_matches.filter(Q(saturday_end_time__gte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.saturday_start_time) + datetime.timedelta(
+    elif day == 'sat' and user.sat_start_time and (not user.sat_date or (user.sat_date.expires_at < timezone.now())):
+        return potential_matches.filter(Q(sat_end_time__gte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.sat_start_time) + datetime.timedelta(
                                                      hours=1)).time()) &
-                                               Q(saturday_start_time__lte=
-                                                 (datetime.datetime.combine(datetime.date.today(), user.saturday_end_time) - datetime.timedelta(
+                                               Q(sat_start_time__lte=
+                                                 (datetime.datetime.combine(datetime.date.today(), user.sat_end_time) - datetime.timedelta(
                                                      hours=1)).time()))\
             .filter(Q(sat_date=None) | Q(sat_date__expires_at__lt=timezone.now()))
     return None
@@ -110,40 +110,40 @@ def generateRandomTimeForDate(user, match, day):
 
     # Find correct values for day
     if day == 'sun':
-        user_start_time = user.sunday_start_time
-        user_end_time = user.sunday_end_time
-        match_start_time = match.sunday_start_time
-        match_end_time = match.sunday_end_time
+        user_start_time = user.sun_start_time
+        user_end_time = user.sun_end_time
+        match_start_time = match.sun_start_time
+        match_end_time = match.sun_end_time
     elif day == 'mon':
-        user_start_time = user.monday_start_time
-        user_end_time = user.monday_end_time
-        match_start_time = match.monday_start_time
-        match_end_time = match.monday_end_time
+        user_start_time = user.mon_start_time
+        user_end_time = user.mon_end_time
+        match_start_time = match.mon_start_time
+        match_end_time = match.mon_end_time
     elif day == 'tue':
-        user_start_time = user.tuesday_start_time
-        user_end_time = user.tuesday_end_time
-        match_start_time = match.tuesday_start_time
-        match_end_time = match.tuesday_end_time
+        user_start_time = user.tue_start_time
+        user_end_time = user.tue_end_time
+        match_start_time = match.tue_start_time
+        match_end_time = match.tue_end_time
     elif day == 'wed':
-        user_start_time = user.wednesday_start_time
-        user_end_time = user.wednesday_end_time
-        match_start_time = match.wednesday_start_time
-        match_end_time = match.wednesday_end_time
+        user_start_time = user.wed_start_time
+        user_end_time = user.wed_end_time
+        match_start_time = match.wed_start_time
+        match_end_time = match.wed_end_time
     elif day == 'thur':
-        user_start_time = user.thursday_start_time
-        user_end_time = user.thursday_end_time
-        match_start_time = match.thursday_start_time
-        match_end_time = match.thursday_end_time
+        user_start_time = user.thur_start_time
+        user_end_time = user.thur_end_time
+        match_start_time = match.thur_start_time
+        match_end_time = match.thur_end_time
     elif day == 'fri':
-        user_start_time = user.friday_start_time
-        user_end_time = user.friday_end_time
-        match_start_time = match.friday_start_time
-        match_end_time = match.friday_end_time
+        user_start_time = user.fri_start_time
+        user_end_time = user.fri_end_time
+        match_start_time = match.fri_start_time
+        match_end_time = match.fri_end_time
     elif day == 'sat':
-        user_start_time = user.saturday_start_time
-        user_end_time = user.saturday_end_time
-        match_start_time = match.saturday_start_time
-        match_end_time = match.saturday_end_time
+        user_start_time = user.sat_start_time
+        user_end_time = user.sat_end_time
+        match_start_time = match.sat_start_time
+        match_end_time = match.sat_end_time
 
     # Find proper values to use for time interval
     if user_start_time < match_start_time:
@@ -169,6 +169,8 @@ def generateRandomTimeForDate(user, match, day):
     date_start_time = (datetime.datetime.min + date_rand_start_td).time()
     return date_start_time
 
+def filterByAppropriateCategoryTimes(user, potential_matches, day, category):
+    pass
 
 def makeDate(user, day, potential_matches):
     interests = []

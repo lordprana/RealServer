@@ -63,54 +63,54 @@ class MatchMakingTestCase(TestCase):
     def test_time_available_filter(self):
         # Test time overlapping
         woman = self.straight_women_users[0]
-        woman.sunday_start_time = time(hour=18, minute=30)
-        woman.sunday_end_time = time(hour=22, minute=0)
+        woman.sun_start_time = time(hour=18, minute=30)
+        woman.sun_end_time = time(hour=22, minute=0)
         woman.save()
         man = self.straight_men_users[0]
-        man.sunday_start_time = time(hour=12, minute=0)
-        man.sunday_end_time = time(hour=20, minute=0)
+        man.sun_start_time = time(hour=12, minute=0)
+        man.sun_end_time = time(hour=20, minute=0)
         man.save()
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results[0], man)
 
         # Test precise overlap
-        man.sunday_start_time = time(hour=18, minute=30)
-        man.sunday_end_time = time(hour=22, minute=0)
+        man.sun_start_time = time(hour=18, minute=30)
+        man.sun_end_time = time(hour=22, minute=0)
         man.save()
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results[0], man)
 
         # Test match time interval included in user time interval
-        man.sunday_start_time = time(hour=19, minute=0)
-        man.sunday_end_time = time(hour=20, minute=30)
+        man.sun_start_time = time(hour=19, minute=0)
+        man.sun_end_time = time(hour=20, minute=30)
         man.save()
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results[0], man)
 
         # Test user time interval included in match time interval
-        man.sunday_start_time = time(hour=12, minute=0)
-        man.sunday_end_time = time(hour=23, minute=30)
+        man.sun_start_time = time(hour=12, minute=0)
+        man.sun_end_time = time(hour=23, minute=30)
         man.save()
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results[0], man)
 
         # Test only one hour in match time interval
-        man.sunday_start_time = time(hour=21, minute=0)
-        man.sunday_end_time = time(hour=22, minute=0)
+        man.sun_start_time = time(hour=21, minute=0)
+        man.sun_end_time = time(hour=22, minute=0)
         man.save()
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results[0], man)
 
         # Test No overlap
-        man.sunday_start_time = time(hour=12, minute=0)
-        man.sunday_end_time = time(hour=18, minute=0)
+        man.sun_start_time = time(hour=12, minute=0)
+        man.sun_end_time = time(hour=18, minute=0)
         man.save()
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results.count(), 0)
 
         # Test overlap too short
-        man.sunday_start_time = time(hour=12, minute=0)
-        man.sunday_end_time = time(hour=18, minute=30)
+        man.sun_start_time = time(hour=12, minute=0)
+        man.sun_end_time = time(hour=18, minute=30)
         man.save()
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results.count(), 0)
@@ -130,22 +130,22 @@ class MatchMakingTestCase(TestCase):
     def test_generate_random_time_for_date(self):
         # Test if only an hour window
         woman = self.straight_women_users[0]
-        woman.sunday_start_time = time(hour=18, minute=30)
-        woman.sunday_end_time = time(hour=22, minute=0)
+        woman.sun_start_time = time(hour=18, minute=30)
+        woman.sun_end_time = time(hour=22, minute=0)
         woman.save()
         man = self.straight_men_users[0]
-        man.sunday_start_time = time(hour=21, minute=0)
-        man.sunday_end_time = time(hour=22, minute=0)
+        man.sun_start_time = time(hour=21, minute=0)
+        man.sun_end_time = time(hour=22, minute=0)
         man.save()
         random_time = generateRandomTimeForDate(woman,man,'sun')
-        self.assertEqual(random_time, man.sunday_start_time)
+        self.assertEqual(random_time, man.sun_start_time)
 
         # Test if large range
-        man.sunday_start_time = time(hour=12, minute=0)
-        man.sunday_end_time = time(hour=22, minute=0)
+        man.sun_start_time = time(hour=12, minute=0)
+        man.sun_end_time = time(hour=22, minute=0)
         man.save()
         random_time = generateRandomTimeForDate(woman,man,'sun')
-        self.assertGreaterEqual(random_time, woman.sunday_start_time)
+        self.assertGreaterEqual(random_time, woman.sun_start_time)
         self.assertLessEqual(random_time, time(hour=21, minute=0))
 
     def test_make_date(self):
@@ -155,16 +155,16 @@ class MatchMakingTestCase(TestCase):
         man.latitude = 32.879001
         man.longitude = -96.717515
         man.search_radius = 24
-        man.wednesday_start_time = time(hour=18, minute=30)
-        man.wednesday_end_time = time(hour=22, minute=0)
+        man.wed_start_time = time(hour=18, minute=30)
+        man.wed_end_time = time(hour=22, minute=0)
         man.save()
         woman = self.straight_women_users[0]
         woman.likes_coffee = True
         woman.latitude = 32.897207
         woman.longitude = -96.746212
         woman.search_radius = 24
-        woman.wednesday_start_time = time(hour=18, minute=30)
-        woman.wednesday_end_time = time(hour=22, minute=0)
+        woman.wed_start_time = time(hour=18, minute=30)
+        woman.wed_end_time = time(hour=22, minute=0)
         woman.save()
 
         date = makeDate(woman, 'wed', User.objects.exclude(pk=woman.pk))
@@ -179,7 +179,7 @@ class MatchMakingTestCase(TestCase):
         self.assertEqual(date.user1, woman)
         self.assertEqual(date.user2, man)
         self.assertEqual(date.day, 'wed')
-        self.assertTrue(date.start_time >= woman.wednesday_start_time)
+        self.assertTrue(date.start_time >= woman.wed_start_time)
         self.assertTrue(date.start_time <= time(hour=21, minute=0))
         self.assertEqual(woman.wed_date, date)
         self.assertEqual(man.wed_date, date)
@@ -196,20 +196,20 @@ class MatchMakingTestCase(TestCase):
         man.longitude = -96.7460090
         man.likes_coffee = True
         man.likes_nature = True
-        man.sunday_start_time = time(hour=18)
-        man.sunday_end_time = time(hour=23)
-        man.monday_start_time = time(hour=18)
-        man.monday_end_time = time(hour=23)
-        man.tuesday_start_time = time(hour=18)
-        man.tuesday_end_time = time(hour=23)
-        man.wednesday_start_time = time(hour=18)
-        man.wednesday_end_time = time(hour=23)
-        man.thursday_start_time = time(hour=18)
-        man.thursday_end_time = time(hour=23)
-        man.friday_start_time = time(hour=18)
-        man.friday_end_time = time(hour=23)
-        man.saturday_start_time = time(hour=18)
-        man.saturday_end_time = time(hour=23)
+        man.sun_start_time = time(hour=18)
+        man.sun_end_time = time(hour=23)
+        man.mon_start_time = time(hour=18)
+        man.mon_end_time = time(hour=23)
+        man.tue_start_time = time(hour=18)
+        man.tue_end_time = time(hour=23)
+        man.wed_start_time = time(hour=18)
+        man.wed_end_time = time(hour=23)
+        man.thur_start_time = time(hour=18)
+        man.thur_end_time = time(hour=23)
+        man.fri_start_time = time(hour=18)
+        man.fri_end_time = time(hour=23)
+        man.sat_start_time = time(hour=18)
+        man.sat_end_time = time(hour=23)
         man.fb_user_id = '110000369505832'
         man.most_recent_fb_auth_token = 'EAACEFGIZCorABAGsVlCIHsV815c9PTU1yT2iufkAbyiCn3yNb8MfczAqh7FPBt02s7k4yDVeI5TUac6sa1ylYbEZBl7oIVNjPtS4PopS7Oi7Mrgj4N9Lz7ND5036DziaEehKRdHUucvsNZC900v8YIp0pSagqWXBJyDNj74ZCl2whBDYJKPfrCRKXC4ZCFR3Xl45gXDZApa1ZCbfJvoNRnf'
         man.save()
@@ -227,8 +227,8 @@ class MatchMakingTestCase(TestCase):
         woman1.longitude = -96.7460090
         woman1.likes_coffee = True
         woman1.likes_nature = True
-        woman1.sunday_start_time = time(hour=18)
-        woman1.sunday_end_time = time(hour=23)
+        woman1.sun_start_time = time(hour=18)
+        woman1.sun_end_time = time(hour=23)
         woman1.fb_user_id = '131453847271362'
         woman1.most_recent_fb_auth_token = 'EAACEFGIZCorABAICptUHpj0A91yU3iJ6gVv97ZB3cChHZB6Md1OMOuIM9YWTC322NfmxuMV5Jt2FMlfZBS4Occ5ZApyZAWhC8aQgta5o7u2uGfvfCMn5Br3JXXtvZCt2pVBs5MJeJXMCZBUHjnJZCmaVlZAUF1oVZAao0pb3TZCfqyZB3B9QOaGMqryLnBDy9hLxNZAGVZAyNCQcgnqq4PQCZCNQT6GQ'
         woman1.save()
@@ -249,8 +249,8 @@ class MatchMakingTestCase(TestCase):
         woman2.longitude = -96.7460090
         woman2.likes_coffee = True
         woman2.likes_nature = True
-        woman2.sunday_start_time = time(hour=18)
-        woman2.sunday_end_time = time(hour=23)
+        woman2.sun_start_time = time(hour=18)
+        woman2.sun_end_time = time(hour=23)
         woman2.save()
         dl = json.loads(json.loads(date(None, man, 'sun').content))
         self.assertEqual(dl['match']['name'], woman1.name)
@@ -276,8 +276,8 @@ class MatchMakingTestCase(TestCase):
         woman3.longitude = -96.7460090
         woman3.likes_coffee = True
         woman3.likes_nature = True
-        woman3.tuesday_start_time = time(hour=18)
-        woman3.tuesday_end_time = time(hour=23)
+        woman3.tue_start_time = time(hour=18)
+        woman3.tue_end_time = time(hour=23)
         woman3.save()
         dl = json.loads(json.loads(date(None, man, 'tue').content))
         self.assertEqual(dl['match']['name'], woman3.name)
@@ -292,8 +292,8 @@ class MatchMakingTestCase(TestCase):
         woman4.latitude = 32.8972250
         woman4.longitude = -96.7460090
         woman4.likes_active = True
-        woman4.wednesday_start_time = time(hour=18)
-        woman4.wednesday_end_time = time(hour=23)
+        woman4.wed_start_time = time(hour=18)
+        woman4.wed_end_time = time(hour=23)
         woman4.save()
         dl = json.loads(json.loads(date(None, man, 'wed').content))
         self.assertEqual(dl, None)
@@ -308,8 +308,8 @@ class MatchMakingTestCase(TestCase):
         woman6.latitude = 30.263946
         woman6.longitude = -97.695592
         woman6.likes_coffee = True
-        woman6.friday_start_time = time(hour=18)
-        woman6.friday_end_time = time(hour=23)
+        woman6.fri_start_time = time(hour=18)
+        woman6.fri_end_time = time(hour=23)
         woman6.save()
         dl = json.loads(json.loads(date(None, man, 'fri').content))
         self.assertEqual(dl, None)
@@ -324,8 +324,8 @@ class MatchMakingTestCase(TestCase):
         woman7.latitude = 32.8972250
         woman7.longitude = -96.7460090
         woman7.likes_coffee = True
-        woman7.saturday_start_time = time(hour=16)
-        woman7.saturday_end_time = time(hour=18, minute=30)
+        woman7.sat_start_time = time(hour=16)
+        woman7.sat_end_time = time(hour=18, minute=30)
         woman7.save()
         dl = json.loads(json.loads(date(None, man, 'sat').content))
         self.assertEqual(dl, None)
