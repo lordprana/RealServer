@@ -5,7 +5,7 @@ from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
 from api.models import User, Gender, SexualPreference
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
-    generateRandomTimeForDate, date, generateDateOfDateFromDay
+    generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes
 from matchmaking.yelp import getPlacesFromYelp
 from matchmaking.models import YelpAccessToken, Date
 from datetime import datetime, timedelta, time
@@ -115,6 +115,49 @@ class MatchMakingTestCase(TestCase):
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results.count(), 0)
 
+    def test_appropriate_category_times_filter(self):
+        # Test appropriate time
+        woman = self.straight_women_users[0]
+        woman.sun_start_time = time(hour=18, minute=30)
+        woman.sun_end_time = time(hour=22, minute=0)
+        woman.save()
+        man = self.straight_men_users[0]
+        man.sun_start_time = time(hour=12, minute=0)
+        man.sun_end_time = time(hour=20, minute=0)
+        man.save()
+        day = 'sun'
+        time_filtered = filterTimeAvailableUsers(woman, day, User.objects.exclude(pk=woman.pk))
+        results = filterByAppropriateCategoryTimes(woman, time_filtered, day, 'drinks')
+        self.assertEqual(results[0], man)
+
+        # Test primary user inappropriate time
+        woman = self.straight_women_users[0]
+        woman.fri_start_time = time(hour=18, minute=30)
+        woman.fri_end_time = time(hour=22, minute=0)
+        woman.save()
+        man = self.straight_men_users[0]
+        man.fri_start_time = time(hour=12, minute=0)
+        man.fri_end_time = time(hour=20, minute=0)
+        man.save()
+        day = 'fri'
+        time_filtered = filterTimeAvailableUsers(woman, day, User.objects.exclude(pk=woman.pk))
+        results = filterByAppropriateCategoryTimes(woman, time_filtered, day, 'nature')
+        self.assertEqual(results.count(), 0)
+
+        # Test potential match inappropriate time
+        woman = self.straight_women_users[0]
+        woman.mon_start_time = time(hour=18, minute=30)
+        woman.mon_end_time = time(hour=22, minute=0)
+        woman.save()
+        man = self.straight_men_users[0]
+        man.mon_start_time = time(hour=20, minute=0)
+        man.mon_end_time = time(hour=23, minute=0)
+        man.save()
+        day = 'mon'
+        time_filtered = filterTimeAvailableUsers(woman, day, User.objects.exclude(pk=woman.pk))
+        results = filterByAppropriateCategoryTimes(woman, time_filtered, day, 'coffee')
+        self.assertEqual(results.count(), 0)
+
     def test_generate_date_of_date_from_day(self):
         # This test must be rewritten for current time
         date = generateDateOfDateFromDay('thur')
@@ -137,14 +180,14 @@ class MatchMakingTestCase(TestCase):
         man.sun_start_time = time(hour=21, minute=0)
         man.sun_end_time = time(hour=22, minute=0)
         man.save()
-        random_time = generateRandomTimeForDate(woman,man,'sun')
+        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks')
         self.assertEqual(random_time, man.sun_start_time)
 
         # Test if large range
         man.sun_start_time = time(hour=12, minute=0)
         man.sun_end_time = time(hour=22, minute=0)
         man.save()
-        random_time = generateRandomTimeForDate(woman,man,'sun')
+        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks')
         self.assertGreaterEqual(random_time, woman.sun_start_time)
         self.assertLessEqual(random_time, time(hour=21, minute=0))
 

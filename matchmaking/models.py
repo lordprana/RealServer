@@ -43,12 +43,12 @@ class Date(models.Model):
         'food':
         {
             'start': time(hour=12),
-            'end': time(hour=21)
+            'end': time(hour=23)
         },
         'coffee':
         {
             'start': time(hour=7),
-            'end': time(hour=16)
+            'end': time(hour=20, minute=30)
         },
         'nature':
         {

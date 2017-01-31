@@ -43,7 +43,7 @@ def filterTimeAvailableUsers(user, day, potential_matches):
     if getattr(user, day + '_start_time') and (not getattr(user, day + '_date') or getattr(user, day + '_date').expires_at < timezone.now()):
         q1_dict = { day + '_end_time__gte': (datetime.datetime.combine(datetime.date.today(), getattr(user, day + '_start_time')) + datetime.timedelta(
                                                      hours=1)).time() }
-        q2_dict = { day + '_start_time__lte': (datetime.datetime.combine(datetime.date.today(), user.sun_end_time) - datetime.timedelta(
+        q2_dict = { day + '_start_time__lte': (datetime.datetime.combine(datetime.date.today(), getattr(user, day + '_end_time')) - datetime.timedelta(
                                                      hours=1)).time() }
         q3_dict = { day + '_date': None }
         q4_dict = { day + '_date__expires_at__lt': timezone.now()}
@@ -60,7 +60,7 @@ def generateDateOfDateFromDay(day):
         current_day = date_of_date.weekday()
     return date_of_date
 
-def generateRandomTimeForDate(user, match, day):
+def generateRandomTimeForDate(user, match, day, category):
 
     # Find correct values for day
     user_start_time = getattr(user, day + '_start_time')
@@ -73,10 +73,15 @@ def generateRandomTimeForDate(user, match, day):
         date_start_time = match_start_time
     else:
         date_start_time = user_start_time
+    if date_start_time < models.Date.appropriate_times[category]['start']:
+        date_start_time = models.Date.appropriate_times[category]['start']
+
     if user_end_time > match_end_time:
         date_end_time = match_end_time
     else:
         date_end_time = user_end_time
+    if date_end_time > models.Date.appropriate_times[category]['end']:
+        date_end_time = models.Date.appropriate_times[category]['end']
 
     # Randomly choose within the time interval with intervals of 1800 seconds (30 minutes)
     date_earliest_start_td = datetime.datetime.combine(datetime.date.min, date_start_time) - datetime.datetime.min
@@ -93,7 +98,23 @@ def generateRandomTimeForDate(user, match, day):
     return date_start_time
 
 def filterByAppropriateCategoryTimes(user, potential_matches, day, category):
-    pass
+    # First, check if user's times fall within appropriate window for the category times. If so, filter for potential
+    # matches that fall within appropriate category times
+    if (getattr(user, day + '_end_time') >= (datetime.datetime.combine(datetime.date.today(),
+                                                                       models.Date.appropriate_times[category]['start'])
+                                                 + datetime.timedelta(hours=1)).time()) and\
+        (getattr(user, day + '_start_time') <= (datetime.datetime.combine(datetime.date.today(),
+                                                                        models.Date.appropriate_times[category]['end'])
+                                                   - datetime.timedelta(hours=1)).time()):
+        q1_dict = { day + '_end_time__gte': (
+        datetime.datetime.combine(datetime.date.today(), models.Date.appropriate_times[category]['start'])
+        + datetime.timedelta(hours=1)).time() }
+        q2_dict = {day + '_start_time__lte': (
+        datetime.datetime.combine(datetime.date.today(), models.Date.appropriate_times[category]['end'])
+        - datetime.timedelta(hours=1)).time()}
+        return potential_matches.filter(Q(**q1_dict) & Q(**q2_dict))
+    else:
+        return User.objects.none()
 
 def makeDate(user, day, potential_matches):
     interests = []
@@ -116,18 +137,10 @@ def makeDate(user, day, potential_matches):
     while True:
         category = interests[category_index]
         # Filter potential matches based on category
-        if category == 'drinks':
-            category_filtered = potential_matches.filter(likes_drinks=True)
-        elif category == 'food':
-            category_filtered = potential_matches.filter(likes_food=True)
-        elif category == 'coffee':
-            category_filtered = potential_matches.filter(likes_coffee=True)
-        elif category == 'nature':
-            category_filtered = potential_matches.filter(likes_nature=True)
-        elif category == 'culture':
-            category_filtered = potential_matches.filter(likes_culture=True)
-        elif category == 'active':
-            category_filtered = potential_matches.filter(likes_active=True)
+        filter_dict = {'likes_' + category: True}
+        category_filtered = potential_matches.filter(**filter_dict)
+
+        category_filtered = filterByAppropriateCategoryTimes(user, category_filtered, day, category)
         category_filtered = list(category_filtered)
         shuffle(category_filtered) # Potential matches are randomly sorted
         # Choose a place randomly from TOP_RATED places. If no match found, iterate through places until all options exhausted
@@ -167,7 +180,7 @@ def makeDate(user, day, potential_matches):
     if not match:
         return None
     else:
-        time = generateRandomTimeForDate(user, match, day)
+        time = generateRandomTimeForDate(user, match, day, interests[category_index])
         date = models.Date(user1=user, user2=match, day=day, start_time=time, expires_at=(timezone.now() + datetime.timedelta(hours=24)),
                     place_id=place['id'], place_name=place['name'], category=interests[category_index])
         date.original_expires_at = date.expires_at
