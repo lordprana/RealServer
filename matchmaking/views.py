@@ -63,41 +63,10 @@ def generateDateOfDateFromDay(day):
 def generateRandomTimeForDate(user, match, day):
 
     # Find correct values for day
-    if day == 'sun':
-        user_start_time = user.sun_start_time
-        user_end_time = user.sun_end_time
-        match_start_time = match.sun_start_time
-        match_end_time = match.sun_end_time
-    elif day == 'mon':
-        user_start_time = user.mon_start_time
-        user_end_time = user.mon_end_time
-        match_start_time = match.mon_start_time
-        match_end_time = match.mon_end_time
-    elif day == 'tue':
-        user_start_time = user.tue_start_time
-        user_end_time = user.tue_end_time
-        match_start_time = match.tue_start_time
-        match_end_time = match.tue_end_time
-    elif day == 'wed':
-        user_start_time = user.wed_start_time
-        user_end_time = user.wed_end_time
-        match_start_time = match.wed_start_time
-        match_end_time = match.wed_end_time
-    elif day == 'thur':
-        user_start_time = user.thur_start_time
-        user_end_time = user.thur_end_time
-        match_start_time = match.thur_start_time
-        match_end_time = match.thur_end_time
-    elif day == 'fri':
-        user_start_time = user.fri_start_time
-        user_end_time = user.fri_end_time
-        match_start_time = match.fri_start_time
-        match_end_time = match.fri_end_time
-    elif day == 'sat':
-        user_start_time = user.sat_start_time
-        user_end_time = user.sat_end_time
-        match_start_time = match.sat_start_time
-        match_end_time = match.sat_end_time
+    user_start_time = getattr(user, day + '_start_time')
+    user_end_time = getattr(user, day + '_end_time')
+    match_start_time = getattr(match, day + '_start_time')
+    match_end_time = getattr(match, day + '_end_time')
 
     # Find proper values to use for time interval
     if user_start_time < match_start_time:
