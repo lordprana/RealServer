@@ -285,10 +285,10 @@ def past_dates(request, user):
 @csrf_exempt
 @custom_authenticate
 def register_fcm_device(request, user):
-    registration_token = request.GET.get('registration_token', None)
+    registration_token = request.PUT.get('registration_token', None)
     if not registration_token:
         return HttpResponse(status=400)
-    FCMDevice.objects.create(registration_token=registration_token, user=user)
+    FCMDevice.objects.get_or_create(registration_token=registration_token, user=user)
     return HttpResponse(status=200)
 
 
