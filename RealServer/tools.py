@@ -40,8 +40,6 @@ def cropImage(image, startx, starty, endx, endy):
     return image
 
 def cropImageByAspectRatioAndCoordinates(image, startx, starty, endx, endy, aspect_width, aspect_height):
-    file_jpgdata = StringIO(image)
-    image = Image.open(file_jpgdata)
     w, h = image.size
     centerx = (endx+startx) / 2
     centery = (endy+starty) / 2
@@ -53,27 +51,27 @@ def cropImageByAspectRatioAndCoordinates(image, startx, starty, endx, endy, aspe
     end_cropy = centery
     # Gradually increase bounds by aspect_ratio. Stop when there is no more room to increase
     while True:
-        if (start_cropx - x_increment < 0 and end_cropx + x_increment > w) or\
-            (start_cropy - y_increment < 0 and end_cropy + y_increment > h):
+        if (start_cropx - x_increment < 1 and end_cropx + x_increment > w) or\
+            (start_cropy - y_increment < 1 and end_cropy + y_increment > h):
             break
 
-        if (start_cropx - x_increment) >= 0:
+        if (start_cropx - x_increment) >= 1:
             start_cropx -= x_increment
             if (end_cropx + x_increment >= w):
                 start_cropx -= x_increment
 
         if (end_cropx + x_increment) <= w:
             end_cropx += x_increment
-            if (start_cropx - x_increment <= 0):
+            if (start_cropx - x_increment <= 1):
                 end_cropx += x_increment
 
-        if(start_cropy - y_increment) >= 0:
+        if(start_cropy - y_increment) >= 1:
             start_cropy -= y_increment
             if(end_cropy + y_increment) >= h:
                 start_cropy -= y_increment
         if(end_cropy + y_increment) <= h:
             end_cropy += y_increment
-            if(start_cropy - y_increment) <= 0:
+            if(start_cropy - y_increment) <= 1:
                 end_cropy += y_increment
     image = image.crop((start_cropx, start_cropy, end_cropx, end_cropy))
     return image

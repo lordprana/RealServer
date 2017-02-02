@@ -97,9 +97,9 @@ class ToolsTest(TestCase):
         w, h = image.size
         self.assertEqual(w, end_cropx - start_cropx)
         self.assertEqual(h, end_cropy- start_cropy)
-        image.show()
 
     def test_crop_image_by_aspect_ratio_and_coordinates(self):
+        # Test with facebook photo (landscape orientation)
         user_picture = facebook.getUserProfilePicture(self.user3)
         file_jpgdata = StringIO(user_picture)
         image = Image.open(file_jpgdata)
@@ -107,6 +107,37 @@ class ToolsTest(TestCase):
         aspect_width = 205.0
         aspect_height = 365.0
         self.assertNotEqual(aspect_width / aspect_height, float(w) / float(h))
-        image = cropImageByAspectRatioAndCoordinates(user_picture, 460, 87, 889, 513, aspect_width, aspect_height)
+        image = cropImageByAspectRatioAndCoordinates(image, 460, 87, 889, 513, aspect_width, aspect_height)
         w, h = image.size
         self.assertEqual(round(aspect_width/aspect_height, 2), round(float(w)/float(h), 2))
+        image.close()
+
+        # Test with another photo (portrait orientation)
+        image = Image.open('RealServer/mediafiles/2959531196950/obama_test.jpg')
+        w, h = image.size
+        aspect_width = 205.0
+        aspect_height = 365.0
+        self.assertNotEqual(aspect_width / aspect_height, float(w) / float(h))
+        image = cropImageByAspectRatioAndCoordinates(image, 63, 137, 1260, 1331, aspect_width, aspect_height)
+        w, h = image.size
+        self.assertEqual(round(aspect_width / aspect_height, 2), round(float(w) / float(h), 2))
+
+        # Test with another photo (landscape orientation)
+        image = Image.open('RealServer/mediafiles/2959531196950/landscape_test.jpg')
+        w, h = image.size
+        aspect_width = 205.0
+        aspect_height = 365.0
+        self.assertNotEqual(aspect_width / aspect_height, float(w) / float(h))
+        image = cropImageByAspectRatioAndCoordinates(image, 1338, 253, 1690, 629, aspect_width, aspect_height)
+        w, h = image.size
+        self.assertEqual(round(aspect_width / aspect_height, 2), round(float(w) / float(h), 2))
+
+        # Test with another photo (square orientation)
+        image = Image.open('RealServer/mediafiles/2959531196950/square_test.png')
+        w, h = image.size
+        aspect_width = 205.0
+        aspect_height = 365.0
+        self.assertNotEqual(aspect_width / aspect_height, float(w) / float(h))
+        image = cropImageByAspectRatioAndCoordinates(image, 1, 1, 300, 300, aspect_width, aspect_height)
+        w, h = image.size
+        self.assertEqual(round(aspect_width / aspect_height, 2), round(float(w) / float(h), 2))
