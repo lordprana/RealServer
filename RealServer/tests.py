@@ -59,16 +59,14 @@ class ToolsTest(TestCase):
         image = Image.open(file_jpgdata)
         w, h = image.size
         self.assertNotEqual(w, h)
-        image = cropImageToSquare(user_picture)
+        image = cropImageToSquare(image)
         self.assertEqual(image.size[0], image.size[1])
 
         # Test Landscape Orientation
-        user_picture = facebook.getUserProfilePicture(self.user2)
-        file_jpgdata = StringIO(user_picture)
-        image = Image.open(file_jpgdata)
+        image = Image.open('RealServer/mediafiles/2959531196950/landscape_test.jpg')
         w, h = image.size
         self.assertNotEqual(w, h)
-        image = cropImageToSquare(user_picture)
+        image = cropImageToSquare(image)
         self.assertEqual(image.size[0], image.size[1])
 
     def test_crop_image_by_aspect_ratio(self):
@@ -80,7 +78,7 @@ class ToolsTest(TestCase):
         aspect_width = 205.0
         aspect_height = 365.0
         self.assertNotEqual(aspect_width/aspect_height, float(w)/float(h))
-        image = cropImageByAspectRatio(user_picture, aspect_width, aspect_height)
+        image = cropImageByAspectRatio(image, aspect_width, aspect_height)
         w, h = image.size
         self.assertEqual(round(aspect_width/aspect_height, 2), round(float(w)/float(h), 2))
 
@@ -93,7 +91,7 @@ class ToolsTest(TestCase):
         start_cropy = 87
         end_cropx = 889
         end_cropy = 513
-        image = cropImage(user_picture, start_cropx, start_cropy, end_cropx, end_cropy)
+        image = cropImage(image, start_cropx, start_cropy, end_cropx, end_cropy)
         w, h = image.size
         self.assertEqual(w, end_cropx - start_cropx)
         self.assertEqual(h, end_cropy- start_cropy)

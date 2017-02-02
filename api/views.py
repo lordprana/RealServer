@@ -13,6 +13,7 @@ from django.utils import timezone
 from  RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates
 from RealServer.aws import s3_generate_presigned_post
 from django.db import transaction
+from PIL import Image
 import json
 import re
 import os
@@ -98,7 +99,9 @@ def users(request, user):
             return HttpResponse(status=400)
         # TODO resize picture for optimal performance
         # TODO Post these pictures to S3
-        square_user_picture = cropImageToSquare(original_user_picture)
+        file_jpgdata = StringIO(original_user_picture)
+        image = Image.open(file_jpgdata)
+        square_user_picture = cropImageToSquare(image)
         request_json = json.loads(s3_generate_presigned_post('.jpg', user))
         # Save Pillow image to StringIO to send in post request
         img_io = StringIO()
@@ -112,7 +115,9 @@ def users(request, user):
 
         aspect_width = 205
         aspect_height = 365
-        portrait_user_picture = cropImageByAspectRatio(original_user_picture, aspect_width, aspect_height)
+        file_jpgdata = StringIO(original_user_picture)
+        image = Image.open(file_jpgdata)
+        portrait_user_picture = cropImageByAspectRatio(image, aspect_width, aspect_height)
         request_json = json.loads(s3_generate_presigned_post('.jpg', user))
         # Save Pillow image to StringIO to send in post request
         img_io = StringIO()

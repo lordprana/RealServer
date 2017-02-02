@@ -11,8 +11,6 @@ def nextDayOfWeekToDatetime(dt, day_of_week):
     return dt
 
 def cropImageToSquare(image):
-    file_jpgdata = StringIO(image)
-    image = Image.open(file_jpgdata)
     w, h = image.size
     half_width = w / 2
     half_height = h / 2
@@ -24,8 +22,6 @@ def cropImageToSquare(image):
 
 def cropImageByAspectRatio(image, aspect_width, aspect_height):
     assert(aspect_height>=aspect_width) # Only implemented to work for portrait orientation
-    file_jpgdata = StringIO(image)
-    image = Image.open(file_jpgdata)
     w, h = image.size
     half_width = w/2
     cropped_w = (float(h) * float(aspect_width))/float(aspect_height)
@@ -34,12 +30,11 @@ def cropImageByAspectRatio(image, aspect_width, aspect_height):
     return image
 
 def cropImage(image, startx, starty, endx, endy):
-    file_jpgdata = StringIO(image)
-    image = Image.open(file_jpgdata)
     image = image.crop((startx, starty, endx, endy))
     return image
 
 def cropImageByAspectRatioAndCoordinates(image, startx, starty, endx, endy, aspect_width, aspect_height):
+    assert (aspect_height >= aspect_width)  # Only implemented to work for portrait orientation
     w, h = image.size
     centerx = (endx+startx) / 2
     centery = (endy+starty) / 2
