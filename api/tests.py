@@ -97,9 +97,10 @@ class UserTestCase(TestCase):
         self.user.age = 28
         self.user.gender = Gender.MAN.value
         self.user.education = 'Common University'
+        self.user.picture1_portrait_url = 'https://s3.amazonaws.com/realdatingbucket/2959531196950/ataxfmkygcul'
+        self.user.picture1_square_url = 'https://s3.amazonaws.com/realdatingbucket/2959531196950/auxmmsssuhmt'
         self.user.save()
-        response = self.c.get('/users/'+self.user.fb_user_id+'?real_auth_token='+self.real_auth_token.key,
-                              HTTP_HOST = 'www.getrealdating.com')
+        response = self.c.get('/users/'+self.user.fb_user_id+'?real_auth_token='+self.real_auth_token.key)
         response = json.loads(response.content)
         self.assertEqual(response['name'], self.user.name)
         self.assertEqual(response['interested_in'], self.user.interested_in)
@@ -107,7 +108,10 @@ class UserTestCase(TestCase):
         self.assertEqual(response['age'], self.user.age)
         self.assertEqual(response['gender'], self.user.gender)
         self.assertEqual(response['education'], self.user.education)
-        self.assertEqual('www.getrealdating.com/media/131453847271362/picture1_square.jpg', response['profile_picture'])
+        self.assertEqual(response['picture1_portrait_url'], self.user.picture1_portrait_url)
+        self.assertEqual(response['picture1_square_url'], self.user.picture1_square_url)
+        self.assertEqual(response['picture2_portrait_url'], None)
+        self.assertEqual(response['picture2_square_url'], None)
 
     def test_patch_user(self):
         self.user = User.objects.create(fb_user_id='2959531196950',
