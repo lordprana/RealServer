@@ -216,6 +216,20 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotEqual(device, None)
 
+    def test_sign_s3(self):
+        os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
+        os.environ['S3_BUCKET'] = 'realdatingbucket'
+        self.user = User.objects.create(fb_user_id='2959531196950',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token = Token.objects.create(user=self.user)
+        file_type = 'jpeg'
+        response = self.c.get('/users/' + self.user.fb_user_id + '/sign_s3?' + 'real_auth_token=' +
+                              self.real_auth_token.key + '&file_type=' + file_type)
+        json_response = json.loads(json.loads(response.content))
+        self.assertTrue(('https://realdatingbucket.s3.amazonaws.com/' + self.user.fb_user_id) in json_response['url'])
+        self.assertEqual(json_response['data']['url'], 'https://realdatingbucket.s3.amazonaws.com/')
+        self.assertEqual(json_response['data']['fields']['AWSAccessKeyId'], os.environ['AWS_ACCESS_KEY_ID'])
 class DateTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',
