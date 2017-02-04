@@ -47,7 +47,7 @@ def cropImageByAspectRatioAndCoordinates(image, startx, starty, endx, endy, aspe
     # Gradually increase bounds by aspect_ratio. Stop when there is no more room to increase
     while True:
         if (start_cropx - (x_increment * 2) < 1 and end_cropx + (x_increment * 2) > w) or\
-            (start_cropy - (y_increment * 2) < 1 and end_cropy + (y_increment *2) > h):
+            (start_cropy - (y_increment * 2) < 1 and end_cropy + (y_increment * 2) > h):
             break
 
         if (start_cropx - x_increment) >= 1:

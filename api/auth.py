@@ -12,7 +12,7 @@ from api.models import User
 
 def custom_authenticate(view):
     def view_wrapper(request, user=None, user_id=None, *args, **kwargs):
-        if (request.method == 'POST' or request.method == 'PATCH'):
+        if (request.method == 'POST' or request.method == 'PATCH' or request.method == 'PUT'):
             json_data = json.loads(request.body)
             fb_user_id = json_data.get('fb_user_id', None)
             fb_auth_token = json_data.get('fb_auth_token', None)

@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 
 from RealServer import settings
 from api.auth import AuthenticationBackend
-from api.models import User, SexualPreference, Gender, BlockedReports, Status
+from api.models import User, SexualPreference, Gender, BlockedReports, Status, FCMDevice
 from api.tasks import notifyUserPassedOn
 from matchmaking.models import Date, DateStatus, DateCategories
 
@@ -201,6 +201,20 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.education, data["education"])
         self.assertEqual(load_user.about, data["about"])
         self.assertEqual(load_user.status, Status.FINISHED_PROFILE.value)
+
+    def test_register_device(self):
+        self.user = User.objects.create(fb_user_id='2959531196950',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token = Token.objects.create(user=self.user)
+        registration_token = 'abiud9325107852nvczhj4'
+        data = {
+            'real_auth_token': self.real_auth_token.key,
+            'registration_token': registration_token
+        }
+        response = self.c.put('/users/' + self.user.fb_user_id + '/register_device/', json.dumps(data), content_type='application/json')
+        device = FCMDevice.objects.get(registration_token=registration_token, user=self.user)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(device, None)
 
 class DateTestCase(TestCase):
     def setUp(self):
