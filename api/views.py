@@ -51,14 +51,12 @@ def users(request, user):
                 'status': user.status
             }
 
-        #TODO test this once we have full permissions from users
         user_json = facebook.getUserInfo(user)
         if user_json.get('gender', None) == 'male':
             user.gender = Gender.MAN.value
         elif user_json.get('gender', None) == 'female':
             user.gender = Gender.WOMAN.value
 
-        #TODO test interested in once we have full permissions
         interested_in = user_json.get('interested_in', None)
         if interested_in:
             if len(interested_in) > 1:
@@ -98,7 +96,6 @@ def users(request, user):
         if not original_user_picture:
             return HttpResponse(status=400)
         # TODO resize picture for optimal performance
-        # TODO Post these pictures to S3
         file_jpgdata = StringIO(original_user_picture)
         image = Image.open(file_jpgdata)
         square_user_picture = cropImageToSquare(image)
@@ -111,7 +108,8 @@ def users(request, user):
         r = requests.post(request_json['data']['url'], data=request_json['data']['fields'], files=files)
         if r.status_code == 204:
             user.picture1_square_url = request_json['url']
-        #TODO: Specify behavior for failure case
+        else:
+            return HttpResponse(status=400)
 
         aspect_width = 205
         aspect_height = 365
@@ -127,6 +125,8 @@ def users(request, user):
         r = requests.post(request_json['data']['url'], data=request_json['data']['fields'], files=files)
         if r.status_code == 204:
             user.picture1_portrait_url = request_json['url']
+        else:
+            return HttpResponse(status=400)
 
         user.save()
         return JsonResponse(response_dict)
