@@ -231,6 +231,7 @@ class UserTestCase(TestCase):
         response = self.c.get('/users/' + self.user.fb_user_id + '/sign_s3?' + 'real_auth_token=' +
                               self.real_auth_token.key + '&file_type=' + file_type)
         json_response = json.loads(response.content)
+        print(response.content)
         self.assertTrue(('https://realdatingbucket.s3.amazonaws.com/' + self.user.fb_user_id) in json_response['url'])
         self.assertEqual(json_response['data']['url'], 'https://realdatingbucket.s3.amazonaws.com/')
         self.assertEqual(json_response['data']['fields']['AWSAccessKeyId'], os.environ['AWS_ACCESS_KEY_ID'])

@@ -52,6 +52,7 @@ def users(request, user):
             }
 
         user_json = facebook.getUserInfo(user)
+        print(user_json)
         if user_json.get('gender', None) == 'male':
             user.gender = Gender.MAN.value
         elif user_json.get('gender', None) == 'female':
@@ -70,12 +71,17 @@ def users(request, user):
         # Parse json for education and occupation
         user.education = user_json.get('education', None)
         if user.education:
-            user.education = user.education[-1]['school']['name']
+            try:
+                user.education = user.education[-1]['school']['name']
+            except:
+                user.education = None
 
         user.occupation = user_json.get('work', None)
         if user.occupation:
-            user.occupation = user.occupation[0]['position']['name']
-
+            try:
+                user.occupation = user.occupation[0]['position']['name']
+            except:
+                user.occupation = None
         # Convert birthday to age
         try:
             bd = datetime.datetime.strptime(user_json['birthday'], '%m/%d/%Y')
