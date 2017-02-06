@@ -52,7 +52,6 @@ def users(request, user):
             }
 
         user_json = facebook.getUserInfo(user)
-        print(user_json)
         if user_json.get('gender', None) == 'male':
             user.gender = Gender.MAN.value
         elif user_json.get('gender', None) == 'female':
