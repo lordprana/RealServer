@@ -286,7 +286,8 @@ def report_and_block(request, user):
 # TODO test this
 def sign_s3(request, user):
   file_type = request.GET.get('file_type')
-  return JsonResponse(s3_generate_presigned_post(file_type, user), safe=False)
+  json_response = json.loads(s3_generate_presigned_post(file_type, user))
+  return JsonResponse(json_response, safe=False)
 
 @csrf_exempt
 @custom_authenticate
