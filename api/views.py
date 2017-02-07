@@ -307,7 +307,10 @@ def past_dates(request, user):
 @csrf_exempt
 @custom_authenticate
 def register_fcm_device(request, user):
-    json_data = json.loads(request.body)
+    try:
+        json_data = json.loads(request.body)
+    except:
+        return HttpResponse(status=400)
     registration_token = json_data.get('registration_token', None)
     if not registration_token:
         return HttpResponse(status=400)
