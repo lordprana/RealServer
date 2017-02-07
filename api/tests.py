@@ -116,7 +116,17 @@ class UserTestCase(TestCase):
     def test_patch_user(self):
         self.user = User.objects.create(fb_user_id='2959531196950',
                                         most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.user.picture1_portrait_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/ozduryavtrza'
+        self.user.picture1_square_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/pqnwvwggyqoa'
+        self.user.picture2_portrait_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/qfmcexuipbue'
+        self.user.picture2_square_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn'
+        self.user.picture3_portrait_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rvmxxpunbcdu' # Is deleted in test
+        self.user.picture3_square_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/ryrabmsppmbs' # Is deleted in test
+        self.user.picture4_portrait_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/shygbbzaanaz' # Is deleted in test
+        self.user.picture4_square_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/termrbfygkec' # Is deleted in test
+        self.user.save()
         self.real_auth_token = Token.objects.create(user=self.user)
+
         # Test request from Places screen
         data = {
             "real_auth_token": self.real_auth_token.key,
@@ -205,6 +215,33 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.education, data["education"])
         self.assertEqual(load_user.about, data["about"])
         self.assertEqual(load_user.status, Status.FINISHED_PROFILE.value)
+
+        # Test new picture path. Requires manual verification on S3 that files were deleted
+        os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
+        os.environ['S3_BUCKET'] = 'realdatingbucket'
+        data = {
+            'real_auth_token': self.real_auth_token.key,
+            'picture1_portrait_url': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/qfmcexuipbue',
+            'picture1_square_url': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn',
+            'picture2_portrait_url': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/ozduryavtrza',
+            'picture2_square_url': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/pqnwvwggyqoa',
+            'picture3_portrait_url': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/vpdyrbyeitwt',
+            'picture3_square_url': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/wchmoijakryx',
+            'picture4_portrait_url': None,
+            'picture4_square_url': None
+        }
+        response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
+        load_user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(load_user.picture1_portrait_url, data['picture1_portrait_url'])
+        self.assertEqual(load_user.picture1_square_url, data['picture1_square_url'])
+        self.assertEqual(load_user.picture2_portrait_url, data['picture2_portrait_url'])
+        self.assertEqual(load_user.picture2_square_url, data['picture2_square_url'])
+        self.assertEqual(load_user.picture3_portrait_url, data['picture3_portrait_url'])
+        self.assertEqual(load_user.picture3_square_url, data['picture3_square_url'])
+        self.assertEqual(load_user.picture4_portrait_url, data['picture4_portrait_url'])
+        self.assertEqual(load_user.picture4_square_url, data['picture4_square_url'])
 
     def test_register_device(self):
         self.user = User.objects.create(fb_user_id='2959531196950',

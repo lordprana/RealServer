@@ -3,10 +3,11 @@ import random
 import string
 import os
 import json
+import re
+from boto.s3.connection import S3Connection, Bucket, Key
 
 def s3_generate_presigned_post(file_type, user):
   S3_BUCKET = os.environ.get('S3_BUCKET')
-  print S3_BUCKET
 
   # Generate a random name for the file
 
@@ -28,3 +29,17 @@ def s3_generate_presigned_post(file_type, user):
     'data': presigned_post,
     'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
   })
+
+def s3_delete_file(url_to_file):
+  AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY')
+  AWS_SECRET_KEY = os.environ.get('AWS_SECRET_KEY')
+  S3_BUCKET = os.environ.get('S3_BUCKET')
+
+  conn = S3Connection(AWS_ACCESS_KEY, AWS_SECRET_KEY)
+  b = Bucket(conn, S3_BUCKET)
+  k = Key(b)
+
+  file_path = re.search(r'\.com/(.*)', url_to_file).group(1)
+
+  k.key = file_path
+  b.delete_key(k)

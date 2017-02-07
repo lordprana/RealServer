@@ -5,9 +5,10 @@ from PIL import Image
 from django.test import TestCase
 
 from RealServer import facebook
+from RealServer import aws
 from api.models import User
 from tools import nextDayOfWeekToDatetime, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates, cropImage
-
+import os
 
 class FacebookTests(TestCase):
     def setUp(self):
@@ -34,6 +35,15 @@ class FacebookTests(TestCase):
         self.user3.save()
         user_picture = facebook.getUserProfilePicture(self.user1)
         self.assertEqual(user_picture, None)
+
+class AWSTest(TestCase):
+    def test_s3_delete_file(self):
+        os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
+        os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
+        os.environ['S3_BUCKET'] = 'realdatingbucket'
+        # Change the line below to test if real deleting happens.
+        aws.s3_delete_file('realdatingbucket.s3.amazonaws.com/2959531196950/ataxfmkygcul')
+
 
 class ToolsTest(TestCase):
     def setUp(self):

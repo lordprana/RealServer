@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
 from  RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates
-from RealServer.aws import s3_generate_presigned_post
+from RealServer.aws import s3_generate_presigned_post, s3_delete_file
 from django.db import transaction
 from PIL import Image
 import json
@@ -144,6 +144,7 @@ def users(request, user):
 def user(request,user):
     if request.method == 'PATCH':
         json_data = json.loads(request.body)
+        temp_user = User.objects.get(pk=user.pk)
         for key, value in json_data.iteritems():
             if key == 'real_auth_token':
                 continue
@@ -151,8 +152,15 @@ def user(request,user):
             # user status.
             elif key == 'education':
                 user.status = Status.FINISHED_PROFILE.value
-            elif re.match('^picture', key) and re.match('_url$', key):
-                pass
+            elif re.search('^picture', key) and re.search('_url$', key):
+                # Check to make sure image is not used at all before deleting
+                picture_exists = False
+                for key2, value2 in json_data.iteritems():
+                    if re.search('^picture', key2) and re.search('_url$', key2):
+                        if key != key2 and getattr(temp_user, key2) == value and value != None:
+                            picture_exists = True
+                if not picture_exists:
+                    s3_delete_file(getattr(user, key))
                 """
                 picture_url = value
                 picture_startx = json_data[key[:8]+'_startx']
