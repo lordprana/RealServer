@@ -111,5 +111,5 @@ class BlockedReports(models.Model):
     report_content = models.CharField(max_length=10000)
 
 class FCMDevice(models.Model):
-    registration_token = models.CharField(max_length=100)
+    registration_token = models.CharField(max_length=300)
     user = models.ForeignKey(User)
