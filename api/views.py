@@ -224,6 +224,11 @@ def user(request,user):
 def date(request, user, date_id=None):
     if request.method == 'GET':
         day = request.GET.get('day', None)
+
+        # Used for testing
+        if request.GET.get('hardcoded', None):
+            return JsonResponse(hardcoded_dates.dates[day])
+
         return matchmaking.date(request, user, day)
 
     if request.method == 'PATCH':

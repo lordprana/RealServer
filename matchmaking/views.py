@@ -248,10 +248,10 @@ def convertDateToJson(user,date):
         'education': potential_match.education,
         'about': potential_match.about,
         'main_picture': potential_match.picture1_portrait_url,
-        'additional_pictures': [
-            potential_match.picture2_portrait_url, potential_match.picture3_portrait_url,
-            potential_match.picture4_portrait_url, potential_match.picture5_portrait_url,
-            potential_match.picture6_portrait_url
+        'detail_pictures': [
+            potential_match.picture1_square_url, potential_match.picture2_square_url, potential_match.picture3_square_url,
+            potential_match.picture4_square_url, potential_match.picture5_square_url,
+            potential_match.picture6_square_url
         ]
     }
 

@@ -2,290 +2,291 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 
 respond_by = timezone.now() + timedelta(hours=24)
-
-date1 = {
-    'Date':
+dates = {}
+dates['sun'] = {
+    'date':
         {
             'date_id': '1',
             'potential_date_likes': False,
             'primary_user_likes': 'undecided',
-            'User':
+            'respond_by': respond_by.isoformat(),
+            'match':
                 {
                     'user_id': '1',
-                    'name': 'Matthew',
+                    'name': 'Maksym',
                     'age': '27',
                     'occupation': 'World Traveler',
                     'education': 'Yale University',
                     'about': 'I\'m trying to be clever.',
-                    'main_picture': 'http://127.0.0.1:8000/media/Matthew_image.png',
-                    'additional_pictures': [
-                        'http://127.0.0.1:8000/media/Matthew_image_2.png',
-                        'http://127.0.0.1:8000/media/Matthew_image_3.png'
-                    ],
-                    'mutual_friends': [
-                        {'friend':
-                             {
-                                 'name': 'Anthony',
-                                 'picture': 'http://127.0.0.1:8000/media/60x60_anthony.png'
-                             }
-                         }
-                    ]
-                },
-            'time':
-                {
-                    'day': 'Tue',
-                    'start_time': '7:00pm'
-                },
-            'place':
-                {
-                    'place_id': 'barcadia-dallas',
-                    'name': 'Barcadia',
-                }
-        }
-    }
-
-date2 = {
-    'Date':
-        {
-            'date_id': '2',
-            'potential_date_likes': True,
-            'primary_user_likes': 'undecided',
-            'respond_by': respond_by,
-            'User':
-                {
-                    'user_id': '2',
-                    'name': 'Anthony',
-                    'age': '28',
-                    'occupation': 'Actor',
-                    'education': 'University of North Texas',
-                    'about': 'I\'m a kind and sweet gentleman. Everything I do is motivated by the desire to help other people. I\'m an actor and I love my craft. Everytime I go outside I think to myself, "Today is a day to be different. Today is a day to be great." I\'m from Dallas to NYC. Ever since I was born I knew I would be a great person. My mom taught me the power of belief. Now I know this is my super power.',
-                    'main_picture': 'http://127.0.0.1:8000/media/Anthony_image.png',
-                    'additional_pictures': [
-                        'http://127.0.0.1:8000/media/Anthony_image_2.png',
+                    'main_picture': 'https://realdatingbucket.s3.amazonaws.com/1829561367333153/sqbtyajqlhpb',
+                    'detail_pictures': [
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/bvdtjxvqfhdo'
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/fhjkoiqciraw',
                     ],
                     'mutual_friends': [
                         {'friend':
                              {
                                  'name': 'Matthew',
-                                 'picture': 'http://127.0.0.1:8000/media/60x60_matthew.png'
+                                 'picture': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn'
                              }
                          }
                     ]
                 },
             'time':
                 {
-                    'day': 'Wed',
-                    'start_time': '9:00pm'
+                    'day': 'sun',
+                    'start_time': '7:00pm'
                 },
             'place':
                 {
-                    'place_id': 'white-rock-lake-dallas',
-                    'name': 'White Rock Lake',
+                    'place_id': 'barcadia-dallas',
                 }
         }
     }
 
-date3 = {
-    'Date':
+dates['mon'] = {
+    'date':
         {
-            'date_id': '3',
-            'potential_date_likes': False,
-            'primary_user_likes': 'pass',
-            'User':
+            'date_id': '2',
+            'potential_date_likes': True,
+            'primary_user_likes': 'undecided',
+            'respond_by': respond_by.isoformat(),
+            'match':
                 {
                     'user_id': '1',
-                    'name': 'Matthew',
+                    'name': 'Maksym',
                     'age': '27',
                     'occupation': 'World Traveler',
                     'education': 'Yale University',
                     'about': 'I\'m trying to be clever.',
-                    'main_picture': 'http://127.0.0.1:8000/media/Matthew_image.png',
-                    'additional_pictures': [
-                        'http://127.0.0.1:8000/media/Matthew_image_2.png',
-                        'http://127.0.0.1:8000/media/Matthew_image_3.png'
+                    'main_picture': 'https://realdatingbucket.s3.amazonaws.com/1829561367333153/sqbtyajqlhpb',
+                    'detail_pictures': [
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/bvdtjxvqfhdo'
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/fhjkoiqciraw',
                     ],
                     'mutual_friends': [
                         {'friend':
                              {
-                                 'name': 'Anthony',
-                                 'picture': 'http://127.0.0.1:8000/media/60x60_anthony.png'
+                                 'name': 'Matthew',
+                                 'picture': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn'
                              }
                          }
                     ]
                 },
             'time':
                 {
-                    'day': 'Thur',
+                    'day': 'mon',
+                    'start_time': '9:00pm'
+                },
+            'place':
+                {
+                    'place_id': 'barcadia-dallas',
+                }
+        }
+    }
+
+dates['tue'] = {
+    'date':
+        {
+            'date_id': '3',
+            'potential_date_likes': False,
+            'primary_user_likes': 'pass',
+            'respond_by': respond_by.isoformat(),
+            'match':
+                {
+                    'user_id': '1',
+                    'name': 'Maksym',
+                    'age': '27',
+                    'occupation': 'World Traveler',
+                    'education': 'Yale University',
+                    'about': 'I\'m trying to be clever.',
+                    'main_picture': 'https://realdatingbucket.s3.amazonaws.com/1829561367333153/sqbtyajqlhpb',
+                    'detail_pictures': [
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/bvdtjxvqfhdo'
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/fhjkoiqciraw',
+                    ],
+                    'mutual_friends': [
+                        {'friend':
+                             {
+                                 'name': 'Matthew',
+                                 'picture': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn'
+                             }
+                         }
+                    ]
+                },
+            'time':
+                {
+                    'day': 'tue',
+                    'start_time': '10:00pm'
+                },
+            'place':
+                {
+                    'place_id': 'barcadia-dallas',
+                }
+        }
+    }
+
+dates['wed'] = {
+    'date':
+        {
+            'date_id': '4',
+            'potential_date_likes': False,
+            'primary_user_likes': 'undecided',
+            'respond_by': respond_by.isoformat(),
+            'match':
+                {
+                    'user_id': '1',
+                    'name': 'Maksym',
+                    'age': '27',
+                    'occupation': 'World Traveler',
+                    'education': 'Yale University',
+                    'about': 'I\'m trying to be clever.',
+                    'main_picture': 'https://realdatingbucket.s3.amazonaws.com/1829561367333153/sqbtyajqlhpb',
+                    'detail_pictures': [
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/bvdtjxvqfhdo'
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/fhjkoiqciraw',
+                    ],
+                    'mutual_friends': [
+                        {'friend':
+                             {
+                                 'name': 'Matthew',
+                                 'picture': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn'
+                             }
+                         }
+                    ]
+                },
+            'time':
+                {
+                    'day': 'wed',
                     'start_time': '12:00pm'
                 },
             'place':
                 {
                     'place_id': 'barcadia-dallas',
-                    'name': 'Barcadia',
                 }
         }
     }
 
-date4 = {
-    'Date':
-        {
-            'date_id': '4',
-            'potential_date_likes': False,
-            'primary_user_likes': 'undecided',
-            'User':
-                {
-                    'user_id': '2',
-                    'name': 'Anthony',
-                    'age': '28',
-                    'occupation': 'Actor',
-                    'education': 'University of North Texas',
-                    'about': 'I\'m a kind and sweet gentleman. Everything I do is motivated by the desire to help other people. I\'m an actor and I love my craft. Everytime I go outside I think to myself, "Today is a day to be different. Today is a day to be great." I\'m from Dallas to NYC. Ever since I was born I knew I would be a great person. My mom taught me the power of belief. Now I know this is my super power.',
-                    'main_picture': 'http://127.0.0.1:8000/media/Anthony_image.png',
-                    'additional_pictures': [
-                        'http://127.0.0.1:8000/media/Anthony_image_2.png',
-                    ],
-                    'mutual_friends': [
-                        {'friend':
-                             {
-                                 'name': 'Matthew',
-                                 'picture': 'http://127.0.0.1:8000/media/60x60_matthew.png'
-                             }
-                         }
-                    ]
-                },
-            'time':
-                {
-                    'day': 'Fri',
-                    'start_time': '10:00am'
-                },
-            'place':
-                {
-                    'place_id': 'white-rock-lake-dallas',
-                    'name': 'White Rock Lake',
-                }
-        }
-    }
-
-date5 = {
-    'Date':
+dates['thur'] = {
+    'date':
         {
             'date_id': '5',
             'potential_date_likes': False,
             'primary_user_likes': 'undecided',
-            'User':
+            'respond_by': respond_by.isoformat(),
+            'match':
                 {
                     'user_id': '1',
-                    'name': 'Matthew',
+                    'name': 'Maksym',
                     'age': '27',
                     'occupation': 'World Traveler',
                     'education': 'Yale University',
                     'about': 'I\'m trying to be clever.',
-                    'main_picture': 'http://127.0.0.1:8000/media/Matthew_image.png',
-                    'additional_pictures': [
-                        'http://127.0.0.1:8000/media/Matthew_image_2.png',
-                        'http://127.0.0.1:8000/media/Matthew_image_3.png'
-                    ],
-                    'mutual_friends': [
-                        {'friend':
-                             {
-                                 'name': 'Anthony',
-                                 'picture': 'http://127.0.0.1:8000/media/60x60_anthony.png'
-                             }
-                         }
-                    ]
-                },
-            'time':
-                {
-                    'day': 'Sat',
-                    'start_time': '7:00pm'
-                },
-            'place':
-                {
-                    'place_id': 'barcadia-dallas',
-                    'name': 'Barcadia',
-                }
-        }
-    }
-
-date6 = {
-    'Date':
-        {
-            'date_id': '6',
-            'potential_date_likes': True,
-            'primary_user_likes': 'likes',
-            'last_sent_message': 'OMG I\'m so excited about our date!',
-            'User':
-                {
-                    'user_id': '2',
-                    'name': 'Anthony',
-                    'age': '28',
-                    'occupation': 'Actor',
-                    'education': 'University of North Texas',
-                    'about': 'I\'m a kind and sweet gentleman. Everything I do is motivated by the desire to help other people. I\'m an actor and I love my craft. Everytime I go outside I think to myself, "Today is a day to be different. Today is a day to be great." I\'m from Dallas to NYC. Ever since I was born I knew I would be a great person. My mom taught me the power of belief. Now I know this is my super power.',
-                    'main_picture': 'http://127.0.0.1:8000/media/Anthony_image.png',
-                    'additional_pictures': [
-                        'http://127.0.0.1:8000/media/Anthony_image_2.png',
+                    'main_picture': 'https://realdatingbucket.s3.amazonaws.com/1829561367333153/sqbtyajqlhpb',
+                    'detail_pictures': [
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/bvdtjxvqfhdo'
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/fhjkoiqciraw',
                     ],
                     'mutual_friends': [
                         {'friend':
                              {
                                  'name': 'Matthew',
-                                 'picture': 'http://127.0.0.1:8000/media/60x60_matthew.png'
+                                 'picture': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn'
                              }
                          }
                     ]
                 },
             'time':
                 {
-                    'day': 'Sun',
-                    'start_time': '11:00am'
-                },
-            'place':
-                {
-                    'place_id': 'white-rock-lake-dallas',
-                    'name': 'White Rock Lake',
-                }
-        }
-    }
-
-date7 = {
-    'Date':
-        {
-            'date_id': '7',
-            'potential_date_likes': False,
-            'primary_user_likes': 'likes',
-            'respond_by': respond_by,
-            'User':
-                {
-                    'user_id': '1',
-                    'name': 'Matthew',
-                    'age': '27',
-                    'occupation': 'World Traveler',
-                    'education': 'Yale University',
-                    'about': 'I\'m trying to be clever.',
-                    'main_picture': 'http://127.0.0.1:8000/media/Matthew_image.png',
-                    'additional_pictures': [
-                        'http://127.0.0.1:8000/media/Matthew_image_2.png',
-                        'http://127.0.0.1:8000/media/Matthew_image_3.png'
-                    ],
-                    'mutual_friends': [
-                        {'friend':
-                             {
-                                 'name': 'Anthony',
-                                 'picture': 'http://127.0.0.1:8000/media/60x60_anthony.png'
-                             }
-                         }
-                    ]
-                },
-            'time':
-                {
-                    'day': 'Mon',
-                    'start_time': '3:00pm'
+                    'day': 'thur',
+                    'start_time': '2:00pm'
                 },
             'place':
                 {
                     'place_id': 'barcadia-dallas',
-                    'name': 'Barcadia',
+                }
+        }
+    }
+
+dates['fri'] = {
+    'date':
+        {
+            'date_id': '6',
+            'potential_date_likes': True,
+            'primary_user_likes': 'likes',
+            'last_sent_message': 'OMG I\'m so excited for our date!',
+            'respond_by': respond_by.isoformat(),
+            'match':
+                {
+                    'user_id': '1',
+                    'name': 'Maksym',
+                    'age': '27',
+                    'occupation': 'World Traveler',
+                    'education': 'Yale University',
+                    'about': 'I\'m trying to be clever.',
+                    'main_picture': 'https://realdatingbucket.s3.amazonaws.com/1829561367333153/sqbtyajqlhpb',
+                    'detail_pictures': [
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/bvdtjxvqfhdo'
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/fhjkoiqciraw',
+                    ],
+                    'mutual_friends': [
+                        {'friend':
+                             {
+                                 'name': 'Matthew',
+                                 'picture': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn'
+                             }
+                         }
+                    ]
+                },
+            'time':
+                {
+                    'day': 'fri',
+                    'start_time': '2:00pm'
+                },
+            'place':
+                {
+                    'place_id': 'white-rock-lake-dallas',
+                }
+        }
+    }
+
+dates['sat'] = {
+    'date':
+        {
+            'date_id': '7',
+            'potential_date_likes': False,
+            'primary_user_likes': 'likes',
+            'respond_by': respond_by.isoformat(),
+            'match':
+                {
+                    'user_id': '1',
+                    'name': 'Maksym',
+                    'age': '27',
+                    'occupation': 'World Traveler',
+                    'education': 'Yale University',
+                    'about': 'I\'m trying to be clever.',
+                    'main_picture': 'https://realdatingbucket.s3.amazonaws.com/1829561367333153/sqbtyajqlhpb',
+                    'detail_pictures': [
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/bvdtjxvqfhdo'
+                        'https://realdatingbucket.s3.amazonaws.com/1829561367333153/fhjkoiqciraw',
+                    ],
+                    'mutual_friends': [
+                        {'friend':
+                             {
+                                 'name': 'Matthew',
+                                 'picture': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn'
+                             }
+                         }
+                    ]
+                },
+            'time':
+                {
+                    'day': 'sat',
+                    'start_time': '2:00pm'
+                },
+            'place':
+                {
+                    'place_id': 'white-rock-lake-dallas',
                 }
         }
     }
