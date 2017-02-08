@@ -221,7 +221,7 @@ def user(request,user):
 
 @csrf_exempt
 @custom_authenticate
-def date(request, user, date_id):
+def date(request, user, date_id=None):
     if request.method == 'GET':
         day = request.GET.get('day', None)
         return matchmaking.date(request, user, day)
