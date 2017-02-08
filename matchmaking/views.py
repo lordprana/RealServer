@@ -49,7 +49,7 @@ def filterTimeAvailableUsers(user, day, potential_matches):
         q4_dict = { day + '_date__expires_at__lt': timezone.now()}
         return potential_matches.filter(Q(**q1_dict) & Q(**q2_dict)).filter(Q(**q3_dict) | Q(**q4_dict))
     else:
-        return None
+        return User.objects.none()
 
 def generateDateOfDateFromDay(day):
     days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']
