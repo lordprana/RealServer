@@ -159,7 +159,7 @@ def user(request,user):
                     if re.search('^picture', key2) and re.search('_url$', key2):
                         if key != key2 and getattr(temp_user, key2) == value and value != None:
                             picture_exists = True
-                if not picture_exists:
+                if not picture_exists and getattr(user, key):
                     s3_delete_file(getattr(user, key))
                 """
                 picture_url = value
