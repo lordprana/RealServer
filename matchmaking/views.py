@@ -272,6 +272,9 @@ def convertDateToJson(user,date):
 #@csrf_exempt
 #@custom_authenticate
 def date(request, user, day):
+    # If user does not have available time on this day, return None
+    if not getattr(user, day + '_start_time') or not getattr(user, day + '_end_time'):
+        return JsonResponse(json.dumps(None), safe=False)
     # If date already exists, return date
     if getattr(user, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now():
         return JsonResponse(json.dumps(convertDateToJson(user, getattr(user, day + '_date'))), safe=False)
