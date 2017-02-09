@@ -54,9 +54,9 @@ class User(AbstractBaseUser):
     likes_drinks = models.NullBooleanField(default=False, null=True)
     likes_food = models.NullBooleanField(default=False, null=True)
     likes_coffee = models.NullBooleanField(default=False, null=True)
-    likes_nature = models.NullBooleanField(default=False, null=True)
-    likes_culture = models.NullBooleanField(default=False, null=True)
-    likes_active = models.NullBooleanField(default=False, null=True)
+    likes_parks = models.NullBooleanField(default=False, null=True)
+    likes_museums = models.NullBooleanField(default=False, null=True)
+    likes_fun = models.NullBooleanField(default=False, null=True)
 
     sun_start_time = models.TimeField(blank=True, null=True)
     sun_end_time = models.TimeField(blank=True, null=True)

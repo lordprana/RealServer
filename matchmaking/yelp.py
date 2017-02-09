@@ -10,9 +10,9 @@ CATEGORY_MAPPING = {
     'drinks': 'bars',
     'food': 'restaurants',
     'coffee': 'coffee',
-    'culture': 'museums',
-    'nature': 'parks',
-    'active': 'active'
+    'museums': 'museums',
+    'parks': 'parks',
+    'fun': 'active'
 }
 
 TOP_RATED = 10

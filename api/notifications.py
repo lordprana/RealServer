@@ -8,19 +8,21 @@ def sendMatchNotification(request_user, match_user):
     for device in android_devices:
         request_body = {
             'notification': {
-                "body": request_user.first_name + " made it Real!"
+                'body': request_user.first_name + ' made it Real!',
+                'sound': 'default'
             },
-            'to': device.registration_token
+            'to': device.registration_token,
         }
         headers = {
             'Content-Type': 'application/json',
             'Authorization': 'key=' + FCM_SERVER_API_KEY
         }
-        response = requests.post('https://fcm.googleapis.com/fcm/send', data=request_body, headers=headers)
+        response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
         json_response = json.loads(response.content)
+        handleNotificationResponse(json_response, device)
         # If Unavailable, try to resend one more time
         if json_response['results'][0].get('error', None) == 'Unavailable':
-            response = requests.post('https://fcm.googleapis.com/fcm/send', data=request_body, headers=headers)
+            response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
             json_response = json.loads(response.content)
             handleNotificationResponse(json_response, device)
 

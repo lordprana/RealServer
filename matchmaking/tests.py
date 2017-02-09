@@ -141,7 +141,7 @@ class MatchMakingTestCase(TestCase):
         man.save()
         day = 'fri'
         time_filtered = filterTimeAvailableUsers(woman, day, User.objects.exclude(pk=woman.pk))
-        results = filterByAppropriateCategoryTimes(woman, time_filtered, day, 'nature')
+        results = filterByAppropriateCategoryTimes(woman, time_filtered, day, 'parks')
         self.assertEqual(results.count(), 0)
 
         # Test potential match inappropriate time
@@ -238,7 +238,7 @@ class MatchMakingTestCase(TestCase):
         man.latitude = 32.8972250
         man.longitude = -96.7460090
         man.likes_coffee = True
-        man.likes_nature = True
+        man.likes_parks = True
         man.sun_start_time = time(hour=18)
         man.sun_end_time = time(hour=23)
         man.mon_start_time = time(hour=18)
@@ -269,7 +269,7 @@ class MatchMakingTestCase(TestCase):
         woman1.latitude = 32.8972250
         woman1.longitude = -96.7460090
         woman1.likes_coffee = True
-        woman1.likes_nature = True
+        woman1.likes_parks = True
         woman1.sun_start_time = time(hour=18)
         woman1.sun_end_time = time(hour=23)
         woman1.fb_user_id = '131453847271362'
@@ -291,7 +291,7 @@ class MatchMakingTestCase(TestCase):
         woman2.latitude = 32.8972250
         woman2.longitude = -96.7460090
         woman2.likes_coffee = True
-        woman2.likes_nature = True
+        woman2.likes_parks = True
         woman2.sun_start_time = time(hour=18)
         woman2.sun_end_time = time(hour=23)
         woman2.save()
@@ -303,7 +303,7 @@ class MatchMakingTestCase(TestCase):
         man.sun_date.save()
         man.save()
         woman1.likes_coffee = False
-        woman1.likes_nature = False
+        woman1.likes_parks = False
         woman1.save()
         dl = json.loads(json.loads(date(None, man, 'sun').content))
         self.assertEqual(dl['match']['name'], woman2.first_name)
@@ -318,7 +318,7 @@ class MatchMakingTestCase(TestCase):
         woman3.latitude = 32.8972250
         woman3.longitude = -96.7460090
         woman3.likes_coffee = True
-        woman3.likes_nature = True
+        woman3.likes_parks = True
         woman3.tue_start_time = time(hour=18)
         woman3.tue_end_time = time(hour=23)
         woman3.save()
@@ -334,7 +334,7 @@ class MatchMakingTestCase(TestCase):
         woman4.about = 'Nothing to see here'
         woman4.latitude = 32.8972250
         woman4.longitude = -96.7460090
-        woman4.likes_active = True
+        woman4.likes_fun = True
         woman4.wed_start_time = time(hour=18)
         woman4.wed_end_time = time(hour=23)
         woman4.save()
@@ -411,7 +411,7 @@ class YelpTestCase(TestCase):
                 self.fail('Business list should not contain $$ or $$$ or $$$$')
         self.user.max_price = 0
         self.user.save()
-        list = getPlacesFromYelp(self.user, 'nature')
+        list = getPlacesFromYelp(self.user, 'parks')
         for l in list:
             if l.get('price', None) == '$$$$' or l.get('price', None) == '$$$' or l.get('price', None) == '$$' or\
                             l.get('price', None) == '$':

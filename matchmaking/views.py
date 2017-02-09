@@ -124,12 +124,12 @@ def makeDate(user, day, potential_matches):
         interests.append('food')
     if user.likes_coffee:
         interests.append('coffee')
-    if user.likes_nature:
-        interests.append('nature')
-    if user.likes_culture:
-        interests.append('culture')
-    if user.likes_active:
-        interests.append('active')
+    if user.likes_parks:
+        interests.append('parks')
+    if user.likes_museums:
+        interests.append('museums')
+    if user.likes_fun:
+        interests.append('fun')
     # Choose a random category. If no match is found in category, try another category until all options exhausted
     match = None
     first_category_index = randint(0, len(interests)-1)

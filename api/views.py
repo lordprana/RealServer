@@ -7,6 +7,7 @@ from api.models import User, BlockedReports, Gender, Status, SexualPreference, F
 from api.fake_user import generate_fake_user
 from matchmaking import views as matchmaking
 from matchmaking.models import Date, DateStatus
+from api.notifications import sendMatchNotification
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -266,6 +267,7 @@ def date(request, user, date_id=None):
         if request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
             date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
             date.expires_at = date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0)
+            sendMatchNotification(request_user, match_user)
             #TODO: Send notification to match_user
         # If it's a like, but other user has passed notify user after two hours that they've been passed on
         elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:

@@ -134,9 +134,9 @@ class UserTestCase(TestCase):
             "likes_drinks": True,
             "likes_food": False,
             "likes_coffee": True,
-            "likes_nature": True,
-            "likes_culture": True,
-            "likes_active": True
+            "likes_parks": True,
+            "likes_museums": True,
+            "likes_fun": True
         }
         response = self.c.patch('/users/'+self.user.fb_user_id, json.dumps(data))
         load_user = User.objects.get(pk=self.user.pk)
@@ -144,9 +144,9 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.likes_drinks, True)
         self.assertEqual(load_user.likes_food, False)
         self.assertEqual(load_user.likes_coffee, True)
-        self.assertEqual(load_user.likes_nature, True)
-        self.assertEqual(load_user.likes_culture, True)
-        self.assertEqual(load_user.likes_active, True)
+        self.assertEqual(load_user.likes_parks, True)
+        self.assertEqual(load_user.likes_museums, True)
+        self.assertEqual(load_user.likes_fun, True)
 
         # Test request update from Places screen
         data = {
@@ -154,9 +154,9 @@ class UserTestCase(TestCase):
             "likes_drinks": False,
             "likes_food": True,
             "likes_coffee": False,
-            "likes_nature": True,
-            "likes_culture": True,
-            "likes_active": True
+            "likes_parks": True,
+            "likes_museums": True,
+            "likes_fun": True
         }
         response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
         load_user = User.objects.get(pk=self.user.pk)
@@ -164,9 +164,9 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.likes_drinks, False)
         self.assertEqual(load_user.likes_food, True)
         self.assertEqual(load_user.likes_coffee, False)
-        self.assertEqual(load_user.likes_nature, True)
-        self.assertEqual(load_user.likes_culture, True)
-        self.assertEqual(load_user.likes_active, True)
+        self.assertEqual(load_user.likes_parks, True)
+        self.assertEqual(load_user.likes_museums, True)
+        self.assertEqual(load_user.likes_fun, True)
 
         # Test request from Time input screen
         data = {

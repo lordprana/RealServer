@@ -100,9 +100,9 @@ def generate_fake_user(gender, latitude, longitude):
     fake_user.likes_drinks = True
     fake_user.likes_food = True
     fake_user.likes_coffee = True
-    fake_user.likes_nature = True
-    fake_user.likes_culture = True
-    fake_user.likes_active = True
+    fake_user.likes_parks = True
+    fake_user.likes_museums = True
+    fake_user.likes_fun = True
 
     fake_user.sun_start_time = time(hour=8)
     fake_user.sun_end_time = time(hour=23, minute=59, second=59)

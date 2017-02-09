@@ -14,9 +14,9 @@ class DateCategories(Enum):
     DRINKS = 'drinks'
     FOOD = 'food'
     COFFEE = 'coffee'
-    NATURE = 'nature'
-    CULTURE = 'culture'
-    ACTIVE = 'active'
+    PARKS = 'parks'
+    MUSEUMS = 'museums'
+    FUN = 'fun'
 
 # Create your models here.
 class Date(models.Model):
@@ -50,17 +50,17 @@ class Date(models.Model):
             'start': time(hour=7),
             'end': time(hour=20, minute=30)
         },
-        'nature':
+        'parks':
         {
             'start': time(hour=7),
             'end': time(hour=19)
         },
-        'culture':
+        'museums':
         {
             'start': time(hour=10),
             'end': time(hour=22)
         },
-        'active':
+        'fun':
         {
             'start': time(hour=7),
             'end': time(hour=22)
