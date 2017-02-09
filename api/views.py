@@ -7,7 +7,7 @@ from api.models import User, BlockedReports, Gender, Status, SexualPreference, F
 from api.fake_user import generate_fake_user
 from matchmaking import views as matchmaking
 from matchmaking.models import Date, DateStatus
-from api.notifications import sendMatchNotification
+from api.notifications import sendMatchNotification, sendLikeNotification
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -278,7 +278,7 @@ def date(request, user, date_id=None):
         # If it's a like and the other user hasn't responded, add 24 hours to the expires_at time
         elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.UNDECIDED.value:
             date.expires_at = timezone.now() + datetime.timedelta(hours=24)
-            # TODO: Send notification to match user
+            sendLikeNotification(request_user, match_user, date)
         elif request_json['status'] == DateStatus.PASS.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
             # Notify user after two hours that they've been passed on
             transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
