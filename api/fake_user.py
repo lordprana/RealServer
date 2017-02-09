@@ -119,6 +119,8 @@ def generate_fake_user(gender, latitude, longitude):
     fake_user.sat_start_time = time(hour=8)
     fake_user.sat_end_time = time(hour=23, minute=59, second=59)
 
+    fake_user.save()
+
 def crop_fake_user_picture_and_upload_to_s3(file_path, user_num, pic_num):
     os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
     os.environ['AWS_SECRET_ACCESS_KEY'] = 'xBjhBPWks/IxGm89l1oHQ9GE0ZE27jRTreX5yIon'
