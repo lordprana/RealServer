@@ -12,8 +12,8 @@ import os
 
 class FacebookTests(TestCase):
     def setUp(self):
-        self.user1 = User.objects.create(fb_user_id='122700428234141', most_recent_fb_auth_token='EAACEFGIZCorABABwneNGNfqZAmeQI2QlftiHN7gkf2Ok4kJaZCbOo10XbD3wZAeaOFzYVaZBYOPoLPoF3VpygpZAZAOmOJbRgfp09h7Wp1g5vIpsZAuVpqVu3k8lYXkt6GJgCPsH43hecd7o8TueBOxt9lZAgWcyoCRuBjhLZBl5WBFvMW3RhQS5VohkYzTJgpQDGDHMM8t3oNjAZDZD')
-        self.user2 = User.objects.create(fb_user_id='116474138858424', most_recent_fb_auth_token='EAACEFGIZCorABADEzDQtokRhCZCv7jFt6mXCvZCXxwNiNL58sM9rHD6raZCcSTQfDkkEEr2X7MbwxrwLMU6ypLg3Or8XyfG1ezAvZCYpGL4CubswaZCn7ZBvEePLCcDhZBYe3Gzq6qhqEPKQNLvRKB43VtwC5jrpG4KzDz2i9seXfrMZBhCsoHf40dhPl9M3r54tAxxP64Ge90wZDZD')
+        self.user1 = User.objects.create(fb_user_id='122700428234141', most_recent_fb_auth_token='EAACEFGIZCorABALbV9dbkfH4RoU5YxLyI2ZCrVeeED1UWfhxQ7nZB9sGevcrW4ZBmYQDqIs68c37ADhZCZC85EOeFGNncFOsnNZBlyGsJYZBERH9qh0I3F9WX5IiJljVi1ZCtZBYKyBxpGlOwO8cLEBUEhZAIRRrZCS2UCDAcdKQ5sg4j51O6Grdcp6fsPSGN6lwtJ9CRbZBZCT0yitASrARo5Dv0p')
+        self.user2 = User.objects.create(fb_user_id='116474138858424', most_recent_fb_auth_token='EAACEFGIZCorABAAqVomgRwc7Qd3qCJZCk8wZBOlzi5ZBB5IkIQxp5uiuYmJJrO5eKW5VxVh0RtVAU1WjZAarwkSv6Vy2eFlFCOJCXSls4iELXZCrL2dZAxOiQIGwmoLGc0CQyctoATNR8bB57WQF0bS0VQGWQzOZBeCN5y5e5KrVBzrOPh7nh9mqL4B41ZCfLHELGtLQegZAlqeK8Fz0A4ZBC9U')
         self.user3 = User.objects.create(fb_user_id='2959531196950', most_recent_fb_auth_token='EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum')
     def test_mutual_friends(self):
         mutual_friends_json = facebook.getMutualFriends(self.user1, self.user2)
@@ -33,7 +33,7 @@ class FacebookTests(TestCase):
         # Test returns none if bad request
         self.user3.most_recent_fb_auth_token = 'EAACE'
         self.user3.save()
-        user_picture = facebook.getUserProfilePicture(self.user1)
+        user_picture = facebook.getUserProfilePicture(self.user3)
         self.assertEqual(user_picture, None)
 
 class AWSTest(TestCase):

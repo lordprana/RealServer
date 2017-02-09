@@ -73,6 +73,6 @@ class YelpAccessToken(models.Model):
     expires_at = models.DateTimeField()
 
 class MutualFriend(models.Model):
-    name = models.CharField(max_length=200)
+    first_name = models.CharField(max_length=200)
     picture = models.URLField()
     date = models.ForeignKey(Date)

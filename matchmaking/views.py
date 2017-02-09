@@ -195,7 +195,9 @@ def makeDate(user, day, potential_matches):
         if mutual_friends_json:
             mutual_friends_json = mutual_friends_json['data']
             for friend in mutual_friends_json:
-                date.mutualfriend_set.create(name=friend['name'], picture=friend['picture']['data']['url'])
+                # TODO: Check to make sure mutual friend name is correct
+                first_name = friend['name'].partition(' ')[0]
+                date.mutualfriend_set.create(first_name=first_name, picture=friend['picture']['data']['url'])
 
         return date
 
@@ -213,7 +215,6 @@ def convertDateToJson(user,date):
         'place':
             {
                 'place_id': date.place_id,
-                'name': date.place_name,
             }
     }
 
@@ -242,7 +243,7 @@ def convertDateToJson(user,date):
 
     json['match'] = {
         'user_id': potential_match.pk,
-        'name': potential_match.name,
+        'name': potential_match.first_name,
         'age': potential_match.age,
         'occupation': potential_match.occupation,
         'education': potential_match.education,

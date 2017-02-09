@@ -27,7 +27,8 @@ class User(AbstractBaseUser):
     fb_user_id = models.CharField(max_length=300, primary_key=True)
     most_recent_fb_auth_token = models.CharField(max_length=300)
 
-    name = models.CharField(max_length=200, null=True)
+    first_name = models.CharField(max_length=200, null=True)
+    last_name = models.CharField(max_length=200, null=True)
     age = models.IntegerField(null=True)
     gender = models.CharField(max_length=1, null=True)
     interested_in = models.CharField(max_length=1, null=True)

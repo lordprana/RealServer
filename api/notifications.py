@@ -8,7 +8,7 @@ def sendMatchNotification(request_user, match_user):
     for device in android_devices:
         request_body = {
             'notification': {
-                "body": request_user.name + " made it Real!"
+                "body": request_user.first_name + " made it Real!"
             },
             'to': device.registration_token
         }

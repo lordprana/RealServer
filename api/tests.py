@@ -78,7 +78,7 @@ class UserTestCase(TestCase):
         self.assertEqual(response_json['fb_user_id'], User.objects.first().fb_user_id)
         self.assertEqual(response_json['status'], Status.NEW_USER.value)
         user = User.objects.first()
-        self.assertEqual(user.name, 'Matthew Gaba')
+        self.assertEqual(user.first_name, 'Matthew')
         self.assertEqual(user.gender, Gender.MAN.value)
         self.assertEqual(user.education, 'Yale University')
         self.assertEqual(user.occupation, 'Certified Yoga & Meditation Teacher')
@@ -93,7 +93,7 @@ class UserTestCase(TestCase):
         self.real_auth_token = Token.objects.create(user=self.user)
         self.user.interested_in = SexualPreference.WOMEN.value
         self.user.occupation = 'Lawyer'
-        self.user.name = 'Chad Potter'
+        self.user.first_name = 'Chad'
         self.user.age = 28
         self.user.gender = Gender.MAN.value
         self.user.education = 'Common University'
@@ -102,7 +102,7 @@ class UserTestCase(TestCase):
         self.user.save()
         response = self.c.get('/users/'+self.user.fb_user_id+'?real_auth_token='+self.real_auth_token.key)
         response = json.loads(response.content)
-        self.assertEqual(response['name'], self.user.name)
+        self.assertEqual(response['name'], self.user.first_name)
         self.assertEqual(response['interested_in'], self.user.interested_in)
         self.assertEqual(response['occupation'], self.user.occupation)
         self.assertEqual(response['age'], self.user.age)

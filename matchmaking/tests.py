@@ -230,7 +230,7 @@ class MatchMakingTestCase(TestCase):
     def test_dates(self):
         # Man is our user making the request for dateslist
         man = self.straight_men_users[0]
-        man.name = 'Joe Rad'
+        man.first_name = 'Joe'
         man.age = 28
         man.occupation = 'Musician'
         man.education = 'School of Hard Knocks'
@@ -261,7 +261,7 @@ class MatchMakingTestCase(TestCase):
 
         # woman1 should match with man
         woman1 = self.straight_women_users[0]
-        woman1.name = 'Hailey Zok'
+        woman1.first_name = 'Hailey'
         woman1.age = 28
         woman1.occupation = 'Waitress'
         woman1.education = ''
@@ -276,14 +276,14 @@ class MatchMakingTestCase(TestCase):
         woman1.most_recent_fb_auth_token = 'EAACEFGIZCorABAICptUHpj0A91yU3iJ6gVv97ZB3cChHZB6Md1OMOuIM9YWTC322NfmxuMV5Jt2FMlfZBS4Occ5ZApyZAWhC8aQgta5o7u2uGfvfCMn5Br3JXXtvZCt2pVBs5MJeJXMCZBUHjnJZCmaVlZAUF1oVZAao0pb3TZCfqyZB3B9QOaGMqryLnBDy9hLxNZAGVZAyNCQcgnqq4PQCZCNQT6GQ'
         woman1.save()
         dl = json.loads(json.loads(date(None, man, 'sun').content))
-        self.assertEqual(dl['match']['name'], woman1.name)
+        self.assertEqual(dl['match']['name'], woman1.first_name)
         self.assertEqual(len(dl['match']['mutual_friends']), 2)
         d = Date.objects.first()
         self.assertEqual(len(d.mutualfriend_set.all()), 2)
 
         # woman2 shouldn't match because man already has date with woman1
         woman2 = self.straight_women_users[1]
-        woman2.name = 'Natalie Jen'
+        woman2.first_name = 'Natalie'
         woman2.age = 27
         woman2.occupation = 'Waitress'
         woman2.education = ''
@@ -296,7 +296,7 @@ class MatchMakingTestCase(TestCase):
         woman2.sun_end_time = time(hour=23)
         woman2.save()
         dl = json.loads(json.loads(date(None, man, 'sun').content))
-        self.assertEqual(dl['match']['name'], woman1.name)
+        self.assertEqual(dl['match']['name'], woman1.first_name)
 
         # woman2 should match because the date has expired woman1 is no longer matching on categories
         man.sun_date.expires_at = timezone.now() - timedelta(hours=25)
@@ -306,11 +306,11 @@ class MatchMakingTestCase(TestCase):
         woman1.likes_nature = False
         woman1.save()
         dl = json.loads(json.loads(date(None, man, 'sun').content))
-        self.assertEqual(dl['match']['name'], woman2.name)
+        self.assertEqual(dl['match']['name'], woman2.first_name)
 
         # woman3 should match because it's a different day
         woman3 = self.straight_women_users[2]
-        woman3.name = 'Christina Hey'
+        woman3.first_name = 'Christina'
         woman3.age = 27
         woman3.occupation = 'Waitress'
         woman3.education = ''
@@ -323,11 +323,11 @@ class MatchMakingTestCase(TestCase):
         woman3.tue_end_time = time(hour=23)
         woman3.save()
         dl = json.loads(json.loads(date(None, man, 'tue').content))
-        self.assertEqual(dl['match']['name'], woman3.name)
+        self.assertEqual(dl['match']['name'], woman3.first_name)
 
         # woman 4 shouldn't match because she doesn't like the same categories
         woman4 = self.straight_women_users[3]
-        woman4.name = 'Zoe Edwards'
+        woman4.name = 'Zoe'
         woman4.age = 27
         woman4.occupation = 'Waitress'
         woman4.education = ''
@@ -343,7 +343,7 @@ class MatchMakingTestCase(TestCase):
 
         # woman 6 shouldn't match because she is in another city
         woman6 = self.straight_women_users[5]
-        woman6.name = 'Christa Cakeface'
+        woman6.first_name = 'Christa'
         woman6.age = 27
         woman6.occupation = 'Waitress'
         woman6.education = ''
@@ -359,7 +359,7 @@ class MatchMakingTestCase(TestCase):
 
         # woman 7 shouldn't match because she's not free at the right times
         woman7 = self.straight_women_users[6]
-        woman7.name = 'Melanie Melonmouth'
+        woman7.first_name = 'Melanie'
         woman7.age = 27
         woman7.occupation = 'Waitress'
         woman7.education = ''
