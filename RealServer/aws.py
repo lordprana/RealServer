@@ -6,12 +6,13 @@ import json
 import re
 from boto.s3.connection import S3Connection, Bucket, Key
 
-def s3_generate_presigned_post(file_type, user):
+def s3_generate_presigned_post(file_type, user, file_name=None):
   S3_BUCKET = os.environ.get('S3_BUCKET')
 
   # Generate a random name for the file
 
-  file_name = user.pk + '/' +  ''.join(random.choice(string.lowercase) for i in range(12))
+  if not file_name:
+    file_name = user.pk + '/' +  ''.join(random.choice(string.lowercase) for i in range(12))
   s3 = boto3.client('s3')
 
   presigned_post = s3.generate_presigned_post(

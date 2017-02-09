@@ -4,6 +4,7 @@ from api.auth import custom_authenticate
 from api.tasks import notifyUserPassedOn
 from api import hardcoded_dates
 from api.models import User, BlockedReports, Gender, Status, SexualPreference, FCMDevice
+from api.fake_user import generate_fake_user
 from matchmaking import views as matchmaking
 from matchmaking.models import Date, DateStatus
 from django.http import JsonResponse, HttpResponse
@@ -229,6 +230,22 @@ def date(request, user, date_id=None):
         # Used for testing
         if request.GET.get('hardcoded', None):
             return JsonResponse(hardcoded_dates.dates[day])
+        # Used for testing
+        if request.GET.get('fake_user', None):
+            if user.interested_in == SexualPreference.WOMEN.value:
+                generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
+                                   (request.GET.get('longitude', None)))
+            elif user.interested_in == SexualPreference.MEN.value:
+                generate_fake_user(SexualPreference.MEN.value, request.GET.get('latitude', None),
+                                   (request.GET.get('longitude', None)))
+            elif user.interested_in == SexualPreference.BISEXUAL.value:
+                if random.randint(0, 1):
+                    generate_fake_user(SexualPreference.MEN.value, request.GET.get('latitude', None),
+                                       (request.GET.get('longitude', None)))
+                else:
+                    generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
+                                       (request.GET.get('longitude', None)))
+
 
         return matchmaking.date(request, user, day)
 
