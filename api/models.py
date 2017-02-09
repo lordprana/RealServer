@@ -100,8 +100,8 @@ class User(AbstractBaseUser):
     upcoming_dates_notification = models.BooleanField(default=True)
 
     def __unicode__(self):
-        if self.name:
-            return self.name
+        if self.first_name and self.last_name:
+            return self.first_name + ' ' + self.last_name
         else:
             return "No name provided"
 
