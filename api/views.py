@@ -235,17 +235,17 @@ def date(request, user, date_id=None):
         if request.GET.get('fake_user', None):
             if user.interested_in == SexualPreference.WOMEN.value:
                 generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
-                                   (request.GET.get('longitude', None)))
+                                   request.GET.get('longitude', None))
             elif user.interested_in == SexualPreference.MEN.value:
                 generate_fake_user(SexualPreference.MEN.value, request.GET.get('latitude', None),
-                                   (request.GET.get('longitude', None)))
+                                   request.GET.get('longitude', None))
             elif user.interested_in == SexualPreference.BISEXUAL.value:
                 if random.randint(0, 1):
                     generate_fake_user(SexualPreference.MEN.value, request.GET.get('latitude', None),
-                                       (request.GET.get('longitude', None)))
+                                       request.GET.get('longitude', None))
                 else:
                     generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
-                                       (request.GET.get('longitude', None)))
+                                       request.GET.get('longitude', None))
 
 
         return matchmaking.date(request, user, day)
