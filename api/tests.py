@@ -79,6 +79,7 @@ class UserTestCase(TestCase):
         self.assertEqual(response_json['status'], Status.NEW_USER.value)
         user = User.objects.first()
         self.assertEqual(user.first_name, 'Matthew')
+        self.assertEqual(user.last_name, 'Gaba')
         self.assertEqual(user.gender, Gender.MAN.value)
         self.assertEqual(user.education, 'Yale University')
         self.assertEqual(user.occupation, 'Certified Yoga & Meditation Teacher')

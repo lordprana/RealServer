@@ -66,6 +66,7 @@ def users(request, user):
             elif interested_in[0] == 'female':
                 user.interested_in = SexualPreference.WOMEN.value
         user.first_name = user_json.get('first_name', None)
+        user.last_name = user_json.get('last_name', None)
 
         # Parse json for education and occupation
         user.education = user_json.get('education', None)
