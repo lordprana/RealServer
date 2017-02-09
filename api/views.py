@@ -268,7 +268,6 @@ def date(request, user, date_id=None):
             date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
             date.expires_at = date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0)
             sendMatchNotification(request_user, match_user)
-            #TODO: Send notification to match_user
         # If it's a like, but other user has passed notify user after two hours that they've been passed on
         elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
             date.expires_at = timezone.now() + datetime.timedelta(hours=24)
