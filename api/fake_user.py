@@ -67,7 +67,7 @@ schools = [
 ]
 
 def generate_random_fake_fb_user_id():
-    return ''.join(random.choice(string.lowercase) for i in range(299))
+    return ''.join(random.choice(string.lowercase) for i in range(299)) # 299 is less than the max_length of the fb_user_id charfield
 
 # Creates a fake user and saves to database
 def generate_fake_user(gender, latitude, longitude):
