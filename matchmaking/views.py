@@ -286,6 +286,6 @@ def date(request, user, day):
         potential_matches = filterTimeAvailableUsers(user, day, potential_matches)
         makeDate(user, day, potential_matches)
         if getattr(user, day + '_date'):
-            return JsonResponse(json.dumps(convertDateToJson(user, getattr(user, day + '_date'))), safe=False)
+            return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
         else:
             return JsonResponse(json.dumps(None), safe=False)
