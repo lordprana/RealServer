@@ -278,7 +278,7 @@ def date(request, user, day):
         return JsonResponse(json.dumps(None), safe=False)
     # If date already exists, return date
     if getattr(user, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now():
-        return JsonResponse(json.dumps(convertDateToJson(user, getattr(user, day + '_date'))), safe=False)
+        return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
     else: # Query for a match and create date from those matches
         potential_matches = filterBySexualPreference(user, User.objects.exclude(pk=user.pk))
         potential_matches = filterByAge(user, potential_matches)
