@@ -267,7 +267,7 @@ def date(request, user, date_id=None):
         if request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
             date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
             date.expires_at = date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0)
-            sendMatchNotification(request_user, match_user)
+            sendMatchNotification(getattr(date, request_user), getattr(date, match_user))
         # If it's a like, but other user has passed notify user after two hours that they've been passed on
         elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
             date.expires_at = timezone.now() + datetime.timedelta(hours=24)
@@ -278,7 +278,7 @@ def date(request, user, date_id=None):
         # If it's a like and the other user hasn't responded, add 24 hours to the expires_at time
         elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.UNDECIDED.value:
             date.expires_at = timezone.now() + datetime.timedelta(hours=24)
-            sendLikeNotification(request_user, match_user, date)
+            sendLikeNotification(getattr(date, request_user), getattr(date, match_user), date)
         elif request_json['status'] == DateStatus.PASS.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
             # Notify user after two hours that they've been passed on
             transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
