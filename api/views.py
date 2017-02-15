@@ -295,6 +295,19 @@ def date(request, user, date_id=None):
 
 @csrf_exempt
 @custom_authenticate
+def unmatch(request, user, date_id):
+    date = Date.objects.get(pk=date_id)
+    date.expires_at = date.original_expires_at
+    date.user1_likes = DateStatus.PASS.value
+    date.user2_likes = DateStatus.PASS.value
+    user1 = date.user1
+    user2 = date.user2
+    date.save()
+    user1.passed_matches.add(user2)
+    return HttpResponse(status=200)
+
+@csrf_exempt
+@custom_authenticate
 def report_and_block(request, user):
     if request.method == 'POST':
         try:

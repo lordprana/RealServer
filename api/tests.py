@@ -416,6 +416,26 @@ class DateTestCase(TestCase):
         self.assertEqual(response_json[0]['date_id'], 1)
         self.assertEqual(response_json[1]['date_id'], 2)
 
+    def test_unmatch(self):
+        # Both users like each other at first
+        date = Date(user1=self.user1, user2=self.user2,
+                    expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                        tzinfo=pytz.UTC),
+                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                    category=DateCategories.COFFEE.value)
+        date.original_expires_at = date.expires_at - timedelta(days=1)
+        date.user1_likes = DateStatus.LIKES.value
+        date.user2_likes = DateStatus.LIKES.value
+        date.save()
+        response = self.c.get('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk) + '/unmatch?real_auth_token=' + self.real_auth_token1.key)
+        date = Date.objects.get(pk=date.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(date.user1_likes, DateStatus.PASS.value)
+        self.assertEqual(date.user2_likes, DateStatus.PASS.value)
+        self.assertEqual(date.expires_at, date.original_expires_at)
+        self.assertEqual(date.user1.passed_matches.count(), 1)
+        self.assertEqual(date.user2.passed_matches.count(), 1)
+
 class ReportAndBlockTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',
