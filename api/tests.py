@@ -470,7 +470,7 @@ class ReportAndBlockTestCase(TestCase):
         self.assertEqual(date.user2_likes, DateStatus.PASS.value)
         self.assertEqual(date.user1.passed_matches.count(), 1)
         self.assertEqual(date.user2.passed_matches.count(), 1)
-        self.assertLess(date.expires_at, timezone.now())
+        self.assertEqual(date.expires_at, date.original_expires_at)
         self.assertEqual(report.report_content, data['report_content'])
         self.assertEqual(report.blocking_user, self.user1)
         self.assertEqual(report.blocked_user, self.user2)

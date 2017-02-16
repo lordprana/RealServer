@@ -317,7 +317,7 @@ def report_and_block(request, user):
             date = Date.objects.get(pk=request_json['date_id'])
             date.user1_likes = DateStatus.PASS.value
             date.user2_likes = DateStatus.PASS.value
-            date.expires_at = timezone.now() - datetime.timedelta(days=1)
+            date.expires_at = date.original_expires_at
             date.save()
 
             user.passed_matches.add(blocked_user)

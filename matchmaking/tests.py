@@ -222,13 +222,17 @@ class MatchMakingTestCase(TestCase):
         self.assertEqual(date.user1, woman)
         self.assertEqual(date.user2, man)
         self.assertEqual(date.day, 'wed')
+        self.assertEqual(date.expires_at, (timezone.now() + timedelta(days=1)).replace(hour=0, minute=0,
+                                                                                            second=0, microsecond=0))
+        self.assertEqual(date.original_expires_at, (timezone.now() + timedelta(days=1)).replace(hour=0, minute=0,
+                                                                                            second=0, microsecond=0))
         self.assertTrue(date.start_time >= woman.wed_start_time)
         self.assertTrue(date.start_time <= time(hour=21, minute=0))
         self.assertEqual(woman.wed_date, date)
         self.assertEqual(man.wed_date, date)
 
     def test_dates(self):
-        # Man is our user making the request for dateslist
+        # Man is our user making the request for dates
         man = self.straight_men_users[0]
         man.first_name = 'Joe'
         man.age = 28
