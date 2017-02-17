@@ -245,7 +245,7 @@ def convertDateToJson(user,date):
         json['primary_user_likes'] = date.user2_likes
 
     json['match'] = {
-        'user_id': potential_match.pk,
+        'user_id': potential_match.fb_user_id,
         'name': potential_match.first_name,
         'age': potential_match.age,
         'occupation': potential_match.occupation,
