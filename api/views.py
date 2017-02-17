@@ -221,6 +221,20 @@ def user(request,user):
         }
         return JsonResponse(details)
 
+@csrf_exempt
+@custom_authenticate
+def settings(request, user):
+    settings_json = {
+        'search_radius': user.search_radius,
+        'min_age_preference': user.min_age_preference,
+        'max_age_preference': user.max_age_preference,
+        'max_price': user.max_price,
+        'new_likes_notification': user.new_likes_notification,
+        'new_matches_notification': user.new_matches_notification,
+        'new_messages_notification': user.new_messages_notification,
+        'upcoming_dates_notification': user.upcoming_dates_notification
+    }
+    return JsonResponse(settings_json)
 
 @csrf_exempt
 @custom_authenticate

@@ -304,10 +304,27 @@ class UserTestCase(TestCase):
         response = self.c.get('/users/' + self.user.fb_user_id + '/sign_s3?' + 'real_auth_token=' +
                               self.real_auth_token.key + '&file_type=' + file_type)
         json_response = json.loads(response.content)
-        print(response.content)
         self.assertTrue(('https://realdatingbucket.s3.amazonaws.com/' + self.user.fb_user_id) in json_response['url'])
         self.assertEqual(json_response['data']['url'], 'https://realdatingbucket.s3.amazonaws.com/')
         self.assertEqual(json_response['data']['fields']['AWSAccessKeyId'], os.environ['AWS_ACCESS_KEY_ID'])
+
+    def test_settings(self):
+        self.user = User.objects.create(fb_user_id='2959531196950',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token = Token.objects.create(user=self.user)
+        response = self.c.get('/users/' + self.user.fb_user_id + '/settings?' + 'real_auth_token=' +
+                              self.real_auth_token.key)
+        json_response = json.loads(response.content)
+        # Check that json values equal default values specified in User model
+        self.assertEqual(json_response['search_radius'], 24)
+        self.assertEqual(json_response['min_age_preference'], 18)
+        self.assertEqual(json_response['max_age_preference'], 35)
+        self.assertEqual(json_response['max_price'], 2)
+        self.assertEqual(json_response['new_likes_notification'], True)
+        self.assertEqual(json_response['new_matches_notification'], True)
+        self.assertEqual(json_response['new_messages_notification'], True)
+        self.assertEqual(json_response['upcoming_dates_notification'], True)
+
 class DateTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',
