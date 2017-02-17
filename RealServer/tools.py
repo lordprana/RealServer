@@ -2,7 +2,16 @@ from django.utils import timezone
 from datetime import timedelta
 from cStringIO import StringIO
 from PIL import Image
+from pytz import timezone
+import pytz
 
+
+
+def convertLocalTimeToUTC(dt, tz):
+    local = timezone(tz)
+    local_dt = local.localize(dt)
+    utc_dt = local_dt.astimezone(pytz.utc)
+    return utc_dt
 
 def nextDayOfWeekToDatetime(dt, day_of_week):
     days_of_week = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']

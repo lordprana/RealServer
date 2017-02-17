@@ -36,6 +36,8 @@ class User(AbstractBaseUser):
     education = models.CharField(max_length=200, null=True)
     about = models.CharField(max_length=500, null=True)
 
+    timezone = models.CharField(max_length=100, null=True)
+
     status = models.CharField(max_length=20)
 
     min_age_preference = models.IntegerField(default=18)

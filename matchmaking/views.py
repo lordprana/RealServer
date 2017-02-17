@@ -8,6 +8,7 @@ from api.models import User, SexualPreference, Gender
 from matchmaking.yelp import getPlacesFromYelp, TOP_RATED
 from matchmaking import models
 from RealServer import facebook
+from RealServer.tools import convertLocalTimeToUTC
 from messaging.models import Message
 import datetime
 import json
@@ -182,9 +183,11 @@ def makeDate(user, day, potential_matches):
         return None
     else:
         time = generateRandomTimeForDate(user, match, day, interests[category_index])
+
+        local_midnight = convertLocalTimeToUTC(datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+                                              user.timezone)
         date = models.Date(user1=user, user2=match, day=day, start_time=time,
-                           expires_at=(timezone.now() + datetime.timedelta(days=1)).replace(hour=0, minute=0,
-                                                                                            second=0, microsecond=0),
+                           expires_at=(local_midnight + datetime.timedelta(days=1)),
                             place_id=place['id'], place_name=place['name'], category=interests[category_index])
         date.original_expires_at = date.expires_at
         date.save()

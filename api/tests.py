@@ -328,9 +328,11 @@ class UserTestCase(TestCase):
 class DateTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',
-                                         most_recent_fb_auth_token='EAACEFGIZCorABABwneNGNfqZAmeQI2QlftiHN7gkf2Ok4kJaZCbOo10XbD3wZAeaOFzYVaZBYOPoLPoF3VpygpZAZAOmOJbRgfp09h7Wp1g5vIpsZAuVpqVu3k8lYXkt6GJgCPsH43hecd7o8TueBOxt9lZAgWcyoCRuBjhLZBl5WBFvMW3RhQS5VohkYzTJgpQDGDHMM8t3oNjAZDZD')
+                                         most_recent_fb_auth_token='EAACEFGIZCorABABwneNGNfqZAmeQI2QlftiHN7gkf2Ok4kJaZCbOo10XbD3wZAeaOFzYVaZBYOPoLPoF3VpygpZAZAOmOJbRgfp09h7Wp1g5vIpsZAuVpqVu3k8lYXkt6GJgCPsH43hecd7o8TueBOxt9lZAgWcyoCRuBjhLZBl5WBFvMW3RhQS5VohkYzTJgpQDGDHMM8t3oNjAZDZD',
+                                         timezone = 'US/Eastern', first_name = 'First')
         self.user2 = User.objects.create(fb_user_id='116474138858424',
-                                         most_recent_fb_auth_token='EAACEFGIZCorABADEzDQtokRhCZCv7jFt6mXCvZCXxwNiNL58sM9rHD6raZCcSTQfDkkEEr2X7MbwxrwLMU6ypLg3Or8XyfG1ezAvZCYpGL4CubswaZCn7ZBvEePLCcDhZBYe3Gzq6qhqEPKQNLvRKB43VtwC5jrpG4KzDz2i9seXfrMZBhCsoHf40dhPl9M3r54tAxxP64Ge90wZDZD')
+                                         most_recent_fb_auth_token='EAACEFGIZCorABADEzDQtokRhCZCv7jFt6mXCvZCXxwNiNL58sM9rHD6raZCcSTQfDkkEEr2X7MbwxrwLMU6ypLg3Or8XyfG1ezAvZCYpGL4CubswaZCn7ZBvEePLCcDhZBYe3Gzq6qhqEPKQNLvRKB43VtwC5jrpG4KzDz2i9seXfrMZBhCsoHf40dhPl9M3r54tAxxP64Ge90wZDZD',
+                                         timezone = 'US/Eastern', first_name= 'First')
         self.real_auth_token1 = Token.objects.create(user=self.user1)
         self.real_auth_token2 = Token.objects.create(user=self.user2)
         self.c = Client()
@@ -348,7 +350,7 @@ class DateTestCase(TestCase):
         }
         response = self.c.patch('/users/'+ self.user1.fb_user_id + '/dates/'+ str(date.pk), json.dumps(data))
         date = Date.objects.get(pk=date.pk)
-        self.assertEqual(date.expires_at, datetime(year=2017, month=1, day=20, hour=23, minute=59, tzinfo=pytz.UTC))
+        self.assertEqual(date.expires_at, datetime(year=2017, month=1, day=21, hour=4, minute=59, tzinfo=pytz.UTC))
 
         # Test user 1 likes, user 2 undecided
         date = Date(user1=self.user1, user2=self.user2,

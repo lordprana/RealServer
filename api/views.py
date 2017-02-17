@@ -12,7 +12,8 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.utils import timezone
-from  RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates
+from  RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, \
+    cropImageByAspectRatioAndCoordinates, convertLocalTimeToUTC
 from RealServer.aws import s3_generate_presigned_post, s3_delete_file
 from django.db import transaction
 from PIL import Image
@@ -52,6 +53,11 @@ def users(request, user):
                 'real_auth_token': token.key,
                 'status': user.status
             }
+
+        json_data = json.loads(request.body)
+        user.timezone = json_data.get('timezone', None)
+        if not user.timezone:
+            return HttpResponse(status=400)
 
         user_json = facebook.getUserInfo(user)
         if user_json.get('gender', None) == 'male':
@@ -280,7 +286,8 @@ def date(request, user, date_id=None):
         # If both users like each other, then set the date to expire at the last minute on the day of the date
         if request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
             date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
-            date.expires_at = date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0)
+            local_expires_at = convertLocalTimeToUTC(date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0, tzinfo=None), user.timezone)
+            date.expires_at = local_expires_at
             sendMatchNotification(getattr(date, request_user), getattr(date, match_user))
         # If it's a like, but other user has passed notify user after two hours that they've been passed on
         elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:

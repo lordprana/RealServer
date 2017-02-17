@@ -7,8 +7,10 @@ from django.test import TestCase
 from RealServer import facebook
 from RealServer import aws
 from api.models import User
-from tools import nextDayOfWeekToDatetime, cropImageToSquare, cropImageByAspectRatio, cropImageByAspectRatioAndCoordinates, cropImage
+from tools import nextDayOfWeekToDatetime, cropImageToSquare, cropImageByAspectRatio, \
+    cropImageByAspectRatioAndCoordinates, cropImage, convertLocalTimeToUTC
 import os
+import pytz
 
 class FacebookTests(TestCase):
     def setUp(self):
@@ -49,6 +51,11 @@ class ToolsTest(TestCase):
     def setUp(self):
         self.user2 = User.objects.create(fb_user_id='122700428234141',most_recent_fb_auth_token='EAACEFGIZCorABAJ6TTrnVfxoyP2xs5jqQYgemBaqZBgQhV1ZC2VkFwzdarZAuTsRI6HJte7olP712H2FV73UbprxHA94Dq8twNLKZCPwZB57ZBhheXWFBPH5XWCtVk9sAmr65ZCKVneFufSplL0DbqoRnvTLdBkaS86KrWCNxypQtq9ZBxSBW9ym8zmaBoKsBPskZD')
         self.user3 = User.objects.create(fb_user_id='2959531196950', most_recent_fb_auth_token='EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum')
+
+    def test_convert_local_time_to_utc(self):
+        dt = convertLocalTimeToUTC(datetime(year=2017, month=2, day=17, hour=0, minute=0, second=0, microsecond=0), 'US/Eastern')
+        self.assertEqual(dt, datetime(year=2017, month=2, day=17, hour=5, tzinfo=pytz.UTC))
+
     def test_day_of_week_difference(self):
         dt = datetime(year=2017, month=1, day=16)
         dt = nextDayOfWeekToDatetime(dt, 'wed')
