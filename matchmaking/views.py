@@ -253,6 +253,7 @@ def convertDateToJson(user,date):
         'age': potential_match.age,
         'occupation': potential_match.occupation,
         'education': potential_match.education,
+        'gender': potential_match.gender,
         'about': potential_match.about,
         'main_picture': potential_match.picture1_portrait_url,
         'detail_pictures': [
