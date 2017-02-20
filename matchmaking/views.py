@@ -52,6 +52,11 @@ def filterTimeAvailableUsers(user, day, potential_matches):
     else:
         return User.objects.none()
 
+def filterByLatitudeLongitude(user, potential_matches):
+    filter_radius = 1
+    return potential_matches.filter(latitude__gte=(user.latitude - filter_radius)).filter(latitude__lte=(user.latitude + filter_radius))\
+                        .filter(longitude__gte=(user.longitude - filter_radius)).filter(longitude__lte=(user.longitude + filter_radius))
+
 def generateDateOfDateFromDay(day):
     days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']
     date_of_date = timezone.now().date()
@@ -291,6 +296,7 @@ def date(request, user, day):
         potential_matches = filterByAge(user, potential_matches)
         potential_matches = filterPassedMatches(user, potential_matches)
         potential_matches = filterTimeAvailableUsers(user, day, potential_matches)
+        potential_matches = filterByLatitudeLongitude(user, potential_matches)
         makeDate(user, day, potential_matches)
         if getattr(user, day + '_date'):
             return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)

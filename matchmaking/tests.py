@@ -5,7 +5,7 @@ from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
 from api.models import User, Gender, SexualPreference
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
-    generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes
+    generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes, filterByLatitudeLongitude
 from matchmaking.yelp import getPlacesFromYelp
 from matchmaking.models import YelpAccessToken, Date
 from datetime import datetime, timedelta, time
@@ -114,6 +114,28 @@ class MatchMakingTestCase(TestCase):
         man.save()
         results = filterTimeAvailableUsers(woman, 'sun', User.objects.exclude(pk=woman.pk))
         self.assertEqual(results.count(), 0)
+
+    def test_latitude_longitude_filter(self):
+        woman = self.straight_women_users[0]
+        woman.latitude = 45.77
+        woman.longitude = -68.43
+        woman.save()
+        # Create man that will not be filtered
+        man1 = self.straight_men_users[0]
+        man1.latitude = 46.38
+        man1.longitude = -68.44
+        man1.save()
+        # Create men that will be filtered
+        man2 = self.straight_men_users[1]
+        man2.latitude = 42.87
+        man2.longitude = -68.43
+        man2.save()
+        man3 = self.straight_men_users[2]
+        man3.latitude = 45.76
+        man3.longitude = -69.53
+        man3.save()
+        results = filterByLatitudeLongitude(woman, User.objects.exclude(pk=woman.pk))
+        self.assertEqual(results.count(), 1)
 
     def test_appropriate_category_times_filter(self):
         # Test appropriate time
