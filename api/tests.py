@@ -336,7 +336,7 @@ class DateTestCase(TestCase):
         self.real_auth_token1 = Token.objects.create(user=self.user1)
         self.real_auth_token2 = Token.objects.create(user=self.user2)
         self.c = Client()
-    def test_date_patch(self):
+    def test_date_patch_status(self):
         # Test both users like each other
         date = Date(user1=self.user1, user2=self.user2, expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0, tzinfo=pytz.UTC),
                     day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
@@ -407,6 +407,24 @@ class DateTestCase(TestCase):
         response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
         self.user1 = User.objects.get(pk=self.user1.pk)
         self.assertEqual(self.user1.passed_matches.all().count(), 1)
+
+    def test_date_patch_inspected_match(self):
+        # Test user 1 inspects user 2
+        date = Date(user1=self.user1, user2=self.user2,
+                    expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                        tzinfo=pytz.UTC),
+                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                    category=DateCategories.COFFEE.value)
+        date.original_expires_at = date.expires_at
+        date.user2_likes = DateStatus.LIKES.value
+        date.save()
+        data = {
+            "real_auth_token": self.real_auth_token1.key,
+            "inspected_match": True
+        }
+        response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
+        date = Date.objects.get(pk=date.pk)
+        self.assertEqual(date.inspected_match, True)
 
     def test_past_dates(self):
         date1 = Date(user1=self.user1, user2=self.user2,

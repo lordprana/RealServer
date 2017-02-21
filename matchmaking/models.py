@@ -33,6 +33,7 @@ class Date(models.Model):
     place_id = models.CharField(max_length=300)
     place_name = models.CharField(max_length=300)
     category = models.CharField(max_length=20)
+    inspected_match = models.BooleanField(default=False)
 
     appropriate_times = {
         'drinks':

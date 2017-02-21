@@ -282,35 +282,44 @@ def date(request, user, date_id=None):
             request_user = 'user2'
             match_user = 'user1'
 
-        setattr(date, request_user+'_likes', request_json['status'])
-        # If both users like each other, then set the date to expire at the last minute on the day of the date
-        if request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
-            date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
-            local_expires_at = convertLocalTimeToUTC(date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0, tzinfo=None), user.timezone)
-            date.expires_at = local_expires_at
-            sendMatchNotification(getattr(date, request_user), getattr(date, match_user))
-        # If it's a like, but other user has passed notify user after two hours that they've been passed on
-        elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
-            date.expires_at = timezone.now() + datetime.timedelta(hours=24)
-            transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
-                                                                          getattr(date, match_user).pk,
-                                                                         date.pk),
-                                                                         countdown=60*60*2))
-        # If it's a like and the other user hasn't responded, add 24 hours to the expires_at time
-        elif request_json['status'] == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.UNDECIDED.value:
-            date.expires_at = timezone.now() + datetime.timedelta(hours=24)
-            sendLikeNotification(getattr(date, request_user), getattr(date, match_user), date)
-        elif request_json['status'] == DateStatus.PASS.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
-            # Notify user after two hours that they've been passed on
-            transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
-                                                                         getattr(date, request_user).pk,
-                                                                         date.pk),
-                                                                         countdown=60*60*2))
-        elif request_json['status'] == DateStatus.PASS.value and getattr(date, match_user + '_likes') == DateStatus.UNDECIDED.value:
-            getattr(date, request_user).passed_matches.add(getattr(date, match_user))
-        elif request_json['status'] == DateStatus.PASS.value and getattr(date,
-                                                                             match_user + '_likes') == DateStatus.PASS.value:
-            getattr(date, request_user).passed_matches.add(getattr(date, match_user))
+        status = request_json.get('status', None)
+        inspected_match = request_json.get('inspected_match', None)
+        if not status and not inspected_match:
+            return HttpResponse(status=400)
+        if status:
+            setattr(date, request_user+'_likes', status)
+            # If both users like each other, then set the date to expire at the last minute on the day of the date
+            if status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
+                date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
+                local_expires_at = convertLocalTimeToUTC(date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0, tzinfo=None), user.timezone)
+                date.expires_at = local_expires_at
+                sendMatchNotification(getattr(date, request_user), getattr(date, match_user))
+            # If it's a like, but other user has passed notify user after two hours that they've been passed on
+            elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
+                date.expires_at = timezone.now() + datetime.timedelta(hours=24)
+                transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
+                                                                              getattr(date, match_user).pk,
+                                                                             date.pk),
+                                                                             countdown=60*60*2))
+            # If it's a like and the other user hasn't responded, add 24 hours to the expires_at time
+            elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.UNDECIDED.value:
+                date.expires_at = timezone.now() + datetime.timedelta(hours=24)
+                sendLikeNotification(getattr(date, request_user), getattr(date, match_user), date)
+            elif status == DateStatus.PASS.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
+                # Notify user after two hours that they've been passed on
+                transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
+                                                                             getattr(date, request_user).pk,
+                                                                             date.pk),
+                                                                             countdown=60*60*2))
+            elif status == DateStatus.PASS.value and getattr(date, match_user + '_likes') == DateStatus.UNDECIDED.value:
+                getattr(date, request_user).passed_matches.add(getattr(date, match_user))
+            elif status == DateStatus.PASS.value and getattr(date,
+                                                                                 match_user + '_likes') == DateStatus.PASS.value:
+                getattr(date, request_user).passed_matches.add(getattr(date, match_user))
+
+        if inspected_match:
+            date.inspected_match = inspected_match
+
         date.save()
         return HttpResponse(status=200)
 
