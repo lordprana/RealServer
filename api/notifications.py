@@ -5,8 +5,8 @@ import json
 from RealServer.settings import FCM_SERVER_API_KEY
 
 def sendMatchNotification(request_user, match_user):
-    android_devices = FCMDevice.objects.filter(user=match_user)
-    for device in android_devices:
+    devices = FCMDevice.objects.filter(user=match_user)
+    for device in devices:
         request_body = {
             'notification': {
                 'body': request_user.first_name + ' made it Real!',
@@ -41,7 +41,7 @@ def sendLikeNotification(request_user, like_user, date):
     elif date.category == DateCategories.MUSEUMS.value:
         request_text = request_user.first_name + ' wants to check out a museum with you!'
     elif date.category == DateCategories.FUN.value:
-        request_text = request_user.first_name + ' wants to try something new with you!'
+        request_text = request_user.first_name + ' wants to try something fun with you!'
 
     for device in android_devices:
         request_body = {
