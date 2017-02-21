@@ -28,7 +28,7 @@ def sendMatchNotification(request_user, match_user):
             handleNotificationResponse(json_response, device)
 
 def sendLikeNotification(request_user, like_user, date):
-    android_devices = FCMDevice.objects.filter(user=like_user)
+    devices = FCMDevice.objects.filter(user=like_user)
     # Change body depending on date category
     if date.category == DateCategories.FOOD.value:
         request_text = request_user.first_name + ' wants to grab a bite with you!'
@@ -43,7 +43,7 @@ def sendLikeNotification(request_user, like_user, date):
     elif date.category == DateCategories.FUN.value:
         request_text = request_user.first_name + ' wants to try something fun with you!'
 
-    for device in android_devices:
+    for device in devices:
         request_body = {
             'notification': {
                 'body': request_text,
@@ -65,8 +65,8 @@ def sendLikeNotification(request_user, like_user, date):
             handleNotificationResponse(json_response, device)
 
 def sendPassNotification(passer_user, passed_user):
-    android_devices = FCMDevice.objects.filter(user=passed_user)
-    for device in android_devices:
+    devices = FCMDevice.objects.filter(user=passed_user)
+    for device in devices:
         request_body = {
             'notification': {
                 'body': passer_user.first_name + ' has passed on your date. Bummer.',
