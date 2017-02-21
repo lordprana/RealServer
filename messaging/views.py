@@ -6,6 +6,7 @@ from django.db import transaction
 from api.auth import custom_authenticate
 from messaging.models import Message
 from api.models import User
+from matchmaking.models import Date
 
 # Create your views here.
 @csrf_exempt
@@ -47,7 +48,8 @@ def messages(request, user):
         json_data = json.loads(request.body)
         match_user = json_data.get('match_user', None)
         message_content = json_data.get('message_content', None)
-        if match_user == None or message_content == None:
+        date_id = json_data.get('date_id', None)
+        if match_user == None or message_content == None or date_id == None:
             return HttpResponse(status=400)
         try:
             last_message = Message.objects.raw('SELECT * FROM messaging_message '
@@ -57,7 +59,8 @@ def messages(request, user):
             message_index = last_message.index + 1
         except IndexError:
             message_index = 0
-        Message.objects.create(index=message_index, content=message_content, sent_by=user, sent_to=User.objects.get(pk=match_user))
+        Message.objects.create(index=message_index, content=message_content, sent_by=user,
+                               sent_to=User.objects.get(pk=match_user), date=Date.objects.get(pk=date_id))
         return HttpResponse(status=200)
 
 
