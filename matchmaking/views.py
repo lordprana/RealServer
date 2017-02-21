@@ -147,8 +147,6 @@ def makeDate(user, day, potential_matches):
         category_filtered = potential_matches.filter(**filter_dict)
 
         category_filtered = filterByAppropriateCategoryTimes(user, category_filtered, day, category)
-        category_filtered = list(category_filtered)
-        shuffle(category_filtered) # Potential matches are randomly sorted
         # Choose a place randomly from TOP_RATED places. If no match found, iterate through places until all options exhausted
         if category_filtered:
             places = getPlacesFromYelp(user, category)
@@ -160,6 +158,8 @@ def makeDate(user, day, potential_matches):
                 place = places[place_index]
                 # Filter for users who have a max_price setting greater than price of place
                 price_filtered = category_filtered.filter(max_price__gte=place.get('price', '').count('$'))
+                price_filtered = list(price_filtered)
+                shuffle(price_filtered) # Potential matches are randomly sorted
                 # Calculate distance to place for each potential match
                 for potential_match in price_filtered:
                     match_coordinates = (potential_match.latitude, potential_match.longitude)
