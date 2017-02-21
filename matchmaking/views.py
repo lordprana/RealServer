@@ -158,8 +158,10 @@ def makeDate(user, day, potential_matches):
             place_index = (first_place_index + 1) % len(places)
             while True:
                 place = places[place_index]
+                # Filter for users who have a max_price setting greater than price of place
+                price_filtered = category_filtered.filter(max_price__gte=place.get('price', '').count('$'))
                 # Calculate distance to place for each potential match
-                for potential_match in category_filtered:
+                for potential_match in price_filtered:
                     match_coordinates = (potential_match.latitude, potential_match.longitude)
                     place_coordinates = (place['coordinates']['latitude'], place['coordinates']['longitude'])
                     if great_circle(match_coordinates, place_coordinates).miles < potential_match.search_radius:
