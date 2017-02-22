@@ -196,8 +196,9 @@ def makeDate(user, day, potential_matches):
         local_midnight = convertLocalTimeToUTC(datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
                                               user.timezone)
         date = models.Date(user1=user, user2=match, day=day, start_time=time,
+                           date_of_date=generateDateOfDateFromDay(day),
                            expires_at=(local_midnight + datetime.timedelta(days=1)),
-                            place_id=place['id'], place_name=place['name'], category=interests[category_index])
+                           place_id=place['id'], place_name=place['name'], category=interests[category_index])
         date.original_expires_at = date.expires_at
         date.save()
         setattr(user, day+'_date', date)
