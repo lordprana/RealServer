@@ -223,6 +223,7 @@ def convertDateToJson(user,date):
         'date_id': date.pk,
         'respond_by': date.expires_at.isoformat(),
         'inspected_match': date.inspected_match,
+        'date_of_date': date.date_of_date.isoformat(),
         'time':
             {
                 'day': date.day,
