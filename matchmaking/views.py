@@ -246,17 +246,19 @@ def convertDateToJson(user,date):
     # Determine to which user the Date fields are relative
     if date.user1 == user:
         potential_match = date.user2
-        if date.user2_likes == models.DateStatus.LIKES.value:
-            json['potential_match_likes'] = True
+        # If potential match has passed, but the primary user has not been notified, tell client that the potential
+        # match is undecided.
+        if date.user2_likes == models.DateStatus.PASS.value and date.passed_user_notified == False:
+            json['potential_match_likes'] = models.DateStatus.UNDECIDED.value
         else:
-            json['potential_match_likes'] = False
+            json['potential_match_likes'] = date.user2_likes
         json['primary_user_likes'] = date.user1_likes
     else:
         potential_match = date.user1
-        if date.user1_likes == models.DateStatus.LIKES.value:
-            json['potential_match_likes'] = True
+        if date.user1_likes == models.DateStatus.PASS.value and date.passed_user_notified == False:
+            json['potential_match_likes'] = models.DateStatus.UNDECIDED.value
         else:
-            json['potential_match_likes'] = False
+            json['potential_match_likes'] = date.user1_likes
         json['primary_user_likes'] = date.user2_likes
 
     json['match'] = {
@@ -279,7 +281,7 @@ def convertDateToJson(user,date):
     for friend in date.mutualfriend_set.all():
         mutual_friends.append({
             'friend': {
-                'name': friend.name,
+                'name': friend.first_name,
                 'picture': friend.picture
             }
         })

@@ -16,6 +16,7 @@ def notifyUserPassedOn(user1_id, user2_id, date_id):
     user1 = User.objects.get(pk=user1_id)
     user2 = User.objects.get(pk=user2_id)
     date = Date.objects.get(pk=date_id)
+    date.passed_user_notified = True
     date.expires_at = date.original_expires_at
     date.save()
     user1.passed_matches.add(user2)

@@ -7,7 +7,7 @@ from api.models import User, Gender, SexualPreference
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
     generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes, filterByLatitudeLongitude
 from matchmaking.yelp import getPlacesFromYelp
-from matchmaking.models import YelpAccessToken, Date
+from matchmaking.models import YelpAccessToken, Date, DateStatus
 from datetime import datetime, timedelta, time
 from django.utils import timezone
 
@@ -279,8 +279,9 @@ class MatchMakingTestCase(TestCase):
         man.fri_end_time = time(hour=23)
         man.sat_start_time = time(hour=18)
         man.sat_end_time = time(hour=23)
+        man.timezone = 'US/Central'
         man.fb_user_id = '110000369505832'
-        man.most_recent_fb_auth_token = 'EAACEFGIZCorABAGsVlCIHsV815c9PTU1yT2iufkAbyiCn3yNb8MfczAqh7FPBt02s7k4yDVeI5TUac6sa1ylYbEZBl7oIVNjPtS4PopS7Oi7Mrgj4N9Lz7ND5036DziaEehKRdHUucvsNZC900v8YIp0pSagqWXBJyDNj74ZCl2whBDYJKPfrCRKXC4ZCFR3Xl45gXDZApa1ZCbfJvoNRnf'
+        man.most_recent_fb_auth_token = 'EAACEFGIZCorABACA9QF5VwdzOUZCQkZBXWa6ncW6SxYCCzrMFpc48BWSNFEOZA3aex4rgSjM0bbZB9C64INBQ9L7kKMbfZBC6YwsAX9nkS3JjV4SKxEvPA0RnvWtokyo0LIZBjyGikEZC6xhK3niyjLucswjgkaIKLIMAcyWm9xmQzn5yUbtYEsRz72EG94NXMbzInuCksjaQ8tIif0wqw76'
         man.save()
 
         # Create man's matches
@@ -298,14 +299,30 @@ class MatchMakingTestCase(TestCase):
         woman1.likes_parks = True
         woman1.sun_start_time = time(hour=18)
         woman1.sun_end_time = time(hour=23)
+        woman1.timezone = 'US/Central'
         woman1.fb_user_id = '131453847271362'
-        woman1.most_recent_fb_auth_token = 'EAACEFGIZCorABAICptUHpj0A91yU3iJ6gVv97ZB3cChHZB6Md1OMOuIM9YWTC322NfmxuMV5Jt2FMlfZBS4Occ5ZApyZAWhC8aQgta5o7u2uGfvfCMn5Br3JXXtvZCt2pVBs5MJeJXMCZBUHjnJZCmaVlZAUF1oVZAao0pb3TZCfqyZB3B9QOaGMqryLnBDy9hLxNZAGVZAyNCQcgnqq4PQCZCNQT6GQ'
+        woman1.most_recent_fb_auth_token = 'EAACEFGIZCorABAO73YkZBy8ldalAj63i2MybcwZBDlCklM827L1LWzPi71VHEBf9Dj025hiYwxi57QRRzUa1wLudl1VGZAYeiZBITTbRCZBZBp92psQwV7VHbMEfZCj0hBwVSUnIPqjHbpRIfnpxZAfcI7698a4iVz0oZAgWwkxxxTICZBBKnmLQOU8xWZAuBZCzlZAqFf5vWCZA8NE7yu7lpctZC5ZAr'
         woman1.save()
-        dl = json.loads(json.loads(date(None, man, 'sun').content))
+        #dl = json.loads(json.loads(date(None, man, 'sun').content))
+        dl = json.loads(date(None, man, 'sun').content)
         self.assertEqual(dl['match']['name'], woman1.first_name)
         self.assertEqual(len(dl['match']['mutual_friends']), 2)
+        self.assertEqual(dl['potential_match_likes'], DateStatus.UNDECIDED.value)
+        self.assertEqual(dl['primary_user_likes'], DateStatus.UNDECIDED.value)
         d = Date.objects.first()
         self.assertEqual(len(d.mutualfriend_set.all()), 2)
+
+        # Test value of potential_match_likes in convertDateToJson is being set correctly
+        d.user2_likes = DateStatus.PASS.value
+        d.save()
+        man = User.objects.get(pk=man.pk)
+        dl = json.loads(date(None, man, 'sun').content)
+        self.assertEqual(dl['potential_match_likes'], DateStatus.UNDECIDED.value)
+        d.passed_user_notified = True
+        d.save()
+        man = User.objects.get(pk=man.pk)
+        dl = json.loads(date(None, man, 'sun').content)
+        self.assertEqual(dl['potential_match_likes'], DateStatus.PASS.value)
 
         # woman2 shouldn't match because man already has date with woman1
         woman2 = self.straight_women_users[1]
@@ -321,7 +338,7 @@ class MatchMakingTestCase(TestCase):
         woman2.sun_start_time = time(hour=18)
         woman2.sun_end_time = time(hour=23)
         woman2.save()
-        dl = json.loads(json.loads(date(None, man, 'sun').content))
+        dl = json.loads(date(None, man, 'sun').content)
         self.assertEqual(dl['match']['name'], woman1.first_name)
 
         # woman2 should match because the date has expired woman1 is no longer matching on categories
@@ -331,7 +348,7 @@ class MatchMakingTestCase(TestCase):
         woman1.likes_coffee = False
         woman1.likes_parks = False
         woman1.save()
-        dl = json.loads(json.loads(date(None, man, 'sun').content))
+        dl = json.loads(date(None, man, 'sun').content)
         self.assertEqual(dl['match']['name'], woman2.first_name)
 
         # woman3 should match because it's a different day
@@ -348,7 +365,7 @@ class MatchMakingTestCase(TestCase):
         woman3.tue_start_time = time(hour=18)
         woman3.tue_end_time = time(hour=23)
         woman3.save()
-        dl = json.loads(json.loads(date(None, man, 'tue').content))
+        dl = json.loads(date(None, man, 'tue').content)
         self.assertEqual(dl['match']['name'], woman3.first_name)
 
         # woman 4 shouldn't match because she doesn't like the same categories
@@ -364,8 +381,8 @@ class MatchMakingTestCase(TestCase):
         woman4.wed_start_time = time(hour=18)
         woman4.wed_end_time = time(hour=23)
         woman4.save()
-        dl = json.loads(json.loads(date(None, man, 'wed').content))
-        self.assertEqual(dl, None)
+        dl = json.loads(date(None, man, 'wed').content)
+        self.assertEqual(dl, 'null')
 
         # woman 6 shouldn't match because she is in another city
         woman6 = self.straight_women_users[5]
@@ -380,8 +397,8 @@ class MatchMakingTestCase(TestCase):
         woman6.fri_start_time = time(hour=18)
         woman6.fri_end_time = time(hour=23)
         woman6.save()
-        dl = json.loads(json.loads(date(None, man, 'fri').content))
-        self.assertEqual(dl, None)
+        dl = json.loads(date(None, man, 'fri').content)
+        self.assertEqual(dl, 'null')
 
         # woman 7 shouldn't match because she's not free at the right times
         woman7 = self.straight_women_users[6]
@@ -396,8 +413,8 @@ class MatchMakingTestCase(TestCase):
         woman7.sat_start_time = time(hour=16)
         woman7.sat_end_time = time(hour=18, minute=30)
         woman7.save()
-        dl = json.loads(json.loads(date(None, man, 'sat').content))
-        self.assertEqual(dl, None)
+        dl = json.loads(date(None, man, 'sat').content)
+        self.assertEqual(dl, 'null')
 
 
 class YelpTestCase(TestCase):

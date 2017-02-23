@@ -34,6 +34,7 @@ class Date(models.Model):
     place_name = models.CharField(max_length=300)
     category = models.CharField(max_length=20)
     inspected_match = models.BooleanField(default=False)
+    passed_user_notified = models.BooleanField(default=False)
 
     appropriate_times = {
         'drinks':
