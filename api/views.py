@@ -16,6 +16,7 @@ from  RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSqu
     cropImageByAspectRatioAndCoordinates, convertLocalTimeToUTC
 from RealServer.aws import s3_generate_presigned_post, s3_delete_file
 from django.db import transaction
+from django.db.models import Q
 from PIL import Image
 import json
 import re
@@ -374,6 +375,7 @@ def sign_s3(request, user):
 def past_dates(request, user):
     past_dates = Date.objects.filter(user1_likes=DateStatus.LIKES.value, user2_likes=DateStatus.LIKES.value,
                                      date_of_date__lt=timezone.now().date()).order_by('-date_of_date')
+    past_dates = past_dates.filter(Q(user1=user) | Q(user2=user))
     dates_json = []
     for d in past_dates:
         dates_json.append(matchmaking.convertDateToJson(user, d))
