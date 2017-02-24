@@ -364,7 +364,27 @@ def report_and_block(request, user):
 
 @csrf_exempt
 @custom_authenticate
-# TODO test this
+def get_time_preferences(request, user):
+    time_preferences = {
+        'sun_start_time': user.sun_start_time,
+        'sun_end_time': user.sun_end_time,
+        'mon_start_time': user.mon_start_time,
+        'mon_end_time': user.mon_end_time,
+        'tue_start_time': user.tue_start_time,
+        'tue_end_time': user.tue_end_time,
+        'wed_start_time': user.wed_start_time,
+        'wed_end_time': user.wed_end_time,
+        'thur_start_time': user.thur_start_time,
+        'thur_end_time': user.thur_end_time,
+        'fri_start_time': user.fri_start_time,
+        'fri_end_time': user.fri_end_time,
+        'sat_start_time': user.sat_start_time,
+        'sat_end_time': user.sat_end_time,
+    }
+    return JsonResponse(time_preferences)
+
+@csrf_exempt
+@custom_authenticate
 def sign_s3(request, user):
   file_type = request.GET.get('file_type')
   json_response = json.loads(s3_generate_presigned_post(file_type, user))

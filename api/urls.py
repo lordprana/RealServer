@@ -4,6 +4,7 @@ from api import views
 urlpatterns = [
     url(r'^users/?$', views.users),
     url(r'^users/(?P<user_id>\w{1,50})/?$', views.user),
+    url(r'^users/(?P<user_id>\w{1,50})/time_preferences/?$', views.get_time_preferences),
     url(r'^users/(?P<user_id>\w{1,50})/date/?$', views.date),
     url(r'^users/(?P<user_id>\w{1,50})/dates/(?P<date_id>\w{1,50})/?$', views.date),
     url(r'^users/(?P<user_id>\w{1,50})/dates/(?P<date_id>\w{1,50})/unmatch/?$', views.unmatch),
