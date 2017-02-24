@@ -150,6 +150,27 @@ class UserTestCase(TestCase):
         self.assertEqual(response['sat_start_time'], self.user.sat_start_time.isoformat())
         self.assertEqual(response['sat_end_time'], self.user.sat_end_time.isoformat())
 
+    def test_get_place_preferences(self):
+        self.user = User.objects.create(fb_user_id='2959531196950',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token = Token.objects.create(user=self.user)
+        self.user.likes_drinks = True
+        self.user.likes_food = True
+        self.user.likes_coffee = True
+        self.user.likes_parks = True
+        self.user.likes_museums = True
+        self.user.likes_fun = True
+        self.user.save()
+        response = self.c.get('/users/' + self.user.fb_user_id + '/place_preferences?real_auth_token=' + self.real_auth_token.key)
+        response = json.loads(response.content)
+        self.assertEqual(response['likes_drinks'], self.user.likes_drinks)
+        self.assertEqual(response['likes_food'], self.user.likes_food)
+        self.assertEqual(response['likes_coffee'], self.user.likes_coffee)
+        self.assertEqual(response['likes_parks'], self.user.likes_parks)
+        self.assertEqual(response['likes_museums'], self.user.likes_museums)
+        self.assertEqual(response['likes_fun'], self.user.likes_fun)
+
+
     def test_patch_user(self):
         self.user = User.objects.create(fb_user_id='2959531196950',
                                         most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")

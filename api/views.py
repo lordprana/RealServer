@@ -385,6 +385,19 @@ def get_time_preferences(request, user):
 
 @csrf_exempt
 @custom_authenticate
+def get_place_preferences(request, user):
+    place_preferences = {
+        'likes_drinks': user.likes_drinks,
+        'likes_food': user.likes_food,
+        'likes_coffee': user.likes_coffee,
+        'likes_parks': user.likes_parks,
+        'likes_museums': user.likes_museums,
+        'likes_fun': user.likes_fun
+    }
+    return JsonResponse(place_preferences)
+
+@csrf_exempt
+@custom_authenticate
 def sign_s3(request, user):
   file_type = request.GET.get('file_type')
   json_response = json.loads(s3_generate_presigned_post(file_type, user))
