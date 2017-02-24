@@ -151,6 +151,10 @@ def makeDate(user, day, potential_matches):
         if category_filtered:
             places = getPlacesFromYelp(user, category)
             if not places:
+                # Check for end loop condition, if not end loop, increment loop
+                if category_index == first_category_index:
+                    break
+                category_index = (category_index + 1) % len(interests)
                 continue
             if len(places) >= TOP_RATED:
                 places = places[0:TOP_RATED]

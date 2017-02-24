@@ -420,10 +420,14 @@ class MatchMakingTestCase(TestCase):
 class YelpTestCase(TestCase):
     def setUp(self):
         self.user = mommy.make_recipe('api.user', likes_coffee=True, latitude=32.8972250, longitude=-96.7460090)
-    def test_valid_request(self):
-        pass
+    def test_get_places_from_yelp(self):
+        # Test valid request
         list = getPlacesFromYelp(self.user, 'coffee')
         self.assertNotEqual(len(list), 0)
+        # Test request with no recomendations in area
+        self.not_yelp_user = mommy.make_recipe('api.user', likes_coffee=True, latitude=49.9935, longitude=36.2304)
+        list = getPlacesFromYelp(self.not_yelp_user, 'coffee')
+        self.assertEqual(len(list), 0)
     def test_price_limit(self):
         self.user.max_price = 4
         self.user.save()
