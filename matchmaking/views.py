@@ -13,7 +13,6 @@ from messaging.models import Message
 import datetime
 import json
 import requests
-from pytz import timezone
 from random import randint, randrange, shuffle
 from geopy.distance import great_circle
 
@@ -227,7 +226,6 @@ def convertDateToJson(user,date):
     # Add fields that don't have ambiguity around user
     json = {
         'date_id': date.pk,
-        #'respond_by': timezone(date.expires_at).astimezone(user.timezone).isoformat(),
         'respond_by': date.expires_at.isoformat(),
         'inspected_match': date.inspected_match,
         'date_of_date': date.date_of_date.isoformat(),
