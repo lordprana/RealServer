@@ -320,7 +320,7 @@ def generate_fake_user(gender, latitude, longitude):
     elif gender == Gender.WOMAN.value:
         fake_user.first_name = random.choice(female_names)
         fake_user.gender = Gender. WOMAN.value
-        pic_number = str(random.randint(1, 3))
+        pic_number = str(random.randint(1, 21))
         fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_portrait'
         fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_square'
         fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_portrait'
