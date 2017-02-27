@@ -42,7 +42,7 @@ def messages(request, user):
             messages_json.append(json_entry)
             message.read = True
             message.save()
-        return JsonResponse(json.dumps(messages_json), safe=False)
+        return JsonResponse(messages_json, safe=False)
 
     elif request.method == 'POST':
         json_data = json.loads(request.body)
