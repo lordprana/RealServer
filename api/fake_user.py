@@ -20,7 +20,93 @@ female_names = [
     'Zoe',
     'Lily',
     'Emily',
-    'Madelyn'
+    'Madelyn',
+    'Harper',
+    'Madison',
+    'Elizabeth',
+    'Evelyn',
+    'Avery',
+    'Chloe',
+    'Ella',
+    'Grace',
+    'Victoria',
+    'Aubrey',
+    'Scarlett',
+    'Addison',
+    'Lillian',
+    'Natalie',
+    'Hannah',
+    'Aria',
+    'Layla',
+    'Brooklyn',
+    'Alexa',
+    'Penelope',
+    'Riley',
+    'Leah',
+    'Audrey',
+    'Savannah',
+    'Allison',
+    'Samantha',
+    'Nora',
+    'Skylar',
+    'Camila',
+    'Anna',
+    'Paisley',
+    'Ariana',
+    'Ellie',
+    'Aaliyah',
+    'Claire',
+    'Violet',
+    'Stella',
+    'Sadie',
+    'Mila',
+    'Gabriella',
+    'Lucy',
+    'Arianna',
+    'Kennedy',
+    'Sarah',
+    'Madelyn',
+    'Eleanor',
+    'Kaylee',
+    'Caroline',
+    'Hazel',
+    'Hailey',
+    'Genesis',
+    'Kylie',
+    'Autumn',
+    'Piper',
+    'Maya',
+    'Neveah',
+    'Serenity',
+    'Peyton',
+    'Mackenzie',
+    'Bella',
+    'Eva',
+    'Taylor',
+    'Naomi',
+    'Aubree',
+    'Aurora',
+    'Melanie',
+    'Lydia',
+    'Brianna',
+    'Ruby',
+    'Katherine',
+    'Ashley,'
+    'Alexis',
+    'Alice',
+    'Cora',
+    'Julia',
+    'Madeline',
+    'Faith',
+    'Anabelle',
+    'Alyssa',
+    'Isabelle',
+    'Vivian',
+    'Gianna',
+    'Quinn',
+    'Clara',
+    'Reagan',
+    'Khloe'
 ]
 
 male_names = [
@@ -33,7 +119,99 @@ male_names = [
     'Ethan',
     'Caden',
     'Jacob',
-    'Logan'
+    'Logan',
+    'William',
+    'James',
+    'Alexander',
+    'Michael',
+    'Benjamin',
+    'Elijah',
+    'Daniel',
+    'Logan',
+    'Matthew',
+    'David',
+    'Oliver',
+    'Jayden',
+    'Joseph',
+    'Gabriel',
+    'Samuel',
+    'Carter',
+    'Anthony',
+    'John',
+    'Dylan',
+    'Luke',
+    'Henry',
+    'Andrew',
+    'Isaac',
+    'Christopher',
+    'Joshua',
+    'Wyatt',
+    'Sebastian',
+    'Owen',
+    'Caleb',
+    'Nathan',
+    'Ryan',
+    'Jack',
+    'Hunter',
+    'Levi',
+    'Christian',
+    'Jaxon',
+    'Julian',
+    'Landon',
+    'Grayson',
+    'Jonathan',
+    'Isaiah',
+    'Charles',
+    'Thomas',
+    'Aaron',
+    'Eli',
+    'Connor',
+    'Jeremiah',
+    'Cameron',
+    'Josian',
+    'Adrian',
+    'Colton',
+    'Jordan',
+    'Brayden',
+    'Nicholas',
+    'Robert',
+    'Angel',
+    'Hudson',
+    'Lincoln',
+    'Evan',
+    'Dominic',
+    'Austin',
+    'Gavin',
+    'Nolan',
+    'Parker',
+    'Adam',
+    'Chase',
+    'Jace',
+    'Ian',
+    'Cooper',
+    'Easton',
+    'Kevin',
+    'Jose',
+    'Tyler',
+    'Brandon',
+    'Asher',
+    'Jaxson',
+    'Mateo',
+    'Jason',
+    'Ayden',
+    'Zachary',
+    'Carson',
+    'Xavier',
+    'Leo',
+    'Ezra',
+    'Bentley',
+    'Sawyer',
+    'Kayden',
+    'Blake',
+    'Nathaniel',
+    'Ryder',
+    'Theodore',
+    'Elias'
 ]
 
 occupations = [
@@ -50,7 +228,46 @@ occupations = [
     'Social Worker',
     'Bartender',
     'General Manager',
-    'Administrative Assistant'
+    'Administrative Assistant',
+    'Retail',
+    'Cashier',
+    'Office clerk',
+    'Accountant',
+    'Nanny',
+    'Carpenter',
+    'Childcare worker',
+    'Management Analyst',
+    'Medical Assistant',
+    'Electrician',
+    'Financial Manager',
+    'HR Specialist',
+    'Hairstylist',
+    'Pharmacy Technician',
+    'Pharmacist',
+    'Firefighter',
+    'Dental Assistant',
+    'Social Worker',
+    'Claims Adjuster',
+    'Civil Engineer',
+    'Paralegal',
+    'School Counselor',
+    'Mechanical Engineer',
+    'Insurance Clerk',
+    'PR Specialist',
+    'Personal Trainer',
+    'EMT',
+    'Industrial Engineer',
+    'Graphic Designer',
+    'Painter',
+    'Food Service Manager',
+    'Physical Therapist',
+    'Dentist',
+    'Marketing Manager',
+    'Real Estate Agent',
+    'Electrical Engineer',
+    'Librarian',
+    'Baker',
+    'Flight Attendant'
 ]
 
 schools = [
@@ -63,7 +280,25 @@ schools = [
     'University of North Texas',
     'Tulane University',
     'New Mexico State University',
-    'The University of Oklahoma'
+    'The University of Oklahoma',
+    'Stephen F. Austin State University',
+    'DuVall\'s School of Cosmetology',
+    'UMKC',
+    'Lindenwood University-Belleville Campus',
+    'Mizzou',
+    'Texas A&M University',
+    'University of Texas at Tyler',
+    'Oklahoma Christian University',
+    'University of Mississippi',
+    'Virginia Tech',
+    'Northeastern University',
+    'North Central Texas College',
+    'The University of Alabama',
+    'Texas State University',
+    'Oklahoma State University',
+    'Parker University',
+    'University of Arkansas'
+
 ]
 
 def generate_random_fake_fb_user_id():
@@ -75,23 +310,23 @@ def generate_fake_user(gender, latitude, longitude):
     if gender == Gender.MAN.value:
         fake_user.first_name = random.choice(male_names)
         fake_user.gender = Gender.MAN.value
-        pic_number = str(random.randint(4,6))
-        fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/1_portrait'
-        fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/1_square'
-        fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/2_portrait'
-        fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/2_square'
-        fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/3_portrait'
-        fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/3_square'
+        pic_number = str(random.randint(1,21))
+        fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_portrait'
+        fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_square'
+        fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_portrait'
+        fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_square'
+        fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_portrait'
+        fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_square'
     elif gender == Gender.WOMAN.value:
         fake_user.first_name = random.choice(female_names)
         fake_user.gender = Gender. WOMAN.value
         pic_number = str(random.randint(1, 3))
-        fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/1_portrait'
-        fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/1_square'
-        fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/2_portrait'
-        fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/2_square'
-        fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/3_portrait'
-        fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + pic_number + '/3_square'
+        fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_portrait'
+        fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_square'
+        fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_portrait'
+        fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_square'
+        fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_portrait'
+        fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_square'
     fake_user.age = random.randint(18,35)
     fake_user.interested_in = SexualPreference.BISEXUAL.value
     fake_user.occupation = random.choice(occupations)
@@ -125,14 +360,14 @@ def generate_fake_user(gender, latitude, longitude):
 
     fake_user.save()
 
-def crop_fake_user_picture_and_upload_to_s3(file_path, user_num, pic_num):
+def crop_fake_user_picture_and_upload_to_s3(file_path, user_num, pic_num, gender):
     os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
     os.environ['AWS_SECRET_ACCESS_KEY'] = 'xBjhBPWks/IxGm89l1oHQ9GE0ZE27jRTreX5yIon'
     os.environ['S3_BUCKET'] = 'realdatingbucket'
 
     image = Image.open(file_path)
     square_user_picture = cropImageToSquare(image)
-    s3_file_path = 'fake_user/' + user_num + '/' + pic_num + '_square'
+    s3_file_path = 'fake_user/' + gender + '/' + user_num + '/' + pic_num + '_square'
     request_json = json.loads(s3_generate_presigned_post('.jpg', None, s3_file_path))
     # Save Pillow image to StringIO to send in post request
     img_io = StringIO()
@@ -145,7 +380,7 @@ def crop_fake_user_picture_and_upload_to_s3(file_path, user_num, pic_num):
     aspect_height = 365
     image = Image.open(file_path)
     portrait_user_picture = cropImageByAspectRatio(image, aspect_width, aspect_height)
-    s3_file_path = 'fake_user/' + user_num + '/' + pic_num + '_portrait'
+    s3_file_path = 'fake_user/' + gender + '/' + user_num + '/' + pic_num + '_portrait'
     request_json = json.loads(s3_generate_presigned_post('.jpg', None, s3_file_path))
     # Save Pillow image to StringIO to send in post request
     img_io = StringIO()
