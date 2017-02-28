@@ -11,7 +11,6 @@ from matchmaking.models import Date
 # Create your views here.
 @csrf_exempt
 @custom_authenticate
-@transaction.atomic
 def messages(request, user):
     if request.method == 'GET':
         match_user = request.GET.get('match_user', None)
@@ -45,22 +44,25 @@ def messages(request, user):
         return JsonResponse(messages_json, safe=False)
 
     elif request.method == 'POST':
-        json_data = json.loads(request.body)
-        match_user = json_data.get('match_user', None)
-        message_content = json_data.get('message_content', None)
-        date_id = json_data.get('date_id', None)
-        if match_user == None or message_content == None or date_id == None:
-            return HttpResponse(status=400)
-        try:
-            last_message = Message.objects.raw('SELECT * FROM messaging_message '
-                                       'WHERE (sent_by_id=%s OR sent_by_id=%s) AND (sent_to_id=%s OR sent_to_id=%s)'
-                                       'ORDER BY index DESC LIMIT 1',
-                                       [user.fb_user_id, match_user, user.fb_user_id, match_user])[0]
-            message_index = last_message.index + 1
-        except IndexError:
-            message_index = 0
-        Message.objects.create(index=message_index, content=message_content, sent_by=user,
-                               sent_to=User.objects.get(pk=match_user), date=Date.objects.get(pk=date_id))
+        with transaction.atomic():
+            json_data = json.loads(request.body)
+            match_user = json_data.get('match_user', None)
+            message_content = json_data.get('message_content', None)
+            match_user = User.objects.select_for_update(nowait=True).get(pk=match_user)
+            user = User.objects.select_for_update(nowait=True).get(pk=user)
+            date_id = json_data.get('date_id', None)
+            if match_user == None or message_content == None or date_id == None:
+                return HttpResponse(status=400)
+            try:
+                last_message = Message.objects.raw('SELECT * FROM messaging_message '
+                                           'WHERE (sent_by_id=%s OR sent_by_id=%s) AND (sent_to_id=%s OR sent_to_id=%s)'
+                                           'ORDER BY index DESC LIMIT 1',
+                                           [user.pk, match_user.pk, user.pk, match_user.pk])[0]
+                message_index = last_message.index + 1
+            except IndexError:
+                message_index = 0
+            Message.objects.create(index=message_index, content=message_content, sent_by=user,
+                                   sent_to=User.objects.get(pk=match_user), date=Date.objects.get(pk=date_id))
         return HttpResponse(status=200)
 
 
