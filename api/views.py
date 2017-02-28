@@ -163,14 +163,7 @@ def user(request,user):
             elif key == 'education':
                 user.status = Status.FINISHED_PROFILE.value
             elif re.search('^picture', key) and re.search('_url$', key):
-                # Check to make sure image is not used at all before deleting
-                picture_exists = False
-                for key2, value2 in json_data.iteritems():
-                    if re.search('^picture', key2) and re.search('_url$', key2):
-                        if key != key2 and getattr(temp_user, key2) == value and value != None:
-                            picture_exists = True
-                if not picture_exists and getattr(user, key):
-                    s3_delete_file(getattr(user, key))
+                pass
                 """
                 picture_url = value
                 picture_startx = json_data[key[:8]+'_startx']
@@ -203,6 +196,21 @@ def user(request,user):
                 pass
             setattr(user, key, value)
         user.save()
+        # Delete unused pictures
+        for i in range(1, 7):
+            seen_square = False
+            seen_portrait = False
+            for j in range(1, 7):
+                if getattr(temp_user, 'picture'+str(i)+'_square_url') == getattr(user, 'picture'+str(j)+'_square_url'):
+                    seen_square = True
+                if getattr(temp_user, 'picture' + str(i) + '_portrait_url') == getattr(user, 'picture' + str(j) + '_portrait_url'):
+                    seen_portrait = True
+            if not seen_square and getattr(temp_user, 'picture'+str(i)+'_square_url') != None:
+                s3_delete_file(getattr(temp_user, 'picture'+str(i)+'_square_url'))
+            if not seen_portrait and getattr(temp_user, 'picture'+str(i)+'_portrait_url') != None:
+                s3_delete_file(getattr(temp_user, 'picture'+str(i)+'_portrait_url'))
+
+
         return HttpResponse(status=200)
 
     elif request.method == 'GET':
