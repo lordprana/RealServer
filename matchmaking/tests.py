@@ -222,6 +222,7 @@ class MatchMakingTestCase(TestCase):
         man.search_radius = 24
         man.wed_start_time = time(hour=18, minute=30)
         man.wed_end_time = time(hour=22, minute=0)
+        man.timezone = 'US/Eastern'
         man.save()
         woman = self.straight_women_users[0]
         woman.likes_coffee = True
@@ -230,6 +231,7 @@ class MatchMakingTestCase(TestCase):
         woman.search_radius = 24
         woman.wed_start_time = time(hour=18, minute=30)
         woman.wed_end_time = time(hour=22, minute=0)
+        woman.timezone = 'US/Eastern'
         woman.save()
 
         date = makeDate(woman, 'wed', User.objects.exclude(pk=woman.pk))
@@ -240,13 +242,15 @@ class MatchMakingTestCase(TestCase):
         man.save()
         date = makeDate(woman, 'wed', User.objects.exclude(pk=woman.pk))
         man = User.objects.get(pk=man.pk)
+        woman = User.objects.get(pk=woman.pk)
         self.assertEqual(date.category, 'coffee')
         self.assertEqual(date.user1, woman)
         self.assertEqual(date.user2, man)
         self.assertEqual(date.day, 'wed')
-        self.assertEqual(date.expires_at, (timezone.now() + timedelta(days=1)).replace(hour=0, minute=0,
+        # timezone.now() is UTC. User timezone is US/Eastern. To reconcile, we must make the hour of timezone.now() 5.
+        self.assertEqual(date.expires_at, (timezone.now() + timedelta(days=1)).replace(hour=5, minute=0,
                                                                                             second=0, microsecond=0))
-        self.assertEqual(date.original_expires_at, (timezone.now() + timedelta(days=1)).replace(hour=0, minute=0,
+        self.assertEqual(date.original_expires_at, (timezone.now() + timedelta(days=1)).replace(hour=5, minute=0,
                                                                                             second=0, microsecond=0))
         self.assertTrue(date.start_time >= woman.wed_start_time)
         self.assertTrue(date.start_time <= time(hour=21, minute=0))
@@ -281,7 +285,7 @@ class MatchMakingTestCase(TestCase):
         man.sat_end_time = time(hour=23)
         man.timezone = 'US/Central'
         man.fb_user_id = '110000369505832'
-        man.most_recent_fb_auth_token = 'EAACEFGIZCorABACA9QF5VwdzOUZCQkZBXWa6ncW6SxYCCzrMFpc48BWSNFEOZA3aex4rgSjM0bbZB9C64INBQ9L7kKMbfZBC6YwsAX9nkS3JjV4SKxEvPA0RnvWtokyo0LIZBjyGikEZC6xhK3niyjLucswjgkaIKLIMAcyWm9xmQzn5yUbtYEsRz72EG94NXMbzInuCksjaQ8tIif0wqw76'
+        man.most_recent_fb_auth_token = 'EAACEFGIZCorABAG3n2WADdNR6v93KP1XdbZCev1GEZCW7KdFYavc2RlpYNEJYhR1pGRPXIphJhZCqBx5x6TyjfkkoGSzWZB3T0po4CbPZBnzh3d2WVmCoIvQboMrZAQ2DfftMezZAc3rpPA6ADBjQ1woZBGyf4dWRsUSpcohoR20jsoFZABfaHLQ9cn0ohL29lzUFR4UOJ8lg2RokImY9vyiBC'
         man.save()
 
         # Create man's matches
@@ -301,9 +305,8 @@ class MatchMakingTestCase(TestCase):
         woman1.sun_end_time = time(hour=23)
         woman1.timezone = 'US/Central'
         woman1.fb_user_id = '131453847271362'
-        woman1.most_recent_fb_auth_token = 'EAACEFGIZCorABAO73YkZBy8ldalAj63i2MybcwZBDlCklM827L1LWzPi71VHEBf9Dj025hiYwxi57QRRzUa1wLudl1VGZAYeiZBITTbRCZBZBp92psQwV7VHbMEfZCj0hBwVSUnIPqjHbpRIfnpxZAfcI7698a4iVz0oZAgWwkxxxTICZBBKnmLQOU8xWZAuBZCzlZAqFf5vWCZA8NE7yu7lpctZC5ZAr'
+        woman1.most_recent_fb_auth_token = 'EAACEFGIZCorABAAfLLjpjlMhlwlP55xu7ZBhPWQkz3lEZAyZABCzjzdZBZBIAAKpZCyB24uzGhqFr4lDJyNvp6MbgC0S5MFF0e8cxI80VI6B6d1lfmxJuPviqu1y7v8bpDUYeEt6pSPc4Ex9e4ViJzMJHliTByCPapEfDxnkRc4rHjWwQqI7IFc8pXmKuEzT6KlCd6x2jlvRW32d38QZAoNq'
         woman1.save()
-        #dl = json.loads(json.loads(date(None, man, 'sun').content))
         dl = json.loads(date(None, man, 'sun').content)
         self.assertEqual(dl['match']['name'], woman1.first_name)
         self.assertEqual(len(dl['match']['mutual_friends']), 2)

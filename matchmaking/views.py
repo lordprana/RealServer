@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
+from django.db import transaction
 from django.utils import timezone
 from api.auth import custom_authenticate
 from api.models import User, SexualPreference, Gender
@@ -123,7 +124,10 @@ def filterByAppropriateCategoryTimes(user, potential_matches, day, category):
     else:
         return User.objects.none()
 
+@transaction.atomic
 def makeDate(user, day, potential_matches):
+    # Use select_for_update to lock user's row
+    user = User.objects.select_for_update().get(pk=user.pk)
     interests = []
     if user.likes_drinks:
         interests.append('drinks')
@@ -172,18 +176,49 @@ def makeDate(user, day, potential_matches):
                     match_coordinates = (potential_match.latitude, potential_match.longitude)
                     place_coordinates = (place['coordinates']['latitude'], place['coordinates']['longitude'])
                     if great_circle(match_coordinates, place_coordinates).miles < potential_match.search_radius:
-                        match = potential_match
-                        # Only match if user is not already matched with match this week
-                        if (user.sun_date and (user.sun_date.user1 == match or user.sun_date.user2 == match)) or\
-                            (user.mon_date and (user.mon_date.user1 == match or user.mon_date.user2 == match)) or\
-                            (user.tue_date and (user.tue_date.user1 == match or user.tue_date.user2 == match)) or\
-                            (user.wed_date and (user.wed_date.user1 == match or user.wed_date.user2 == match)) or\
-                            (user.thur_date and (user.thur_date.user1 == match or user.thur_date.user2 == match)) or\
-                            (user.fri_date and (user.fri_date.user1 == match or user.fri_date.user2 == match)) or\
-                            (user.sat_date and (user.sat_date.user1 == match or user.sat_date.user2 == match)):
-                            match = None
-                            continue
-                        break
+                        with transaction.atomic():
+                            match = User.objects.select_for_update().get(pk=potential_match.pk)
+                            # Only match if user is not already matched with match this week
+                            if (user.sun_date and (user.sun_date.user1 == match or user.sun_date.user2 == match)) or\
+                                (user.mon_date and (user.mon_date.user1 == match or user.mon_date.user2 == match)) or\
+                                (user.tue_date and (user.tue_date.user1 == match or user.tue_date.user2 == match)) or\
+                                (user.wed_date and (user.wed_date.user1 == match or user.wed_date.user2 == match)) or\
+                                (user.thur_date and (user.thur_date.user1 == match or user.thur_date.user2 == match)) or\
+                                (user.fri_date and (user.fri_date.user1 == match or user.fri_date.user2 == match)) or\
+                                (user.sat_date and (user.sat_date.user1 == match or user.sat_date.user2 == match)):
+                                match = None
+                                continue
+                            if(getattr(match, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now()):
+                                match = None
+                                continue
+
+                            # Create date record and update user records
+                            time = generateRandomTimeForDate(user, match, day, interests[category_index])
+                            local_midnight = convertLocalTimeToUTC(
+                                datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+                                user.timezone)
+                            date = models.Date(user1=user, user2=match, day=day, start_time=time,
+                                               date_of_date=generateDateOfDateFromDay(day),
+                                               expires_at=(local_midnight + datetime.timedelta(days=1)),
+                                               place_id=place['id'], place_name=place['name'],
+                                               category=interests[category_index])
+                            date.original_expires_at = date.expires_at
+                            date.save()
+                            setattr(user, day + '_date', date)
+                            setattr(match, day + '_date', date)
+                            user.save()
+                            match.save()
+
+                            # Get Mutual Friends
+                            mutual_friends_json = facebook.getMutualFriends(user, potential_match)
+                            if mutual_friends_json:
+                                mutual_friends_json = mutual_friends_json['data']
+                                for friend in mutual_friends_json:
+                                    first_name = friend['name'].partition(' ')[0]
+                                    date.mutualfriend_set.create(first_name=first_name,
+                                                                 picture=friend['picture']['data']['url'])
+
+                            return date
 
                 if match or place_index == first_place_index:
                     break
@@ -195,32 +230,6 @@ def makeDate(user, day, potential_matches):
 
     if not match:
         return None
-    else:
-        time = generateRandomTimeForDate(user, match, day, interests[category_index])
-
-        local_midnight = convertLocalTimeToUTC(datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
-                                              user.timezone)
-        date = models.Date(user1=user, user2=match, day=day, start_time=time,
-                           date_of_date=generateDateOfDateFromDay(day),
-                           expires_at=(local_midnight + datetime.timedelta(days=1)),
-                           place_id=place['id'], place_name=place['name'], category=interests[category_index])
-        date.original_expires_at = date.expires_at
-        date.save()
-        setattr(user, day+'_date', date)
-        setattr(match, day+'_date', date)
-        user.save()
-        match.save()
-
-        # Get Mutual Friends
-        mutual_friends_json = facebook.getMutualFriends(user, potential_match)
-        if mutual_friends_json:
-            mutual_friends_json = mutual_friends_json['data']
-            for friend in mutual_friends_json:
-                # TODO: Check to make sure mutual friend name is correct
-                first_name = friend['name'].partition(' ')[0]
-                date.mutualfriend_set.create(first_name=first_name, picture=friend['picture']['data']['url'])
-
-        return date
 
 def convertDateToJson(user,date):
 
@@ -312,6 +321,7 @@ def date(request, user, day):
         potential_matches = filterTimeAvailableUsers(user, day, potential_matches)
         potential_matches = filterByLatitudeLongitude(user, potential_matches)
         makeDate(user, day, potential_matches)
+        user = User.objects.get(pk=user.pk)
         if getattr(user, day + '_date'):
             return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
         else:
