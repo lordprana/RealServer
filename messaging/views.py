@@ -50,7 +50,7 @@ def messages(request, user):
             match_user = json_data.get('match_user', None)
             message_content = json_data.get('message_content', None)
             match_user = User.objects.select_for_update(nowait=True).get(pk=match_user)
-            user = User.objects.select_for_update(nowait=True).get(pk=user)
+            user = User.objects.select_for_update(nowait=True).get(pk=user.pk)
             date_id = json_data.get('date_id', None)
             date = Date.objects.get(pk=date_id)
             if match_user == None or message_content == None or date_id == None:
