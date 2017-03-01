@@ -45,9 +45,11 @@ class User(AbstractBaseUser):
 
     max_price = models.IntegerField(default=2)
 
-    search_radius = models.IntegerField(default=24) #24 is max radius for Yelp API
+    search_radius = models.IntegerField(default=10) #24 is max radius for Yelp API
     latitude = models.DecimalField(null=True, decimal_places=6, max_digits=13) # Precision within .1 meter resolution
     longitude = models.DecimalField(null=True, decimal_places=6, max_digits=13)
+    registration_city = models.CharField(max_length=100, null=True)
+    registration_state = models.CharField(max_length=100, null=True)
 
     passed_matches = models.ManyToManyField('self', related_name='passed_matches')
 

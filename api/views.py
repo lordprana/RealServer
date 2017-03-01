@@ -8,9 +8,9 @@ from api.fake_user import generate_fake_user
 from matchmaking import views as matchmaking
 from matchmaking.models import Date, DateStatus
 from api.notifications import sendMatchNotification, sendLikeNotification
+from api.default_radius_by_city import DEFAULT_RADIUS
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
 from django.utils import timezone
 from  RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, \
     cropImageByAspectRatioAndCoordinates, convertLocalTimeToUTC
@@ -27,7 +27,8 @@ import boto3
 import random
 import string
 import os
-from RealServer import settings
+import geocoder
+from RealServer.settings import MAPBOX_API_KEY
 from StringIO import StringIO
 import requests
 from RealServer import facebook
@@ -192,8 +193,19 @@ def user(request,user):
                 setattr(user, key[:8] + '_portrait_url', request.META['HTTP_HOST'] + '/' + settings.MEDIA_URL + \
                         user.fb_user_id + '/' + key[:8] + '_portrait.jpg')
                 """
-            elif re.match('^picture', key) and not re.match('_url$', key):
-                pass
+            elif key == 'latitude':
+                if not user.registration_city:
+                    try:
+                        latlng = [json_data['latitude'], json_data['longitude']]
+                    except:
+                        return HttpResponse(status=400)
+                    g = geocoder.mapbox(latlng, method='reverse', key=MAPBOX_API_KEY)
+                    if g.status_code == 200:
+                        user.registration_city = g.city
+                        user.registration_state = g.state
+                        radius = DEFAULT_RADIUS.get(user.registration_city + ', ' + user.registration_state, None)
+                        if radius:
+                            user.search_radius = radius
             setattr(user, key, value)
         user.save()
         # Delete unused pictures

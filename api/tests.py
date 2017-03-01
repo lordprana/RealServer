@@ -170,6 +170,54 @@ class UserTestCase(TestCase):
         self.assertEqual(response['likes_museums'], self.user.likes_museums)
         self.assertEqual(response['likes_fun'], self.user.likes_fun)
 
+    def test_registration_city(self):
+        self.user1 = User.objects.create(fb_user_id='2959531196950',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token1 = Token.objects.create(user=self.user1)
+        # Test user1 registers in New York
+        data = {
+            "real_auth_token": self.real_auth_token1.key,
+            "latitude": 40.8,
+            "longitude": -73.95
+        }
+        response = self.c.patch('/users/' + self.user1.fb_user_id, json.dumps(data))
+        self.user1 = User.objects.get(pk=self.user1.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.user1.registration_city, "New York")
+        self.assertEqual(self.user1.registration_state, "New York")
+        self.assertEqual(self.user1.search_radius, 3)
+
+        # Test user1 moves to Dallas and makes request (city and state should remain New York)
+        data = {
+            "real_auth_token": self.real_auth_token1.key,
+            "latitude": 32.88,
+            "longitude": -96.76
+        }
+        response = self.c.patch('/users/' + self.user1.fb_user_id, json.dumps(data))
+        self.user1 = User.objects.get(pk=self.user1.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.user1.registration_city, "New York")
+        self.assertEqual(self.user1.registration_state, "New York")
+        self.assertEqual(self.user1.search_radius, 3)
+
+        # Test user2 registers in Dallas
+        self.user2 = User.objects.create(fb_user_id='2959531196951',
+                                         most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token2 = Token.objects.create(user=self.user2)
+        data = {
+            "real_auth_token": self.real_auth_token2.key,
+            "latitude": 32.88,
+            "longitude": -96.76
+        }
+        response = self.c.patch('/users/' + self.user2.fb_user_id, json.dumps(data))
+        self.user2 = User.objects.get(pk=self.user2.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.user2.registration_city, "Dallas")
+        self.assertEqual(self.user2.registration_state, "Texas")
+        self.assertEqual(self.user2.search_radius, 10)
 
     def test_patch_user(self):
         self.user = User.objects.create(fb_user_id='2959531196950',
