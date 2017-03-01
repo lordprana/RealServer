@@ -6,6 +6,7 @@ from django.db import transaction
 from api.auth import custom_authenticate
 from messaging.models import Message
 from api.models import User
+from api.notifications import sendMessageNotification
 from matchmaking.models import Date
 
 # Create your views here.
@@ -62,7 +63,8 @@ def messages(request, user):
             except IndexError:
                 message_index = 0
             Message.objects.create(index=message_index, content=message_content, sent_by=user,
-                                   sent_to=User.objects.get(pk=match_user), date=Date.objects.get(pk=date_id))
+                                   sent_to=match_user, date=Date.objects.get(pk=date_id))
+            sendMessageNotification(user, match_user)
         return HttpResponse(status=200)
 
 

@@ -87,6 +87,29 @@ def sendPassNotification(passer_user, passed_user):
             json_response = json.loads(response.content)
             handleNotificationResponse(json_response, device)
 
+def sendMessageNotification(messenger_user, receiver_user):
+    devices = FCMDevice.objects.filter(user=receiver_user)
+    for device in devices:
+        request_body = {
+            'notification': {
+                'body': messenger_user.first_name + ' sent you a message.',
+                'sound': 'default'
+            },
+            'to': device.registration_token,
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'key=' + FCM_SERVER_API_KEY
+        }
+        response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
+        json_response = json.loads(response.content)
+        handleNotificationResponse(json_response, device)
+        # If Unavailable, try to resend one more time
+        if json_response['results'][0].get('error', None) == 'Unavailable':
+            response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
+            json_response = json.loads(response.content)
+            handleNotificationResponse(json_response, device)
+
 def handleNotificationResponse(json_response, device):
     if json_response['results'][0].get('error', None) == 'Unavailable':
         return False
