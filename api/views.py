@@ -359,6 +359,15 @@ def unmatch(request, user, date_id):
 
 @csrf_exempt
 @custom_authenticate
+def logout(request, user):
+    with transaction.atomic():
+        user = User.objects.select_for_update().get(pk=user.pk)
+        user.status = Status.INACTIVE.value
+        user.save()
+    return HttpResponse(status=200)
+
+@csrf_exempt
+@custom_authenticate
 def report_and_block(request, user):
     if request.method == 'POST':
         try:

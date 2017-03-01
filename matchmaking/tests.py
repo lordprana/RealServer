@@ -3,9 +3,10 @@ import json
 from django.test import TestCase
 from model_mommy.recipe import Recipe, seq
 from model_mommy import mommy
-from api.models import User, Gender, SexualPreference
+from api.models import User, Gender, SexualPreference, Status
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
-    generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes, filterByLatitudeLongitude
+    generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes, filterByLatitudeLongitude,\
+    filterByUserStatus
 from matchmaking.yelp import getPlacesFromYelp
 from matchmaking.models import YelpAccessToken, Date, DateStatus
 from datetime import datetime, timedelta, time
@@ -33,6 +34,16 @@ class MatchMakingTestCase(TestCase):
         self.bisexual_men_users = mommy.make_recipe('api.user', gender=Gender.MAN.value,
                                                     interested_in=SexualPreference.BISEXUAL.value,
                                                     _quantity=25)
+    def test_user_status_filter(self):
+        woman1 = self.straight_women_users[0]
+        woman1.status = Status.INACTIVE.value
+        woman1.save()
+        woman2 = self.straight_women_users[1]
+        woman2.status = Status.INACTIVE.value
+        woman2.save()
+        count = filterByUserStatus(User.objects.filter(gender=Gender.WOMAN.value, interested_in=SexualPreference.MEN.value)).count()
+        self.assertEqual(count, 48)
+
     def test_sexual_preference_filter(self):
         count = filterBySexualPreference(self.straight_women_users[0], User.objects.exclude(pk=self.straight_women_users[0].pk)).count()
         self.assertEqual(count, len(self.straight_men_users)+len(self.bisexual_men_users))

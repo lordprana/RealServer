@@ -430,6 +430,17 @@ class UserTestCase(TestCase):
         self.assertEqual(json_response['new_messages_notification'], True)
         self.assertEqual(json_response['upcoming_dates_notification'], True)
 
+    def test_logout(self):
+        self.user = User.objects.create(fb_user_id='2959531196950',
+                                        most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
+        self.real_auth_token = Token.objects.create(user=self.user)
+        self.assertNotEqual(self.user.status, Status.INACTIVE.value)
+        response = self.c.get('/users/' + self.user.fb_user_id + '/logout?' + 'real_auth_token=' +
+                              self.real_auth_token.key)
+        self.user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.user.status, Status.INACTIVE.value)
+
 class DateTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',

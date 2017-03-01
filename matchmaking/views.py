@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.db import transaction
 from django.utils import timezone
 from api.auth import custom_authenticate
-from api.models import User, SexualPreference, Gender
+from api.models import User, SexualPreference, Gender, Status
 from matchmaking.yelp import getPlacesFromYelp, TOP_RATED
 from matchmaking import models
 from RealServer import facebook
@@ -18,7 +18,10 @@ from pytz import timezone as pytz_timezone
 from random import randint, randrange, shuffle
 from geopy.distance import great_circle
 
-# Create your views here.
+def filterByUserStatus(potential_matches):
+    return potential_matches.exclude(status=Status.INACTIVE.value)
+
+
 def filterBySexualPreference(user, potential_matches):
     # Filter to correct Gender based on sexual preference
     if user.interested_in != SexualPreference.BISEXUAL.value:
@@ -315,7 +318,8 @@ def date(request, user, day):
     if getattr(user, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now():
         return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
     else: # Query for a match and create date from those matches
-        potential_matches = filterBySexualPreference(user, User.objects.exclude(pk=user.pk))
+        potential_matches = filterByUserStatus(User.objects.exclude(pk=user.pk))
+        potential_matches = filterBySexualPreference(user, potential_matches)
         potential_matches = filterByAge(user, potential_matches)
         potential_matches = filterPassedMatches(user, potential_matches)
         potential_matches = filterTimeAvailableUsers(user, day, potential_matches)
