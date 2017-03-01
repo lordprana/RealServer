@@ -40,7 +40,8 @@ def messages(request, user):
                     'sent_by_match': True if message.sent_by.pk==match_user else False
                 }
             messages_json.append(json_entry)
-            message.read = True
+            if message.sent_by.pk==match_user:
+                message.read = True
             message.save()
         return JsonResponse(messages_json, safe=False)
 

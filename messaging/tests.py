@@ -3,6 +3,7 @@ from django.test import Client
 from api.models import User
 from model_mommy import mommy
 from rest_framework.authtoken.models import Token
+from messaging.models import Message
 import json
 
 # Create your tests here.
@@ -144,10 +145,12 @@ class MessagingTestCase(TestCase):
                        '&match_user='+self.user2.fb_user_id
         response = self.c.get(query_string)
         response_json = json.loads(response.content)
+        message = Message.objects.get(pk=response_json[0]['message_id'])
 
         self.assertEqual(response_json[0]['message_content'], 'This is the first message')
         self.assertEqual(response_json[0]['message_index'], 0)
         self.assertEqual(response_json[0]['sent_by_match'], False)
+        self.assertEqual(message.read, False)
 
         # Test GET response for user who received the message
         query_string = '/users/' + self.user2.fb_user_id +\
@@ -155,10 +158,12 @@ class MessagingTestCase(TestCase):
                        '&match_user=' + self.user1.fb_user_id
         response = self.c.get(query_string)
         response_json = json.loads(response.content)
+        message = Message.objects.get(pk=response_json[0]['message_id'])
 
         self.assertEqual(response_json[0]['message_content'], 'This is the first message')
         self.assertEqual(response_json[0]['message_index'], 0)
         self.assertEqual(response_json[0]['sent_by_match'], True)
+        self.assertEqual(message.read, True)
 
         #User 2 sends a message
         query_string = '/users/' + self.user2.fb_user_id + '/messages/'
@@ -176,10 +181,12 @@ class MessagingTestCase(TestCase):
                        '&match_user='+self.user1.fb_user_id
         response = self.c.get(query_string)
         response_json = json.loads(response.content)
+        message = Message.objects.get(pk=response_json[0]['message_id'])
 
         self.assertEqual(response_json[0]['message_content'], 'That was a boring first message')
         self.assertEqual(response_json[0]['message_index'], 1)
         self.assertEqual(response_json[0]['sent_by_match'], False)
+        self.assertEqual(message.read, False)
 
         # Test GET response for user who received the message
         query_string = '/users/' + self.user1.fb_user_id +\
@@ -187,7 +194,9 @@ class MessagingTestCase(TestCase):
                        '&match_user=' + self.user2.fb_user_id
         response = self.c.get(query_string)
         response_json = json.loads(response.content)
+        message = Message.objects.get(pk=response_json[0]['message_id'])
 
         self.assertEqual(response_json[0]['message_content'], 'That was a boring first message')
         self.assertEqual(response_json[0]['message_index'], 1)
         self.assertEqual(response_json[0]['sent_by_match'], True)
+        self.assertEqual(message.read, True)
