@@ -4,13 +4,17 @@ import requests
 import json
 from RealServer.settings import FCM_SERVER_API_KEY
 
-def sendMatchNotification(request_user, match_user):
+def sendMatchNotification(request_user, match_user, date):
     devices = FCMDevice.objects.filter(user=match_user)
     for device in devices:
         request_body = {
             'notification': {
                 'body': request_user.first_name + ' made it Real!',
                 'sound': 'default'
+            },
+            'data': {
+                'type': 'match',
+                'date_id': date.pk
             },
             'to': device.registration_token,
         }
@@ -49,6 +53,10 @@ def sendLikeNotification(request_user, like_user, date):
                 'body': request_text,
                 'sound': 'default'
             },
+            'data': {
+                'type': 'like',
+                'date_id': date.pk
+            },
             'to': device.registration_token,
         }
         headers = {
@@ -69,8 +77,11 @@ def sendPassNotification(passer_user, passed_user):
     for device in devices:
         request_body = {
             'notification': {
-                'body': passer_user.first_name + ' has passed on your date. Bummer.',
+                'body': passer_user.first_name + ' has passed on your date.',
                 'sound': 'default'
+            },
+            'data': {
+                'type': 'pass'
             },
             'to': device.registration_token,
         }
@@ -87,13 +98,17 @@ def sendPassNotification(passer_user, passed_user):
             json_response = json.loads(response.content)
             handleNotificationResponse(json_response, device)
 
-def sendMessageNotification(messenger_user, receiver_user):
+def sendMessageNotification(messenger_user, receiver_user, date):
     devices = FCMDevice.objects.filter(user=receiver_user)
     for device in devices:
         request_body = {
             'notification': {
                 'body': messenger_user.first_name + ' sent you a message.',
                 'sound': 'default'
+            },
+            'data': {
+                'type': 'message',
+                'date_id': date.pk
             },
             'to': device.registration_token,
         }

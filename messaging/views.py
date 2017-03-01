@@ -52,6 +52,7 @@ def messages(request, user):
             match_user = User.objects.select_for_update(nowait=True).get(pk=match_user)
             user = User.objects.select_for_update(nowait=True).get(pk=user)
             date_id = json_data.get('date_id', None)
+            date = Date.objects.get(pk=date_id)
             if match_user == None or message_content == None or date_id == None:
                 return HttpResponse(status=400)
             try:
@@ -63,8 +64,8 @@ def messages(request, user):
             except IndexError:
                 message_index = 0
             Message.objects.create(index=message_index, content=message_content, sent_by=user,
-                                   sent_to=match_user, date=Date.objects.get(pk=date_id))
-            sendMessageNotification(user, match_user)
+                                   sent_to=match_user, date=date)
+            sendMessageNotification(user, match_user, date)
         return HttpResponse(status=200)
 
 

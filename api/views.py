@@ -314,7 +314,7 @@ def date(request, user, date_id=None):
                 date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
                 local_expires_at = convertLocalTimeToUTC(date.expires_at.replace(hour=23,minute=59, second=0, microsecond=0, tzinfo=None), user.timezone)
                 date.expires_at = local_expires_at
-                sendMatchNotification(getattr(date, request_user), getattr(date, match_user))
+                sendMatchNotification(getattr(date, request_user), getattr(date, match_user), date)
             # If it's a like, but other user has passed notify user after two hours that they've been passed on
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
                 date.expires_at = timezone.now() + datetime.timedelta(hours=24)
