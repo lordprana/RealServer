@@ -206,8 +206,8 @@ def user(request,user):
                             user.registration_city = g.city
                             user.registration_state = g.state
                             radius = DEFAULT_RADIUS.get(user.registration_city + ', ' + user.registration_state, None)
-                        if radius:
-                            user.search_radius = radius
+                            if radius:
+                                user.search_radius = radius
             setattr(user, key, value)
         user.save()
         # Delete unused pictures
