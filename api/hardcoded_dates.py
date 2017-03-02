@@ -58,7 +58,7 @@ def getHardcodedDates(user, day):
     setattr(match, day + '_date', date)
     user.save()
     match.save()
-    mutual_friend = models.MutualFriend.objects.create(name='Matthew',
+    mutual_friend = models.MutualFriend.objects.create(first_name='Matthew',
                                                        picture='https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn',
                                                        date=date)
     return JsonResponse(convertDateToJson(user, date), safe=False)
