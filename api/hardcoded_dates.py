@@ -28,7 +28,7 @@ def getHardcodedDates(user, day):
     date = models.Date(user1=user, user2=match, day=day, start_time=time,
                        date_of_date=generateDateOfDateFromDay(day),
                        expires_at=(local_midnight + timedelta(days=1)),
-                       place_id=place, place_name=place['name'],
+                       place_id=place,
                        category=category)
     date.original_expires_at = date.expires_at
     # Change who likes whom depending on the day
