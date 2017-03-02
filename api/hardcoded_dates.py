@@ -8,6 +8,9 @@ from matchmaking.models import DateStatus
 from matchmaking.views import generateDateOfDateFromDay, convertDateToJson
 from datetime import time as dt_time
 from datetime import date as dt_date
+from datetime import datetime
+from datetime import timedelta
+from django.utils import timezone
 from RealServer.tools import convertLocalTimeToUTC
 from django.http import JsonResponse
 
@@ -20,11 +23,11 @@ def getHardcodedDates(user, day):
     category = 'drinks'
     time = dt_time(hour=18)
     local_midnight = convertLocalTimeToUTC(
-        datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+        datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
         user.timezone)
     date = models.Date(user1=user, user2=match, day=day, start_time=time,
                        date_of_date=generateDateOfDateFromDay(day),
-                       expires_at=(local_midnight + datetime.timedelta(days=1)),
+                       expires_at=(local_midnight + timedelta(days=1)),
                        place_id=place, place_name=place['name'],
                        category=category)
     date.original_expires_at = date.expires_at
