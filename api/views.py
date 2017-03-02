@@ -202,9 +202,10 @@ def user(request,user):
                         return HttpResponse(status=400)
                     g = geocoder.mapbox(latlng, method='reverse', key=MAPBOX_API_KEY)
                     if g.status_code == 200:
-                        user.registration_city = g.city
-                        user.registration_state = g.state
-                        radius = DEFAULT_RADIUS.get(user.registration_city + ', ' + user.registration_state, None)
+                        if g.city and g.state:
+                            user.registration_city = g.city
+                            user.registration_state = g.state
+                            radius = DEFAULT_RADIUS.get(user.registration_city + ', ' + user.registration_state, None)
                         if radius:
                             user.search_radius = radius
             setattr(user, key, value)
