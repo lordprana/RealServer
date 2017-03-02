@@ -9,6 +9,7 @@ from rest_framework.authtoken.models import Token
 
 from RealServer import settings
 from api.auth import AuthenticationBackend
+from api.hardcoded_dates import getHardcodedDates
 from api.models import User, SexualPreference, Gender, BlockedReports, Status, FCMDevice
 from api.tasks import notifyUserPassedOn
 from matchmaking.models import Date, DateStatus, DateCategories
@@ -628,3 +629,11 @@ class ReportAndBlockTestCase(TestCase):
         self.assertEqual(report.blocking_user, self.user1)
         self.assertEqual(report.blocked_user, self.user2)
         self.assertEqual(report.associated_date, date)
+
+class HardcodedDatesTestCase(TestCase):
+    def test_hardcoded_dates(self):
+        # This tests exists only so I can step through with debugger. Nothing is being tested
+        self.user1 = User.objects.create(fb_user_id='122700428234141',
+                                         most_recent_fb_auth_token='EAACEFGIZCorABABwneNGNfqZAmeQI2QlftiHN7gkf2Ok4kJaZCbOo10XbD3wZAeaOFzYVaZBYOPoLPoF3VpygpZAZAOmOJbRgfp09h7Wp1g5vIpsZAuVpqVu3k8lYXkt6GJgCPsH43hecd7o8TueBOxt9lZAgWcyoCRuBjhLZBl5WBFvMW3RhQS5VohkYzTJgpQDGDHMM8t3oNjAZDZD')
+        self.user1.timezone = 'America/Chicago'
+        getHardcodedDates(self.user1, 'thur')

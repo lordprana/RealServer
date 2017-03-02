@@ -239,7 +239,7 @@ def convertDateToJson(user,date):
     # Add fields that don't have ambiguity around user
     json = {
         'date_id': date.pk,
-        'respond_by': date.expires_at.astimezone(pytz_timezone(user.timezone)).isoformat(),
+        'respond_by': date.expires_at.replace(microsecond=0).astimezone(pytz_timezone(user.timezone)).isoformat(),
         'inspected_match': date.inspected_match,
         'date_of_date': date.date_of_date.isoformat(),
         'time':
