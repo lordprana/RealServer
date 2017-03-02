@@ -5,6 +5,7 @@ from api.tasks import notifyUserPassedOn
 from api import hardcoded_dates
 from api.models import User, BlockedReports, Gender, Status, SexualPreference, FCMDevice
 from api.fake_user import generate_fake_user
+from api.hardcoded_dates import getHardcodedDates
 from matchmaking import views as matchmaking
 from matchmaking.models import Date, DateStatus
 from api.notifications import sendMatchNotification, sendLikeNotification
@@ -271,7 +272,7 @@ def date(request, user, date_id=None):
 
         # Used for testing
         if request.GET.get('hardcoded', None):
-            return JsonResponse(hardcoded_dates.dates[day])
+            return getHardcodedDates(user, day)
         # Used for testing
         if request.GET.get('fake_user', None):
             if user.interested_in == SexualPreference.WOMEN.value:

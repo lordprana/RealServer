@@ -1,6 +1,65 @@
 from django.utils import timezone
 from datetime import datetime, timedelta
 
+from api.fake_user import generate_fake_user
+from api.models import SexualPreference
+from matchmaking import models
+from matchmaking.models import DateStatus
+from matchmaking.views import generateDateOfDateFromDay, convertDateToJson
+from datetime import time as dt_time
+from datetime import date as dt_date
+from RealServer.tools import convertLocalTimeToUTC
+from django.http import JsonResponse
+
+def getHardcodedDates(user, day):
+    if getattr(user, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now():
+        return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
+
+    match = generate_fake_user(SexualPreference.WOMEN.value, None, None)
+    place = 'barcadia-dallas'
+    category = 'drinks'
+    time = dt_time(hour=18)
+    local_midnight = convertLocalTimeToUTC(
+        datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+        user.timezone)
+    date = models.Date(user1=user, user2=match, day=day, start_time=time,
+                       date_of_date=generateDateOfDateFromDay(day),
+                       expires_at=(local_midnight + datetime.timedelta(days=1)),
+                       place_id=place, place_name=place['name'],
+                       category=category)
+    date.original_expires_at = date.expires_at
+    # Change who likes whom depending on the day
+    if day == 'sun':
+        date.user1_likes = DateStatus.UNDECIDED.value
+        date.user2_likes = DateStatus.UNDECIDED.value
+    elif day == 'mon':
+        date.user1_likes = DateStatus.UNDECIDED.value
+        date.user2_likes = DateStatus.LIKES.value
+    elif day == 'tue':
+        date.user1_likes = DateStatus.UNDECIDED.value
+        date.user2_likes = DateStatus.PASS.value
+    elif day == 'wed':
+        date.user1_likes = DateStatus.LIKES.value
+        date.user2_likes = DateStatus.UNDECIDED.value
+    elif day == 'thur':
+        date.user1_likes = DateStatus.LIKES.value
+        date.user2_likes = DateStatus.LIKES.value
+    elif day == 'fri':
+        date.user1_likes = DateStatus.LIKES.value
+        date.user2_likes = DateStatus.PASS.value
+    elif day == 'sat':
+        date.user1_likes = DateStatus.PASS.value
+        date.user2_likes = DateStatus.LIKES.value
+    date.save()
+    setattr(user, day + '_date', date)
+    setattr(match, day + '_date', date)
+    user.save()
+    match.save()
+    mutual_friend = models.MutualFriend.objects.create(name='Matthew',
+                                                       picture='https://realdatingbucket.s3.amazonaws.com/2959531196950/rgifzhzprsmn',
+                                                       date=date)
+    return JsonResponse(convertDateToJson(user, date), safe=False)
+"""
 respond_by = timezone.now() + timedelta(hours=24)
 dates = {}
 dates['sun'] = {
@@ -290,3 +349,4 @@ dates['sat'] = {
                 }
         }
     }
+"""
