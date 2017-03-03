@@ -129,7 +129,7 @@ def users(request, user):
             return HttpResponse(status=400)
 
         aspect_width = 205
-        aspect_height = 365
+        aspect_height = 363
         file_jpgdata = StringIO(original_user_picture)
         image = Image.open(file_jpgdata)
         portrait_user_picture = cropImageByAspectRatio(image, aspect_width, aspect_height)
