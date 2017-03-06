@@ -314,7 +314,9 @@ def date(request, user, date_id=None):
             # If both users like each other, then set the date to expire at the last minute on the day of the date
             if status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
                 #date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
-                date.expires_at = datetime.combine(date.date_of_date, datetime.time(hour=23, minute=59, second=0, microsecond=0, tzinfo=None))
+                date.expires_at = datetime.datetime.combine(date.date_of_date, datetime.time(hour=23, minute=59,
+                                                                                             second=0, microsecond=0,
+                                                                                             tzinfo=None))
                 local_expires_at = convertLocalTimeToUTC(date.expires_at, user.timezone)
                 date.expires_at = local_expires_at
                 sendMatchNotification(getattr(date, request_user), getattr(date, match_user), date)
