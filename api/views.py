@@ -324,6 +324,8 @@ def date(request, user, date_id=None):
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
                 if date.date_of_date == timezone.now().date():
                     date.expires_at = timezone.now().replace(hour=23, minute=59, second=0, microsecond=0)
+                    local_expires_at = convertLocalTimeToUTC(date.expires_at, user.timezone)
+                    date.expires_at = local_expires_at
                 else:
                     date.expires_at = timezone.now() + datetime.timedelta(hours=24)
                 transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
@@ -334,6 +336,8 @@ def date(request, user, date_id=None):
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.UNDECIDED.value:
                 if date.date_of_date == timezone.now().date():
                     date.expires_at = timezone.now().replace(hour=23, minute=59, second=0, microsecond=0)
+                    local_expires_at = convertLocalTimeToUTC(date.expires_at, user.timezone)
+                    date.expires_at = local_expires_at
                 else:
                     date.expires_at = timezone.now() + datetime.timedelta(hours=24)
                 sendLikeNotification(getattr(date, request_user), getattr(date, match_user), date)
