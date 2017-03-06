@@ -323,9 +323,7 @@ def date(request, user, date_id=None):
             # If it's a like, but other user has passed notify user after two hours that they've been passed on
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
                 if date.date_of_date == timezone.now().date():
-                    date.expires_at = timezone.now().replace(hour=23, minute=59, second=0, microsecond=0)
-                    local_expires_at = convertLocalTimeToUTC(date.expires_at, user.timezone)
-                    date.expires_at = local_expires_at
+                    date.expires_at = datetime.datetime.combine(date.date_of_date, date.start_time - datetime.timedelta(minutes=30))
                 else:
                     date.expires_at = timezone.now() + datetime.timedelta(hours=24)
                 transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
@@ -335,9 +333,8 @@ def date(request, user, date_id=None):
             # If it's a like and the other user hasn't responded, add 24 hours to the expires_at time
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.UNDECIDED.value:
                 if date.date_of_date == timezone.now().date():
-                    date.expires_at = timezone.now().replace(hour=23, minute=59, second=0, microsecond=0)
-                    local_expires_at = convertLocalTimeToUTC(date.expires_at, user.timezone)
-                    date.expires_at = local_expires_at
+                    date.expires_at = datetime.datetime.combine(date.date_of_date,
+                                                                date.start_time - datetime.timedelta(minutes=30))
                 else:
                     date.expires_at = timezone.now() + datetime.timedelta(hours=24)
                 sendLikeNotification(getattr(date, request_user), getattr(date, match_user), date)
