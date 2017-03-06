@@ -40,7 +40,7 @@ from RealServer import facebook
 def users(request, user):
     if request.method == 'POST':
         token = Token.objects.get(user=user)
-        if user.status == Status.FINISHED_PROFILE.value or user.status == Status.INACTIVE:
+        if user.status == Status.FINISHED_PROFILE.value or user.status == Status.INACTIVE.value:
             user.status = Status.FINISHED_PROFILE.value
             response_dict = {
                 'fb_user_id' : user.fb_user_id,
