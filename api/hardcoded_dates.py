@@ -25,7 +25,7 @@ def getHardcodedDates(user, day):
     category = 'drinks'
     time = dt_time(hour=18)
     local_midnight = convertLocalTimeToUTC(
-        datetime.now().astimezone(pytz_timezone(user.timezone)).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=pytz.utc),
+        datetime.now().astimezone(pytz_timezone(user.timezone)).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None),
         user.timezone)
     date = models.Date(user1=user, user2=match, day=day, start_time=time,
                        date_of_date=generateDateOfDateFromDay(day),
