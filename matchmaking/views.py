@@ -277,7 +277,11 @@ def convertDateToJson(user,date):
     try:
         last_sent_message = date.message_set.order_by('-index')[0]
         json['last_sent_message'] = last_sent_message.content
-        json['message_read'] = last_sent_message.read
+        # If the user sent the message, we know he's read it. If the match sent the message, we look at the read field
+        if last_sent_message.sent_by == user:
+            json['message_read'] = True
+        else:
+            json['message_read'] = last_sent_message.read
     except IndexError:
         pass
 
