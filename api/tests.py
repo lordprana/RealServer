@@ -1,8 +1,10 @@
 import json
 from datetime import time, datetime, timedelta
+from datetime import date as dt_date
 import os
 
 import pytz
+import mock
 from django.test import TestCase, Client
 from django.utils import dateparse, timezone
 from rest_framework.authtoken.models import Token
@@ -442,6 +444,10 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user.status, Status.INACTIVE.value)
 
+NOW_FOR_TESTING = datetime(year=2017, month=1, day=19, hour=22, minute=0, second=0, tzinfo=pytz.utc)
+def mocked_now():
+    return NOW_FOR_TESTING
+
 class DateTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',
@@ -457,7 +463,7 @@ class DateTestCase(TestCase):
         # Test both users like each other
         date = Date(user1=self.user1, user2=self.user2, expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0, tzinfo=pytz.UTC),
                     day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                    category=DateCategories.COFFEE.value)
+                    category=DateCategories.COFFEE.value, date_of_date=dt_date(year=2017,month=1, day=20))
         date.original_expires_at = date.expires_at
         date.user2_likes = DateStatus.LIKES.value
         date.save()
@@ -469,44 +475,87 @@ class DateTestCase(TestCase):
         date = Date.objects.get(pk=date.pk)
         self.assertEqual(date.expires_at, datetime(year=2017, month=1, day=21, hour=4, minute=59, tzinfo=pytz.UTC))
 
-        # Test user 1 likes, user 2 undecided
-        date = Date(user1=self.user1, user2=self.user2,
-                    expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
-                                        tzinfo=pytz.UTC),
-                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                    category=DateCategories.COFFEE.value)
-        date.original_expires_at = date.expires_at
-        date.user2_likes = DateStatus.UNDECIDED.value
-        date.save()
-        data = {
-            "real_auth_token": self.real_auth_token1.key,
-            "status": DateStatus.LIKES.value
-        }
-        response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
-        date = Date.objects.get(pk=date.pk)
-        self.assertEqual(date.expires_at.replace(minute=0, second=0, microsecond=0),
-                         (timezone.now() + timedelta(hours=24)).replace(minute=0, second=0, microsecond=0))
+        # Test user 1 likes, user 2 undecided with date occuring less than a day away
+        with mock.patch('django.utils.timezone.now', side_effect=mocked_now):
+            date = Date(user1=self.user1, user2=self.user2,
+                        expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                            tzinfo=pytz.UTC),
+                        day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                        category=DateCategories.COFFEE.value, date_of_date=dt_date(year=2017,month=1, day=20))
+            date.original_expires_at = date.expires_at
+            date.user2_likes = DateStatus.UNDECIDED.value
+            date.save()
+            data = {
+                "real_auth_token": self.real_auth_token1.key,
+                "status": DateStatus.LIKES.value
+            }
+            response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
+            date = Date.objects.get(pk=date.pk)
+            self.assertEqual(date.expires_at.replace(second=0, microsecond=0),
+                             datetime(year=2017, month=1, day=20, hour=17, minute=30, tzinfo=pytz.utc))
 
-        # Test user 1 likes, user 2 passed
-        date = Date(user1=self.user1, user2=self.user2,
-                    expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
-                                        tzinfo=pytz.UTC),
-                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                    category=DateCategories.COFFEE.value)
-        date.original_expires_at = date.expires_at
-        date.user2_likes = DateStatus.PASS.value
-        date.save()
-        data = {
-            "real_auth_token": self.real_auth_token1.key,
-            "status": DateStatus.LIKES.value
-        }
-        response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
-        date = Date.objects.get(pk=date.pk)
-        self.assertEqual(date.expires_at.replace(minute=0, second=0, microsecond=0),
-                         (timezone.now() + timedelta(hours=24)).replace(minute=0, second=0, microsecond=0))
-        notifyUserPassedOn(user1_id=self.user1.fb_user_id, user2_id=self.user2.fb_user_id, date_id=date.pk)
-        date = Date.objects.get(pk=date.pk)
-        self.assertEqual(date.expires_at, date.original_expires_at)
+            # Test user 1 likes, user 2 undecided with date occuring more than a day away
+            with mock.patch('django.utils.timezone.now', side_effect=mocked_now):
+                date = Date(user1=self.user1, user2=self.user2,
+                            expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                                tzinfo=pytz.UTC),
+                            day='sat', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                            category=DateCategories.COFFEE.value, date_of_date=dt_date(year=2017, month=1, day=21))
+                date.original_expires_at = date.expires_at
+                date.user2_likes = DateStatus.UNDECIDED.value
+                date.save()
+                data = {
+                    "real_auth_token": self.real_auth_token1.key,
+                    "status": DateStatus.LIKES.value
+                }
+                response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
+                date = Date.objects.get(pk=date.pk)
+                self.assertEqual(date.expires_at.replace(second=0, microsecond=0),
+                                 timezone.now() + timedelta(hours=24))
+
+        # Test user 1 likes, user 2 passed with date occuring less than a day away
+        with mock.patch('django.utils.timezone.now', side_effect=mocked_now):
+            date = Date(user1=self.user1, user2=self.user2,
+                        expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                            tzinfo=pytz.UTC),
+                        day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                        category=DateCategories.COFFEE.value, date_of_date=dt_date(year=2017,month=1, day=20))
+            date.original_expires_at = date.expires_at
+            date.user2_likes = DateStatus.PASS.value
+            date.save()
+            data = {
+                "real_auth_token": self.real_auth_token1.key,
+                "status": DateStatus.LIKES.value
+            }
+            response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
+            date = Date.objects.get(pk=date.pk)
+            self.assertEqual(date.expires_at.replace(second=0, microsecond=0),
+                             datetime(year=2017, month=1, day=20, hour=17, minute=30, tzinfo=pytz.utc))
+            notifyUserPassedOn(user1_id=self.user1.fb_user_id, user2_id=self.user2.fb_user_id, date_id=date.pk)
+            date = Date.objects.get(pk=date.pk)
+            self.assertEqual(date.expires_at, date.original_expires_at)
+
+        # Test user 1 likes, user 2 passed with date occuring more than a day away
+        with mock.patch('django.utils.timezone.now', side_effect=mocked_now):
+            date = Date(user1=self.user1, user2=self.user2,
+                        expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                            tzinfo=pytz.UTC),
+                        day='sat', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                        category=DateCategories.COFFEE.value, date_of_date=dt_date(year=2017, month=1, day=21))
+            date.original_expires_at = date.expires_at
+            date.user2_likes = DateStatus.PASS.value
+            date.save()
+            data = {
+                "real_auth_token": self.real_auth_token1.key,
+                "status": DateStatus.LIKES.value
+            }
+            response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
+            date = Date.objects.get(pk=date.pk)
+            self.assertEqual(date.expires_at.replace(second=0, microsecond=0),
+                             timezone.now() + timedelta(hours=24))
+            notifyUserPassedOn(user1_id=self.user1.fb_user_id, user2_id=self.user2.fb_user_id, date_id=date.pk)
+            date = Date.objects.get(pk=date.pk)
+            self.assertEqual(date.expires_at, date.original_expires_at)
 
         # Test user 1 passed, user 2 undecided
         date = Date(user1=self.user1, user2=self.user2,
