@@ -29,6 +29,7 @@ import random
 import string
 import os
 import geocoder
+import pytz
 from RealServer.settings import MAPBOX_API_KEY
 from StringIO import StringIO
 import requests
@@ -329,9 +330,9 @@ def date(request, user, date_id=None):
                 sendMatchNotification(getattr(date, request_user), getattr(date, match_user), date)
             # If it's a like, but other user has passed notify user after two hours that they've been passed on
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
-                if datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30) < \
+                if (datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)).replace(tzinfo=pytz.utc) < \
                         timezone.now() + datetime.timedelta(hours=24):
-                    date.expires_at = datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)
+                    date.expires_at = (datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)).replace(tzinfo=pytz.utc)
                 else:
                     date.expires_at = timezone.now() + datetime.timedelta(hours=24)
                 transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
@@ -340,9 +341,9 @@ def date(request, user, date_id=None):
                                                                              countdown=60*60*2))
             # If it's a like and the other user hasn't responded, add 24 hours to the expires_at time
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.UNDECIDED.value:
-                if datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30) < \
+                if (datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)).replace(tzinfo=pytz.utc) < \
                         timezone.now() + datetime.timedelta(hours=24):
-                    date.expires_at = datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)
+                    date.expires_at = (datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)).replace(tzinfo=pytz.utc)
                 else:
                     date.expires_at = timezone.now() + datetime.timedelta(hours=24)
                 sendLikeNotification(getattr(date, request_user), getattr(date, match_user), date)
