@@ -8,6 +8,8 @@ from matchmaking.models import DateStatus
 from matchmaking.views import generateDateOfDateFromDay, convertDateToJson
 from datetime import time as dt_time
 from datetime import date as dt_date
+from pytz import timezone as pytz_timezone
+import pytz
 from datetime import datetime
 from datetime import timedelta
 from django.utils import timezone
@@ -23,7 +25,7 @@ def getHardcodedDates(user, day):
     category = 'drinks'
     time = dt_time(hour=18)
     local_midnight = convertLocalTimeToUTC(
-        datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+        datetime.now().astimezone(pytz_timezone(user.timezone)).replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=pytz.utc),
         user.timezone)
     date = models.Date(user1=user, user2=match, day=day, start_time=time,
                        date_of_date=generateDateOfDateFromDay(day),

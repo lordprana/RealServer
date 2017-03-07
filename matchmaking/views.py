@@ -15,6 +15,7 @@ import datetime
 import json
 import requests
 from pytz import timezone as pytz_timezone
+import pytz
 from random import randint, randrange, shuffle
 from geopy.distance import great_circle
 
@@ -217,7 +218,8 @@ def makeDate(user, day, potential_matches):
 
                             # Create date record and update user records
                             local_midnight = convertLocalTimeToUTC(
-                                datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
+                                datetime.now().astimezone(pytz_timezone(user.timezone)).replace(hour=0, minute=0, second=0,
+                                                                                           microsecond=0, tzinfo=pytz.utc),
                                 user.timezone)
                             date = models.Date(user1=user, user2=match, day=day, start_time=time,
                                                date_of_date=generateDateOfDateFromDay(day),
