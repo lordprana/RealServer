@@ -218,7 +218,7 @@ def makeDate(user, day, potential_matches):
 
                             # Create date record and update user records
                             local_midnight = convertLocalTimeToUTC(
-                                datetime.now().astimezone(pytz_timezone(user.timezone)).replace(hour=0, minute=0, second=0,
+                                timezone.now().astimezone(pytz_timezone(user.timezone)).replace(hour=0, minute=0, second=0,
                                                                                            microsecond=0, tzinfo=None),
                                 user.timezone)
                             date = models.Date(user1=user, user2=match, day=day, start_time=time,
