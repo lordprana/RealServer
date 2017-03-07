@@ -269,29 +269,36 @@ def settings(request, user):
 @custom_authenticate
 def date(request, user, date_id=None):
     if request.method == 'GET':
-        day = request.GET.get('day', None)
+        if date_id:
+            try:
+                date = Date.objects.get(pk=date_id)
+            except:
+                return HttpResponse(status=404)
+            return JsonResponse(matchmaking.convertDateToJson(user, date), safe=False)
+        else:
+            day = request.GET.get('day', None)
 
-        # Used for testing
-        if request.GET.get('hardcoded', None):
-            return getHardcodedDates(user, day)
-        # Used for testing
-        if request.GET.get('fake_user', None):
-            if user.interested_in == SexualPreference.WOMEN.value:
-                generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
-                                   request.GET.get('longitude', None))
-            elif user.interested_in == SexualPreference.MEN.value:
-                generate_fake_user(SexualPreference.MEN.value, request.GET.get('latitude', None),
-                                   request.GET.get('longitude', None))
-            elif user.interested_in == SexualPreference.BISEXUAL.value:
-                if random.randint(0, 1):
-                    generate_fake_user(SexualPreference.MEN.value, request.GET.get('latitude', None),
-                                       request.GET.get('longitude', None))
-                else:
+            # Used for testing
+            if request.GET.get('hardcoded', None):
+                return getHardcodedDates(user, day)
+            # Used for testing
+            if request.GET.get('fake_user', None):
+                if user.interested_in == SexualPreference.WOMEN.value:
                     generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
                                        request.GET.get('longitude', None))
+                elif user.interested_in == SexualPreference.MEN.value:
+                    generate_fake_user(SexualPreference.MEN.value, request.GET.get('latitude', None),
+                                       request.GET.get('longitude', None))
+                elif user.interested_in == SexualPreference.BISEXUAL.value:
+                    if random.randint(0, 1):
+                        generate_fake_user(SexualPreference.MEN.value, request.GET.get('latitude', None),
+                                           request.GET.get('longitude', None))
+                    else:
+                        generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
+                                           request.GET.get('longitude', None))
 
 
-        return matchmaking.date(request, user, day)
+            return matchmaking.date(request, user, day)
 
     if request.method == 'PATCH':
         date = Date.objects.get(pk=date_id)

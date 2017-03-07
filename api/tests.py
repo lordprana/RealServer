@@ -525,6 +525,17 @@ class DateTestCase(TestCase):
         self.user1 = User.objects.get(pk=self.user1.pk)
         self.assertEqual(self.user1.passed_matches.all().count(), 1)
 
+    def test_date_by_date_id(self):
+        date = Date(user1=self.user1, user2=self.user2,
+                    expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                        tzinfo=pytz.UTC),
+                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                    category=DateCategories.COFFEE.value)
+        date.original_expires_at = date.expires_at
+        date.save()
+        response = self.c.get('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk) + '?real_auth_token=' + self.real_auth_token1.key)
+        self.assertEqual(json.loads(response.content)['date_id'], date.pk)
+
     def test_date_patch_inspected_match(self):
         # Test user 1 inspects user 2
         date = Date(user1=self.user1, user2=self.user2,
