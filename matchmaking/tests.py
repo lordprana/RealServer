@@ -7,7 +7,7 @@ from api.models import User, Gender, SexualPreference, Status
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
     generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes, filterByLatitudeLongitude,\
     filterByUserStatus
-from matchmaking.yelp import getPlacesFromYelp
+from matchmaking.yelp import getPlacesFromYelp, getPlaceHoursFromYelp
 from matchmaking.models import YelpAccessToken, Date, DateStatus
 from datetime import datetime, timedelta, time
 from django.utils import timezone
@@ -213,16 +213,64 @@ class MatchMakingTestCase(TestCase):
         man.sun_start_time = time(hour=21, minute=0)
         man.sun_end_time = time(hour=22, minute=0)
         man.save()
-        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks')
+        open_times = getPlaceHoursFromYelp('barcadia-dallas')
+        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', open_times['sun'])
         self.assertEqual(random_time, man.sun_start_time)
 
         # Test if large range
         man.sun_start_time = time(hour=12, minute=0)
         man.sun_end_time = time(hour=22, minute=0)
         man.save()
-        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks')
+        open_times = getPlaceHoursFromYelp('barcadia-dallas')
+        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', open_times['sun'])
         self.assertGreaterEqual(random_time, woman.sun_start_time)
         self.assertLessEqual(random_time, time(hour=21, minute=0))
+
+        # Test if place is not open on that day
+        woman.mon_start_time = time(hour=12, minute=30)
+        woman.mon_end_time = time(hour=22, minute=0)
+        woman.save()
+        man.mon_start_time = time(hour=12, minute=30)
+        man.mon_end_time = time(hour=22, minute=0)
+        man.save()
+
+        open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
+        random_time = generateRandomTimeForDate(woman, man, 'mon', 'museums', open_times['mon'])
+        self.assertEqual(random_time, None)
+
+        # Test if times are not compatible
+        woman.tue_start_time = time(hour=18, minute=30)
+        woman.tue_end_time = time(hour=22, minute=0)
+        woman.save()
+        man.tue_start_time = time(hour=21, minute=0)
+        man.tue_end_time = time(hour=22, minute=0)
+        man.save()
+        open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', open_times['tue'])
+        self.assertEqual(random_time, None)
+
+        # Test if times are not compatible, but there is 30 minutes of overlap
+        woman.tue_start_time = time(hour=16, minute=30)
+        woman.tue_end_time = time(hour=22, minute=0)
+        woman.save()
+        man.tue_start_time = time(hour=12, minute=0)
+        man.tue_end_time = time(hour=22, minute=0)
+        man.save()
+        open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', open_times['tue'])
+        self.assertEqual(random_time, None)
+
+        # Test if place has no hours (always open)
+        woman.tue_start_time = time(hour=12, minute=30)
+        woman.tue_end_time = time(hour=22, minute=0)
+        woman.save()
+        man.tue_start_time = time(hour=13, minute=0)
+        man.tue_end_time = time(hour=22, minute=0)
+        man.save()
+        open_times = getPlaceHoursFromYelp('white-rock-lake-dallas')
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'parks', open_times['tue'])
+        self.assertGreaterEqual(random_time, man.tue_start_time)
+        self.assertLessEqual(random_time, time(hour=19, minute=0))
 
     def test_make_date(self):
         # Test when there are no category matches

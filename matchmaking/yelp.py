@@ -1,5 +1,4 @@
-from datetime import timedelta
-
+from datetime import timedelta, time, datetime
 import requests
 from django.utils import timezone
 
@@ -56,3 +55,42 @@ def getPlacesFromYelp(user, category):
             if item.get('price', '') == price:
                 return_list.append(item)
     return return_list
+
+def getPlaceHoursFromYelp(id):
+    access_token = YelpAccessToken.objects.filter(expires_at__gt=timezone.now())
+    if access_token.count() == 0:
+        token = refreshAccessToken()
+    else:
+        token = access_token[0].access_token
+    request_url = 'https://api.yelp.com/v3/businesses/' + id
+    headers = {'Authorization': 'Bearer ' + token}
+    response = requests.get(request_url, headers=headers)
+    if response.status_code != 200:
+        response.raise_for_status()
+    response_json = response.json()
+    hours = {}
+    days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']
+    # If there is no hours parameter, it means the location is always open, like a park, so we set the start and end
+    # times to be available all day. If there is an hours parameter, parse appropriately.
+    if not response_json.get('hours', None):
+        for i in range(0,7):
+            hours[days[i]] = {}
+            hours[days[i]]['start'] = time(hour=6)
+            hours[days[i]]['end'] = time(hour=23, minute=59, second=59)
+    else:
+        # There is a known issue in this parsing code. Sometimes Yelp returns more than one time segment. An example
+        # of this is with the biz_id 'royal-thai-dallas'. It is open in the afternoon, closes, and then opens again
+        # for the evening. The code below will take the latest time segment returned.
+        yelp_hours = response_json['hours'][0]['open']
+        for i in range(0,7):
+            hours[days[i]] = {}
+            for j in range(0, len(yelp_hours)):
+                if yelp_hours[j]['day'] == i:
+                    hours[days[i]]['start'] = datetime.strptime(yelp_hours[j]['start'], '%H%M').time()
+                    # is_overnight means the hours are overnight. For matching purposes, we set the endtime to the last
+                    # second of the current day.
+                    if yelp_hours[j]['is_overnight']:
+                        hours[days[i]]['end'] = time(hour=23, minute=59, second=59)
+                    else:
+                        hours[days[i]]['end'] = datetime.strptime(yelp_hours[j]['end'], '%H%M').time()
+    return hours

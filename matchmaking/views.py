@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils import timezone
 from api.auth import custom_authenticate
 from api.models import User, SexualPreference, Gender, Status
-from matchmaking.yelp import getPlacesFromYelp, TOP_RATED
+from matchmaking.yelp import getPlacesFromYelp, TOP_RATED, getPlaceHoursFromYelp
 from matchmaking import models
 from RealServer import facebook
 from RealServer.tools import convertLocalTimeToUTC
@@ -71,7 +71,9 @@ def generateDateOfDateFromDay(day):
         current_day = date_of_date.weekday()
     return date_of_date
 
-def generateRandomTimeForDate(user, match, day, category):
+def generateRandomTimeForDate(user, match, day, category, location_times):
+    if not location_times:
+        return None
 
     # Find correct values for day
     user_start_time = getattr(user, day + '_start_time')
@@ -86,6 +88,8 @@ def generateRandomTimeForDate(user, match, day, category):
         date_start_time = user_start_time
     if date_start_time < models.Date.appropriate_times[category]['start']:
         date_start_time = models.Date.appropriate_times[category]['start']
+    if date_start_time < location_times['start']:
+        date_start_time = location_times['start']
 
     if user_end_time > match_end_time:
         date_end_time = match_end_time
@@ -93,11 +97,16 @@ def generateRandomTimeForDate(user, match, day, category):
         date_end_time = user_end_time
     if date_end_time > models.Date.appropriate_times[category]['end']:
         date_end_time = models.Date.appropriate_times[category]['end']
+    if date_end_time > location_times['end']:
+        date_end_time = location_times['end']
 
     # Randomly choose within the time interval with intervals of 1800 seconds (30 minutes)
     date_earliest_start_td = datetime.datetime.combine(datetime.date.min, date_start_time) - datetime.datetime.min
     date_latest_start_td = datetime.datetime.combine(datetime.date.min, date_end_time) - datetime.datetime.min \
                            - datetime.timedelta(hours=1)
+
+    if date_latest_start_td < date_earliest_start_td:
+        return None
 
     # If times are not equal, generate a random start time in interval. If they are equal, use that as start time.
     if date_earliest_start_td != date_latest_start_td:
@@ -195,8 +204,18 @@ def makeDate(user, day, potential_matches):
                                 match = None
                                 continue
 
+                            # Generate an appropriate start time for date, taking into account user's times, match's
+                            # times, category times, and open hours of the place
+                            open_times = getPlaceHoursFromYelp(place['id'])
+                            time = generateRandomTimeForDate(user, match, day, interests[category_index], open_times[day])
+
+                            # Time will be None if the business, category time, user time and match time do not overlap
+                            # for at least one hour
+                            if not time:
+                                match = None
+                                continue
+
                             # Create date record and update user records
-                            time = generateRandomTimeForDate(user, match, day, interests[category_index])
                             local_midnight = convertLocalTimeToUTC(
                                 datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0),
                                 user.timezone)
