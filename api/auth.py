@@ -23,6 +23,7 @@ def custom_authenticate(view):
             real_auth_token = request.GET.get('real_auth_token', None)
         if user_id:
             fb_user_id = user_id
+        # Fake users don't have to authenticate
         if fb_auth_token and fb_user_id and real_auth_token:
             user=authenticate(fb_user_id=fb_user_id, fb_auth_token=fb_auth_token, real_auth_token=real_auth_token)
         elif fb_auth_token and fb_user_id:
@@ -49,6 +50,9 @@ class AuthenticationBackend(object):
                 if fb_auth_token:
                     user.most_recent_fb_auth_token = fb_auth_token
                     user.save()
+                return user
+            # Fake user does not need a valid auth token to authenticate
+            if user.is_fake_user:
                 return user
         elif fb_auth_token:
             try:
