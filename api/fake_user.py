@@ -308,6 +308,7 @@ def generate_random_fake_fb_user_id():
 # Creates a fake user and saves to database
 def generate_fake_user(gender, latitude, longitude):
     fake_user = User.objects.create(fb_user_id=generate_random_fake_fb_user_id(), most_recent_fb_auth_token='fake')
+    fake_user.is_fake_user = True
     if gender == Gender.MAN.value:
         fake_user.first_name = random.choice(male_names)
         fake_user.gender = Gender.MAN.value

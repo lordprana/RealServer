@@ -103,6 +103,7 @@ class User(AbstractBaseUser):
     new_messages_notification = models.BooleanField(default=True)
     upcoming_dates_notification = models.BooleanField(default=True)
 
+    is_fake_user = models.BooleanField(default=False)
     def __unicode__(self):
         if self.first_name and self.last_name:
             return self.first_name + ' ' + self.last_name
