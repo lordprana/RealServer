@@ -22,6 +22,8 @@ from geopy.distance import great_circle
 def filterByUserStatus(potential_matches):
     return potential_matches.exclude(status=Status.INACTIVE.value)
 
+def filterFakeUsers(potential_matches):
+    return potential_matches.exclude(is_fake_user=True)
 
 def filterBySexualPreference(user, potential_matches):
     # Filter to correct Gender based on sexual preference
@@ -356,6 +358,8 @@ def date(request, user, day):
         return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
     else: # Query for a match and create date from those matches
         potential_matches = filterByUserStatus(User.objects.exclude(pk=user.pk))
+        if user.is_fake_user: # Fake users should not match with other fake users
+            potential_matches = filterFakeUsers(potential_matches)
         potential_matches = filterBySexualPreference(user, potential_matches)
         potential_matches = filterByAge(user, potential_matches)
         potential_matches = filterPassedMatches(user, potential_matches)
