@@ -283,7 +283,7 @@ def date(request, user, date_id=None):
             if request.GET.get('hardcoded', None):
                 return getHardcodedDates(user, day)
             # Used for testing
-            if request.GET.get('fake_user', None):
+            if request.GET.get('fake_user', None) and not user.is_fake_user:
                 if user.interested_in == SexualPreference.WOMEN.value:
                     generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
                                        request.GET.get('longitude', None))
