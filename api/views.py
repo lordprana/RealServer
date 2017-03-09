@@ -477,5 +477,32 @@ def register_fcm_device(request, user):
     FCMDevice.objects.get_or_create(registration_token=registration_token, user=user)
     return HttpResponse(status=200)
 
+@csrf_exempt
+def fake_users(request):
+    # Find fake users who have upcoming dates with real users
+    fake_users = User.objects.filter(
+        (Q(sun_date__user1__is_fake_user=False) & Q(sun_date__user2__is_fake_user=True) & Q(sun_date__expires_at__gt=timezone.now())) |
+        (Q(sun_date__user1__is_fake_user=True) & Q(sun_date__user2__is_fake_user=False) & Q(sun_date__expires_at__gt=timezone.now())) |
+        (Q(mon_date__user1__is_fake_user=False) & Q(mon_date__user2__is_fake_user=True) & Q(mon_date__expires_at__gt=timezone.now())) |
+        (Q(mon_date__user1__is_fake_user=True) & Q(mon_date__user2__is_fake_user=False) & Q(mon_date__expires_at__gt=timezone.now())) |
+        (Q(tue_date__user1__is_fake_user=False) & Q(tue_date__user2__is_fake_user=True) & Q(tue_date__expires_at__gt=timezone.now())) |
+        (Q(tue_date__user1__is_fake_user=True) & Q(tue_date__user2__is_fake_user=False) & Q(tue_date__expires_at__gt=timezone.now())) |
+        (Q(wed_date__user1__is_fake_user=False) & Q(wed_date__user2__is_fake_user=True) & Q(wed_date__expires_at__gt=timezone.now())) |
+        (Q(wed_date__user1__is_fake_user=True) & Q(wed_date__user2__is_fake_user=False) & Q(wed_date__expires_at__gt=timezone.now())) |
+        (Q(thur_date__user1__is_fake_user=False) & Q(thur_date__user2__is_fake_user=True) & Q(thur_date__expires_at__gt=timezone.now())) |
+        (Q(thur_date__user1__is_fake_user=True) & Q(thur_date__user2__is_fake_user=False) & Q(thur_date__expires_at__gt=timezone.now())) |
+        (Q(fri_date__user1__is_fake_user=False) & Q(fri_date__user2__is_fake_user=True) & Q(fri_date__expires_at__gt=timezone.now())) |
+        (Q(fri_date__user1__is_fake_user=True) & Q(fri_date__user2__is_fake_user=False) & Q(fri_date__expires_at__gt=timezone.now())) |
+        (Q(sat_date__user1__is_fake_user=False) & Q(sat_date__user2__is_fake_user=True) & Q(sat_date__expires_at__gt=timezone.now())) |
+        (Q(sat_date__user1__is_fake_user=True) & Q(sat_date__user2__is_fake_user=False) & Q(sat_date__expires_at__gt=timezone.now()))
+    ).order_by('first_name')
+    fake_user_json = []
+    for user in fake_users:
+        user_json = {
+            'fb_user_id': user.pk,
+            'first_name': user.first_name
+        }
+        fake_user_json.append(user_json)
+    return JsonResponse(fake_user_json, safe=False)
 
 

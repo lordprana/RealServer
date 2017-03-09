@@ -3,6 +3,7 @@ from api import views
 
 urlpatterns = [
     url(r'^users/?$', views.users),
+    url(r'^fake_users/?$', views.fake_users),
     url(r'^users/(?P<user_id>\w{1,50})/?$', views.user),
     url(r'^users/(?P<user_id>\w{1,50})/time_preferences/?$', views.get_time_preferences),
     url(r'^users/(?P<user_id>\w{1,50})/place_preferences/?$', views.get_place_preferences),
