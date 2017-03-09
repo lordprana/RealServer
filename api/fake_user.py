@@ -2,6 +2,7 @@ from api.models import User, Gender, SexualPreference, Status
 from RealServer.tools import cropImageToSquare, cropImageByAspectRatio
 from RealServer.aws import s3_generate_presigned_post
 from datetime import time
+from loremipsum import get_sentences
 from PIL import Image
 from StringIO import StringIO
 import random
@@ -331,7 +332,11 @@ def generate_fake_user(gender, latitude, longitude):
     fake_user.interested_in = SexualPreference.BISEXUAL.value
     fake_user.occupation = random.choice(occupations)
     fake_user.education = random.choice(schools)
-    fake_user.about = 'I love pizza and dogs.'
+    about_length = random.randint(0,5)
+    if about_length:
+        fake_user.about = ' '.join(get_sentences(about_length))
+    else:
+        fake_user.about = ''
     fake_user.status = Status.FINISHED_PROFILE.value
     fake_user.latitude = latitude
     fake_user.longitude = longitude
