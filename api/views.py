@@ -495,7 +495,7 @@ def fake_users(request):
         (Q(fri_date__user1__is_fake_user=True) & Q(fri_date__user2__is_fake_user=False) & Q(fri_date__expires_at__gt=timezone.now())) |
         (Q(sat_date__user1__is_fake_user=False) & Q(sat_date__user2__is_fake_user=True) & Q(sat_date__expires_at__gt=timezone.now())) |
         (Q(sat_date__user1__is_fake_user=True) & Q(sat_date__user2__is_fake_user=False) & Q(sat_date__expires_at__gt=timezone.now()))
-    ).order_by('first_name')
+    ).filter(is_fake_user=True).order_by('first_name')
     fake_user_json = []
     for user in fake_users:
         user_json = {
