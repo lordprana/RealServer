@@ -331,10 +331,12 @@ def generate_fake_user(gender, latitude, longitude):
         fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_square'
         fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_portrait'
         fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_square'
-    fake_user.age = random.randint(18,35)
+    #fake_user.age = random.randint(18,35)
+    fake_user.age = 25
     fake_user.interested_in = SexualPreference.BISEXUAL.value
     fake_user.occupation = random.choice(occupations)
-    fake_user.education = random.choice(schools)
+    #fake_user.education = random.choice(schools)
+    fake_user.education = 'NYU'
     about_length = random.randint(0,5)
     if about_length:
         fake_user.about = ' '.join(get_sentences(about_length))
