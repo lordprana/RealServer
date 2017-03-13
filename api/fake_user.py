@@ -334,7 +334,8 @@ def generate_fake_user(gender, latitude, longitude):
     #fake_user.age = random.randint(18,35)
     fake_user.age = 25
     fake_user.interested_in = SexualPreference.BISEXUAL.value
-    fake_user.occupation = random.choice(occupations)
+    #fake_user.occupation = random.choice(occupations)
+    fake_user.occupation = 'Graphic Designer'
     #fake_user.education = random.choice(schools)
     fake_user.education = 'NYU'
     about_length = random.randint(0,5)
