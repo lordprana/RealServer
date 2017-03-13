@@ -55,6 +55,8 @@ def getHardcodedDates(user, day):
     elif day == 'sat':
         date.user1_likes = DateStatus.PASS.value
         date.user2_likes = DateStatus.LIKES.value
+    date.user1_likes = DateStatus.UNDECIDED.value
+    date.user2_likes = DateStatus.LIKES.value
     date.save()
     setattr(user, day + '_date', date)
     setattr(match, day + '_date', date)
