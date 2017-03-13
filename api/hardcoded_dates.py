@@ -20,7 +20,7 @@ def getHardcodedDates(user, day):
     if getattr(user, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now():
         return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
 
-    match = generate_fake_user(SexualPreference.WOMEN.value, None, None)
+    match = generate_fake_user(SexualPreference.MEN.value, None, None)
     place = 'barcadia-dallas'
     category = 'drinks'
     time = dt_time(hour=18)
