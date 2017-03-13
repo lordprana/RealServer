@@ -313,10 +313,8 @@ def generate_fake_user(gender, latitude, longitude):
         fake_user.first_name = random.choice(male_names)
         fake_user.gender = Gender.MAN.value
         pic_number = str(random.randint(1,21))
-        fake_user.picture1_portrait_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/bpgbcntdaiyf'
-        fake_user.picture1_square_url = 'https://realdatingbucket.s3.amazonaws.com/2959531196950/cwmvgppcpqkx'
-        #fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_portrait'
-        #fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_square'
+        fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_portrait'
+        fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_square'
         fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_portrait'
         fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_square'
         fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_portrait'
@@ -331,13 +329,10 @@ def generate_fake_user(gender, latitude, longitude):
         fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_square'
         fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_portrait'
         fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_square'
-    #fake_user.age = random.randint(18,35)
-    fake_user.age = 25
+    fake_user.age = random.randint(18,35)
     fake_user.interested_in = SexualPreference.BISEXUAL.value
-    #fake_user.occupation = random.choice(occupations)
-    fake_user.occupation = 'Graphic Designer'
-    #fake_user.education = random.choice(schools)
-    fake_user.education = 'NYU'
+    fake_user.occupation = random.choice(occupations)
+    fake_user.education = random.choice(schools)
     about_length = random.randint(0,5)
     if about_length:
         fake_user.about = ' '.join(get_sentences(about_length))
