@@ -102,6 +102,7 @@ class User(AbstractBaseUser):
     new_matches_notification = models.BooleanField(default=True)
     new_messages_notification = models.BooleanField(default=True)
     upcoming_dates_notification = models.BooleanField(default=True)
+    pass_notification = models.BooleanField(default=True)
 
     is_fake_user = models.BooleanField(default=False)
     def __unicode__(self):

@@ -5,6 +5,10 @@ import json
 from RealServer.settings import FCM_SERVER_API_KEY
 
 def sendMatchNotification(request_user, match_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not match_user.new_matches_notification:
+        return
+
     devices = FCMDevice.objects.filter(user=match_user)
     for device in devices:
         request_body = {
@@ -32,6 +36,10 @@ def sendMatchNotification(request_user, match_user, date):
             handleNotificationResponse(json_response, device)
 
 def sendLikeNotification(request_user, like_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not like_user.new_likes_notification:
+        return
+
     devices = FCMDevice.objects.filter(user=like_user)
     # Change body depending on date category
     if date.category == DateCategories.FOOD.value:
@@ -73,6 +81,10 @@ def sendLikeNotification(request_user, like_user, date):
             handleNotificationResponse(json_response, device)
 
 def sendPassNotification(passer_user, passed_user):
+    # Don't send message if user has specified notification preference in settings
+    if not passed_user.pass_notification:
+        return
+
     devices = FCMDevice.objects.filter(user=passed_user)
     for device in devices:
         request_body = {
@@ -99,6 +111,10 @@ def sendPassNotification(passer_user, passed_user):
             handleNotificationResponse(json_response, device)
 
 def sendMessageNotification(messenger_user, receiver_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not receiver_user.new_messages_notification:
+        return
+
     devices = FCMDevice.objects.filter(user=receiver_user)
     for device in devices:
         request_body = {
