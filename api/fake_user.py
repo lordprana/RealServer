@@ -92,7 +92,7 @@ female_names = [
     'Brianna',
     'Ruby',
     'Katherine',
-    'Ashley,'
+    'Ashley',
     'Alexis',
     'Alice',
     'Cora',
