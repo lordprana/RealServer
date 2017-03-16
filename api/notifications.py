@@ -129,6 +129,34 @@ def sendMessageNotification(messenger_user, receiver_user, date):
             json_response = json.loads(response.content)
             handleNotificationResponse(json_response, device)
 
+def sendUpcomingDateNotification(messenger_user, receiver_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not receiver_user.new_messages_notification:
+        return
+
+    devices = FCMDevice.objects.filter(user=receiver_user)
+    for device in devices:
+        request_body = {
+            'data': {
+                'message': 'You have a date with ' + messenger_user.first_name + ' tomorrow!',
+                'type': 'reminder',
+                'date_id': date.pk
+            },
+            'to': device.registration_token,
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'key=' + FCM_SERVER_API_KEY
+        }
+        response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
+        json_response = json.loads(response.content)
+        handleNotificationResponse(json_response, device)
+        # If Unavailable, try to resend one more time
+        if json_response['results'][0].get('error', None) == 'Unavailable':
+            response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
+            json_response = json.loads(response.content)
+            handleNotificationResponse(json_response, device)
+
 def handleNotificationResponse(json_response, device):
     if json_response['results'][0].get('error', None) == 'Unavailable':
         return False

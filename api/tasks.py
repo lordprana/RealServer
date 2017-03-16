@@ -5,7 +5,7 @@ from __future__ import absolute_import, unicode_literals
 from RealServer.celery import app
 
 from api.models import User
-from api.notifications import sendPassNotification
+from api.notifications import sendPassNotification, sendUpcomingDateNotification
 from matchmaking.models import Date
 import sys
 
@@ -21,3 +21,11 @@ def notifyUserPassedOn(user1_id, user2_id, date_id):
     date.save()
     user1.passed_matches.add(user2)
     sendPassNotification(user1, user2)
+
+@app.task
+def notifyUpcomingDate(user1_id, user2_id, date_id):
+    user1 = User.objects.get(pk=user1_id)
+    user2 = User.objects.get(pk=user2_id)
+    date = Date.objects.get(pk=date_id)
+    sendUpcomingDateNotification(user1, user2, date)
+    sendUpcomingDateNotification(user2, user1, date)

@@ -321,13 +321,19 @@ def date(request, user, date_id=None):
             setattr(date, request_user+'_likes', status)
             # If both users like each other, then set the date to expire at the last minute on the day of the date
             if status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
-                #date.expires_at = nextDayOfWeekToDatetime(date.expires_at, date.day)
                 date.expires_at = datetime.datetime.combine(date.date_of_date, datetime.time(hour=23, minute=59,
                                                                                              second=0, microsecond=0,
                                                                                              tzinfo=None))
                 local_expires_at = convertLocalTimeToUTC(date.expires_at, user.timezone)
                 date.expires_at = local_expires_at
                 sendMatchNotification(getattr(date, request_user), getattr(date, match_user), date)
+                upcoming_date_reminder_time = datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(days=1)
+                upcoming_date_reminder_time = pytz.utc.localize(upcoming_date_reminder_time)
+                if upcoming_date_reminder_time > timezone.now():
+                    transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
+                                                                                  getattr(date, match_user).pk,
+                                                                                  date.pk),
+                                                                                 eta=upcoming_date_reminder_time))
             # If it's a like, but other user has passed notify user after two hours that they've been passed on
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
                 if (datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)).replace(tzinfo=pytz.utc) < \
