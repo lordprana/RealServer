@@ -12,11 +12,8 @@ def sendMatchNotification(request_user, match_user, date):
     devices = FCMDevice.objects.filter(user=match_user)
     for device in devices:
         request_body = {
-            'notification': {
-                'body': request_user.first_name + ' made it Real!',
-                'sound': 'default'
-            },
             'data': {
+                'message': request_user.first_name + ' made it Real!',
                 'type': 'match',
                 'date_id': date.pk
             },
@@ -57,11 +54,8 @@ def sendLikeNotification(request_user, like_user, date):
 
     for device in devices:
         request_body = {
-            'notification': {
-                'body': request_text,
-                'sound': 'default'
-            },
             'data': {
+                'message': request_text,
                 'type': 'like',
                 'date_id': date.pk
             },
@@ -88,11 +82,8 @@ def sendPassNotification(passer_user, passed_user):
     devices = FCMDevice.objects.filter(user=passed_user)
     for device in devices:
         request_body = {
-            'notification': {
-                'body': passer_user.first_name + ' has passed on your date.',
-                'sound': 'default'
-            },
             'data': {
+                'message': passer_user.first_name + ' has passed on your date.',
                 'type': 'pass'
             },
             'to': device.registration_token,
@@ -118,11 +109,8 @@ def sendMessageNotification(messenger_user, receiver_user, date):
     devices = FCMDevice.objects.filter(user=receiver_user)
     for device in devices:
         request_body = {
-            'notification': {
-                'body': messenger_user.first_name + ' sent you a message.',
-                'sound': 'default'
-            },
             'data': {
+                'message': messenger_user.first_name + ' sent you a message.',
                 'type': 'message',
                 'date_id': date.pk
             },
