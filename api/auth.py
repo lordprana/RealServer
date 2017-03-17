@@ -47,16 +47,14 @@ class AuthenticationBackend(object):
                 return None
             try:
                 token = Token.objects.get(user=user)
+                if (token.key == real_auth_token):
+                    if fb_auth_token:
+                        user.most_recent_fb_auth_token = fb_auth_token
+                        user.save()
+                    return user
             except Token.DoesNotExist: # Token does not exist in case of fake_user
-                pass
-            if (token.key == real_auth_token):
-                if fb_auth_token:
-                    user.most_recent_fb_auth_token = fb_auth_token
-                    user.save()
-                return user
-            # Fake user does not need a valid auth token to authenticate
-            if user.is_fake_user:
-                return user
+                if user.is_fake_user:
+                    return user
         elif fb_auth_token:
             try:
                 response_user_id = facebook.getUserId(fb_auth_token)
