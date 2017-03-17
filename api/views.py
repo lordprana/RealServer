@@ -341,8 +341,8 @@ def date(request, user, date_id=None):
                     date.expires_at = (datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)).replace(tzinfo=pytz.utc)
                 else:
                     date.expires_at = timezone.now() + datetime.timedelta(hours=24)
-                transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
-                                                                              getattr(date, match_user).pk,
+                transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
+                                                                              getattr(date, request_user).pk,
                                                                              date.pk),
                                                                              countdown=60*60*2))
             # If it's a like and the other user hasn't responded, add 24 hours to the expires_at time
@@ -355,8 +355,8 @@ def date(request, user, date_id=None):
                 sendLikeNotification(getattr(date, request_user), getattr(date, match_user), date)
             elif status == DateStatus.PASS.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
                 # Notify user after two hours that they've been passed on
-                transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, match_user).pk,
-                                                                             getattr(date, request_user).pk,
+                transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
+                                                                             getattr(date, match_user).pk,
                                                                              date.pk),
                                                                              countdown=60*60*2))
             elif status == DateStatus.PASS.value and getattr(date, match_user + '_likes') == DateStatus.UNDECIDED.value:
