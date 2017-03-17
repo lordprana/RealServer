@@ -262,7 +262,8 @@ def settings(request, user):
         'new_likes_notification': user.new_likes_notification,
         'new_matches_notification': user.new_matches_notification,
         'new_messages_notification': user.new_messages_notification,
-        'upcoming_dates_notification': user.upcoming_dates_notification
+        'upcoming_dates_notification': user.upcoming_dates_notification,
+        'pass_notification': user.pass_notification
     }
     return JsonResponse(settings_json)
 
