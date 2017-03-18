@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.authtoken.models import Token
 from api.auth import custom_authenticate
-from api.tasks import notifyUserPassedOn
+from api.tasks import notifyUserPassedOn, notifyUpcomingDate
 from api import hardcoded_dates
 from api.models import User, BlockedReports, Gender, Status, SexualPreference, FCMDevice
 from api.fake_user import generate_fake_user
@@ -331,7 +331,7 @@ def date(request, user, date_id=None):
                 upcoming_date_reminder_time = datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(days=1)
                 upcoming_date_reminder_time = pytz.utc.localize(upcoming_date_reminder_time)
                 if upcoming_date_reminder_time > timezone.now():
-                    transaction.on_commit(lambda: notifyUserPassedOn.apply_async((getattr(date, request_user).pk,
+                    transaction.on_commit(lambda: notifyUpcomingDate.apply_async((getattr(date, request_user).pk,
                                                                                   getattr(date, match_user).pk,
                                                                                   date.pk),
                                                                                  eta=upcoming_date_reminder_time))
