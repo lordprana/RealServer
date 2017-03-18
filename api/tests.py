@@ -4,6 +4,7 @@ from datetime import date as dt_date
 import os
 
 import pytz
+from pytz import timezone as pytz_timezone
 import mock
 from django.test import TestCase, Client
 from django.utils import dateparse, timezone
@@ -444,10 +445,6 @@ class UserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user.status, Status.INACTIVE.value)
 
-NOW_FOR_TESTING = datetime(year=2017, month=1, day=19, hour=22, minute=0, second=0, tzinfo=pytz.utc)
-def mocked_now():
-    return NOW_FOR_TESTING
-
 class DateTestCase(TestCase):
     def setUp(self):
         self.user1 = User.objects.create(fb_user_id='122700428234141',
@@ -475,6 +472,10 @@ class DateTestCase(TestCase):
         date = Date.objects.get(pk=date.pk)
         self.assertEqual(date.expires_at, datetime(year=2017, month=1, day=21, hour=4, minute=59, tzinfo=pytz.UTC))
 
+        NOW_FOR_TESTING = pytz_timezone(self.user1.timezone).localize(datetime(year=2017, month=1, day=20, hour=12, minute=0, second=0))
+        def mocked_now():
+            return NOW_FOR_TESTING
+
         # Test user 1 likes, user 2 undecided with date occuring less than a day away
         with mock.patch('django.utils.timezone.now', side_effect=mocked_now):
             date = Date(user1=self.user1, user2=self.user2,
@@ -492,7 +493,7 @@ class DateTestCase(TestCase):
             response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
             date = Date.objects.get(pk=date.pk)
             self.assertEqual(date.expires_at.replace(second=0, microsecond=0),
-                             datetime(year=2017, month=1, day=20, hour=17, minute=30, tzinfo=pytz.utc))
+                             pytz_timezone(self.user1.timezone).localize(datetime(year=2017, month=1, day=20, hour=17, minute=30)))
 
             # Test user 1 likes, user 2 undecided with date occuring more than a day away
             with mock.patch('django.utils.timezone.now', side_effect=mocked_now):
@@ -530,7 +531,7 @@ class DateTestCase(TestCase):
             response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
             date = Date.objects.get(pk=date.pk)
             self.assertEqual(date.expires_at.replace(second=0, microsecond=0),
-                             datetime(year=2017, month=1, day=20, hour=17, minute=30, tzinfo=pytz.utc))
+                             pytz_timezone(self.user1.timezone).localize(datetime(year=2017, month=1, day=20, hour=17, minute=30)))
             notifyUserPassedOn(user1_id=self.user1.fb_user_id, user2_id=self.user2.fb_user_id, date_id=date.pk)
             date = Date.objects.get(pk=date.pk)
             self.assertEqual(date.expires_at, date.original_expires_at)
