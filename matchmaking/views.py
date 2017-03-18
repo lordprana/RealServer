@@ -298,8 +298,9 @@ def convertDateToJson(user,date):
             json['potential_match_likes'] = date.user2_likes
         # If it's past the start time on the day of the date, it's a soft pass. The potential match will not show
         # up on the swipe screen, but they are not added to the passed_users list
-        if timezone.now() >= (datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)).replace(tzinfo=pytz.utc) \
-            and date.user1_likes == models.DateStatus.UNDECIDED.value:
+        datetime_of_date = pytz_timezone(user.timezone).localize(datetime.datetime.combine(date.date_of_date, date.start_time))
+        local_now = timezone.now().astimezone(pytz_timezone(user.timezone))
+        if local_now >= datetime_of_date - datetime.timedelta(minutes=30) and date.user1_likes == models.DateStatus.UNDECIDED.value:
             json['primary_user_likes'] = models.DateStatus.PASS.value
         else:
             json['primary_user_likes'] = date.user1_likes
@@ -311,8 +312,9 @@ def convertDateToJson(user,date):
             json['potential_match_likes'] = date.user1_likes
         # If it's past the start time on the day of the date, it's a soft pass. The potential match will not show
         # up on the swipe screen, but they are not added to the passed_users list
-        if timezone.now() >= (datetime.datetime.combine(date.date_of_date, date.start_time) - datetime.timedelta(minutes=30)).replace(tzinfo=pytz.utc) \
-            and date.user2_likes == models.DateStatus.UNDECIDED.value:
+        datetime_of_date = pytz_timezone(user.timezone).localize(datetime.datetime.combine(date.date_of_date, date.start_time))
+        local_now = timezone.now().astimezone(pytz_timezone(user.timezone))
+        if local_now >= datetime_of_date - datetime.timedelta(minutes=30) and date.user2_likes == models.DateStatus.UNDECIDED.value:
             json['primary_user_likes'] = models.DateStatus.PASS.value
         else:
             json['primary_user_likes'] = date.user2_likes
