@@ -321,6 +321,10 @@ def date(request, user, date_id=None):
             return HttpResponse(status=400)
         if status:
             setattr(date, request_user+'_likes', status)
+            match_user_object = getattr(date, match_user)
+            if status == DateStatus.LIKES.value:
+                match_user_object.num_times_liked = match_user_object.num_times_liked + 1
+                match_user_object.save()
             # If both users like each other, then set the date to expire at the last minute on the day of the date
             if status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
                 date.expires_at = datetime.datetime.combine(date.date_of_date, datetime.time(hour=23, minute=59,

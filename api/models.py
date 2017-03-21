@@ -27,6 +27,8 @@ class User(AbstractBaseUser):
     fb_user_id = models.CharField(max_length=300, primary_key=True)
     most_recent_fb_auth_token = models.CharField(max_length=300)
 
+    created = models.DateTimeField(auto_now_add=True)
+
     first_name = models.CharField(max_length=200, null=True)
     last_name = models.CharField(max_length=200, null=True)
     age = models.IntegerField(null=True)
@@ -103,6 +105,9 @@ class User(AbstractBaseUser):
     new_messages_notification = models.BooleanField(default=True)
     upcoming_dates_notification = models.BooleanField(default=True)
     pass_notification = models.BooleanField(default=True)
+
+    num_times_suggested = models.FloatField(default=0)
+    num_times_liked = models.FloatField(default=0)
 
     is_fake_user = models.BooleanField(default=False)
     def __unicode__(self):

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
-from django.db.models import Q
+from django.db.models import Q, F
 from django.db import transaction
 from django.utils import timezone
 from api.auth import custom_authenticate
@@ -184,10 +184,34 @@ def makeDate(user, day, potential_matches):
                 place = places[place_index]
                 # Filter for users who have a max_price setting greater than price of place
                 price_filtered = category_filtered.filter(max_price__gte=place.get('price', '').count('$'))
-                price_filtered = list(price_filtered)
-                shuffle(price_filtered) # Potential matches are randomly sorted
-                # Calculate distance to place for each potential match
-                for potential_match in price_filtered:
+
+                # If user is a new user (less than a week old) show him more attractive potential matches
+                if timezone.now() > user.created + datetime.timedelta(days=7):
+                    potential_matches = list(price_filtered)
+                    shuffle(potential_matches) # Potential matches are randomly sorted
+                else:
+                    num_times_suggested_threshold = 10
+                    like_score_threshold = .6
+                    attractive_matches = price_filtered.filter(num_times_suggested__gte=num_times_suggested_threshold)\
+                                           .annotate(like_score=F('num_times_liked')/F('num_times_suggested'))\
+                                           .filter(like_score__gte=like_score_threshold)
+                    not_suggested_enough_matches = price_filtered.filter(num_times_suggested__lt=num_times_suggested_threshold)
+                    unattractive_matches = price_filtered.filter(num_times_suggested__gte=num_times_suggested_threshold)\
+                                           .annotate(like_score=F('num_times_liked')/F('num_times_suggested'))\
+                                           .filter(like_score__lt=like_score_threshold)
+                    # Introduce randomness into these different groups of users and merge lists together so that attractive_matches
+                    # are earlier in the list than not_suggested_enough_matches and unattractive_matches
+                    attractive_matches = list(attractive_matches)
+                    shuffle(attractive_matches)
+                    not_suggested_enough_matches = list(not_suggested_enough_matches)
+                    unattractive_matches = list(unattractive_matches)
+                    not_suggested_enough_matches.extend(unattractive_matches)
+                    shuffle(not_suggested_enough_matches)
+                    attractive_matches.extend(not_suggested_enough_matches)
+                    potential_matches = attractive_matches
+
+                for potential_match in potential_matches:
+                    # Calculate distance to place for each potential match
                     match_coordinates = (potential_match.latitude, potential_match.longitude)
                     place_coordinates = (place['coordinates']['latitude'], place['coordinates']['longitude'])
                     if great_circle(match_coordinates, place_coordinates).miles < potential_match.search_radius:
@@ -203,6 +227,7 @@ def makeDate(user, day, potential_matches):
                                 (user.sat_date and (user.sat_date.user1 == match or user.sat_date.user2 == match)):
                                 match = None
                                 continue
+                            # Exclude match if match already has a date for this day
                             if(getattr(match, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now()):
                                 match = None
                                 continue
@@ -232,6 +257,8 @@ def makeDate(user, day, potential_matches):
                             date.save()
                             setattr(user, day + '_date', date)
                             setattr(match, day + '_date', date)
+                            user.num_times_suggested = user.num_times_suggested + 1
+                            match.num_times_suggested = match.num_times_suggested + 1
                             user.save()
                             match.save()
 
