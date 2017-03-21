@@ -46,14 +46,14 @@ def filterByAge(user, potential_matches):
     return potential_matches.exclude(age__lte=user.min_age_preference).exclude(age__gte=user.max_age_preference)
 
 def filterTimeAvailableUsers(user, day, potential_matches):
-    # Filter to match only users who are available at same time as this user.
-    # Structure query so that there is at least a one-hour meeting period for potential matches
-
     if getattr(user, day + '_start_time') and (not getattr(user, day + '_date') or getattr(user, day + '_date').expires_at < timezone.now()):
+        # Filter to match only users who are available at same time as this user.
+        # Structure query so that there is at least a one-hour meeting period for potential matches
         q1_dict = { day + '_end_time__gte': (datetime.datetime.combine(datetime.date.today(), getattr(user, day + '_start_time')) + datetime.timedelta(
                                                      hours=1)).time() }
         q2_dict = { day + '_start_time__lte': (datetime.datetime.combine(datetime.date.today(), getattr(user, day + '_end_time')) - datetime.timedelta(
                                                      hours=1)).time() }
+        # Filter to match only users who have not already been scheduled for a date on this day
         q3_dict = { day + '_date': None }
         q4_dict = { day + '_date__expires_at__lt': timezone.now()}
         return potential_matches.filter(Q(**q1_dict) & Q(**q2_dict)).filter(Q(**q3_dict) | Q(**q4_dict))
