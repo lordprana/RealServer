@@ -109,6 +109,19 @@ def users(request, user):
             today = timezone.now()
             user.age = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
 
+        # Set age preferences depending on user's age
+        if user.age:
+            user.min_age_preference = user.age - 10
+            user.max_age_preference = user.age + 10
+            if user.min_age_preference < 18:
+                user.min_age_preference = 18
+            if user.max_age_preference > 99:
+                user.max_age_preference = 99
+        else:
+            user.age = 21
+            user.min_age_preference = 18
+            user.max_age_preference = 31
+
         # Save pictures to S3. Images come in original, square, and portrait flavors
         original_user_picture = facebook.getUserProfilePicture(user)
 
