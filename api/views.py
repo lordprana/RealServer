@@ -237,6 +237,7 @@ def user(request,user):
             'age': user.age,
             'gender': user.gender,
             'education': user.education,
+            'about': user.about,
             'picture1_square_url': user.picture1_square_url,
             'picture1_portrait_url': user.picture1_portrait_url,
             'picture2_square_url': user.picture2_square_url,
