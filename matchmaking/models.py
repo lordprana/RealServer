@@ -55,7 +55,7 @@ class Date(models.Model):
         'parks':
         {
             'start': time(hour=7),
-            'end': time(hour=19)
+            'end': time(hour=18)
         },
         'museums':
         {
