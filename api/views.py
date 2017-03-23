@@ -122,7 +122,7 @@ def users(request, user):
             user.min_age_preference = 18
             user.max_age_preference = 31
 
-        # Save pictures to S3. Images come in original, square, and portrait flavors
+        # Save pictures to S3. Images come in square and portrait flavors
         original_user_picture = facebook.getUserProfilePicture(user)
 
         if not original_user_picture:
