@@ -43,7 +43,9 @@ def filterPassedMatches(user, potential_matches):
     return potential_matches
 
 def filterByAge(user, potential_matches):
-    return potential_matches.exclude(age__lte=user.min_age_preference).exclude(age__gte=user.max_age_preference)
+    potential_matches = potential_matches.exclude(age__lt=user.min_age_preference).exclude(age__gt=user.max_age_preference)
+    potential_matches = potential_matches.exclude(min_age_preference__gt=user.age).exclude(max_age_preference__lt=user.age)
+    return potential_matches
 
 def filterTimeAvailableUsers(user, day, potential_matches):
     if getattr(user, day + '_start_time') and (not getattr(user, day + '_date') or getattr(user, day + '_date').expires_at < timezone.now()):
