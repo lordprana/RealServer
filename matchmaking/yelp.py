@@ -93,4 +93,8 @@ def getPlaceHoursFromYelp(id):
                         hours[days[i]]['end'] = time(hour=23, minute=59, second=59)
                     else:
                         hours[days[i]]['end'] = datetime.strptime(yelp_hours[j]['end'], '%H%M').time()
+                        # Midnight is late on current day, not early on current day, so this condition fixes comparing times when trying
+                        # to generate a random time for the date
+                        if hours[days[i]]['end'] == time(hour=0, minute=0, second=0):
+                            hours[days[i]]['end'] = time(hour=23, minute=59, second=59)
     return hours
