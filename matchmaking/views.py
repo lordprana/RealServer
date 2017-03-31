@@ -243,16 +243,13 @@ def makeDate(user, day, potential_matches):
                             print("5")
                             open_times = getPlaceHoursFromYelp(place['id'])
                             print(place['id'])
-                            if not open_times[day]:
-                                match = None
-                                break
                             time = generateRandomTimeForDate(user, match, day, interests[category_index], open_times[day])
                             print("6")
                             # Time will be None if the business, category time, user time and match time do not overlap
                             # for at least one hour
                             if not time:
                                 match = None
-                                continue
+                                break
 
                             # Create date record and update user records
                             local_midnight = convertLocalTimeToUTC(
