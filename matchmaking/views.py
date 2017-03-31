@@ -189,8 +189,8 @@ def makeDate(user, day, potential_matches):
 
                 # If user is a new user (less than a week old) show him more attractive potential matches
                 if timezone.now() > user.created + datetime.timedelta(days=7):
-                    potential_matches = list(price_filtered)
-                    shuffle(potential_matches) # Potential matches are randomly sorted
+                    potential_matches_list = list(price_filtered)
+                    shuffle(potential_matches_list) # Potential matches are randomly sorted
                 else:
                     num_times_suggested_threshold = 10
                     like_score_threshold = .6
@@ -210,9 +210,9 @@ def makeDate(user, day, potential_matches):
                     not_suggested_enough_matches.extend(unattractive_matches)
                     shuffle(not_suggested_enough_matches)
                     attractive_matches.extend(not_suggested_enough_matches)
-                    potential_matches = attractive_matches
+                    potential_matches_list = attractive_matches
 
-                for potential_match in potential_matches:
+                for potential_match in potential_matches_list:
                     # Calculate distance to place for each potential match
                     match_coordinates = (potential_match.latitude, potential_match.longitude)
                     place_coordinates = (place['coordinates']['latitude'], place['coordinates']['longitude'])
