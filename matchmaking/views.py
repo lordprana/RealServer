@@ -249,7 +249,7 @@ def makeDate(user, day, potential_matches):
                             # for at least one hour
                             if not time:
                                 match = None
-                                continue
+                                break
 
                             # Create date record and update user records
                             local_midnight = convertLocalTimeToUTC(
