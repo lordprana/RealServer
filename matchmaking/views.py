@@ -143,7 +143,6 @@ def filterByAppropriateCategoryTimes(user, potential_matches, day, category):
 
 @transaction.atomic
 def makeDate(user, day, potential_matches):
-    print("1")
     # Use select_for_update to lock user's row
     user = User.objects.select_for_update().get(pk=user.pk)
     interests = []
@@ -164,7 +163,6 @@ def makeDate(user, day, potential_matches):
     first_category_index = randint(0, len(interests)-1)
     category_index = (first_category_index + 1) % len(interests)
     while True:
-        print("2")
         category = interests[category_index]
         # Filter potential matches based on category
         filter_dict = {'likes_' + category: True}
@@ -185,7 +183,6 @@ def makeDate(user, day, potential_matches):
             first_place_index = randint(0, len(places)-1)
             place_index = (first_place_index + 1) % len(places)
             while True:
-                print("3")
                 place = places[place_index]
                 # Filter for users who have a max_price setting greater than price of place
                 price_filtered = category_filtered.filter(max_price__gte=place.get('price', '').count('$'))
@@ -216,7 +213,6 @@ def makeDate(user, day, potential_matches):
                     potential_matches_list = attractive_matches
 
                 for potential_match in potential_matches_list:
-                    print("4")
                     # Calculate distance to place for each potential match
                     match_coordinates = (potential_match.latitude, potential_match.longitude)
                     place_coordinates = (place['coordinates']['latitude'], place['coordinates']['longitude'])
@@ -240,11 +236,8 @@ def makeDate(user, day, potential_matches):
 
                             # Generate an appropriate start time for date, taking into account user's times, match's
                             # times, category times, and open hours of the place
-                            print("5")
                             open_times = getPlaceHoursFromYelp(place['id'])
-                            print(place['id'])
                             time = generateRandomTimeForDate(user, match, day, interests[category_index], open_times[day])
-                            print("6")
                             # Time will be None if the business, category time, user time and match time do not overlap
                             # for at least one hour
                             if not time:
@@ -278,7 +271,6 @@ def makeDate(user, day, potential_matches):
                                     first_name = friend['name'].partition(' ')[0]
                                     date.mutualfriend_set.create(first_name=first_name,
                                                                  picture=friend['picture']['data']['url'])
-                            print("7")
                             return date
 
                 if match or place_index == first_place_index:
