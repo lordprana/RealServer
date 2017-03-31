@@ -242,7 +242,7 @@ def makeDate(user, day, potential_matches):
                             # times, category times, and open hours of the place
                             print("5")
                             open_times = getPlaceHoursFromYelp(place['id'])
-                            # This place is not open for the day, so break to find a new place
+                            print(place['id'])
                             if not open_times[day]:
                                 match = None
                                 break
