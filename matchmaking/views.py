@@ -242,6 +242,7 @@ def makeDate(user, day, potential_matches):
                             # times, category times, and open hours of the place
                             print("5")
                             open_times = getPlaceHoursFromYelp(place['id'])
+                            print(place['id'])
                             time = generateRandomTimeForDate(user, match, day, interests[category_index], open_times[day])
                             print("6")
                             # Time will be None if the business, category time, user time and match time do not overlap
