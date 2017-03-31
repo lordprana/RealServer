@@ -230,7 +230,7 @@ def makeDate(user, day, potential_matches):
                                 match = None
                                 continue
                             # Exclude match if match already has a date for this day
-                            if(getattr(match, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now()):
+                            if(getattr(match, day + '_date') and getattr(match, day + '_date').expires_at >= timezone.now()):
                                 match = None
                                 continue
 
