@@ -74,7 +74,7 @@ def sendLikeNotification(request_user, like_user, date):
             json_response = json.loads(response.content)
             handleNotificationResponse(json_response, device)
 
-def sendPassNotification(passer_user, passed_user):
+def sendPassNotification(passer_user, passed_user, date):
     # Don't send message if user has specified notification preference in settings
     if not passed_user.pass_notification:
         return
@@ -84,7 +84,8 @@ def sendPassNotification(passer_user, passed_user):
         request_body = {
             'data': {
                 'message': passer_user.first_name + ' has passed on your date.',
-                'type': 'pass'
+                'type': 'pass',
+                'date_id': date.pk
             },
             'to': device.registration_token,
         }

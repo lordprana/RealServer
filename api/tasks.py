@@ -20,7 +20,7 @@ def notifyUserPassedOn(user1_id, user2_id, date_id):
     date.expires_at = date.original_expires_at
     date.save()
     user1.passed_matches.add(user2)
-    sendPassNotification(user1, user2)
+    sendPassNotification(user1, user2, date)
 
 @app.task
 def notifyUpcomingDate(user1_id, user2_id, date_id):
