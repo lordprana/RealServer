@@ -482,7 +482,7 @@ def sign_s3(request, user):
 @csrf_exempt
 @custom_authenticate
 def past_dates(request, user):
-    user_tz_now = pytz_timezone(user.timezone).localize(datetime.datetime.now())
+    user_tz_now = timezone.now().astimezone(pytz_timezone(user.timezone))
     past_dates = Date.objects.filter(user1_likes=DateStatus.LIKES.value, user2_likes=DateStatus.LIKES.value,
                                      date_of_date__lt=user_tz_now.date()).order_by('-date_of_date')
     past_dates = past_dates.filter(Q(user1=user) | Q(user2=user))
