@@ -31,7 +31,7 @@ import os
 import geocoder
 import pytz
 from pytz import timezone as pytz_timezone
-from RealServer.settings import MAPBOX_API_KEY
+from RealServer.settings import MAPBOX_API_KEY, FAKE_USERS
 from StringIO import StringIO
 import requests
 from RealServer import facebook
@@ -299,7 +299,7 @@ def date(request, user, date_id=None):
             if request.GET.get('hardcoded', None):
                 return getHardcodedDates(user, day)
             # Used for testing
-            if request.GET.get('fake_user', None) and not user.is_fake_user:
+            if FAKE_USERS and not user.is_fake_user:
                 if user.interested_in == SexualPreference.WOMEN.value:
                     generate_fake_user(SexualPreference.WOMEN.value, request.GET.get('latitude', None),
                                        request.GET.get('longitude', None))
