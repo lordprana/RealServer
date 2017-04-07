@@ -538,7 +538,7 @@ def fake_users(request):
                     'first_name': real_user.first_name + ' ' + last_initial + '/' + user.first_name[0:2]
                 }
                 fake_user_json.append(user_json)
-                fake_user_json.sort(key=lambda k: k['name'])
+                fake_user_json.sort(key=lambda k: k['first_name'])
     return JsonResponse(fake_user_json, safe=False)
 
 
