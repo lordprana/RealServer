@@ -524,20 +524,21 @@ def fake_users(request):
     for user in fake_users:
         for day in days:
             date = getattr(user, day + '_date')
-            if date.user1.is_fake_user and not date.user2.is_fake_user and date.expires_at > timezone.now():
-                real_user = date.user2
-            elif not date.user1.is_fake_user and date.user2.is_fake_user and date.expires_at > timezone.now():
-                real_user = date.user1
-            try:
-                last_initial = real_user.last_name[0]
-            except TypeError:
-                last_initial = ''
-            user_json = {
-                'fb_user_id': user.pk,
-                'first_name': real_user.first_name + ' ' + last_initial + '/' + user.first_name[0:2]
-            }
-            fake_user_json.append(user_json)
-            fake_user_json.sort(key=lambda k: k['name'])
+            if date:
+                if date.user1.is_fake_user and not date.user2.is_fake_user and date.expires_at > timezone.now():
+                    real_user = date.user2
+                elif not date.user1.is_fake_user and date.user2.is_fake_user and date.expires_at > timezone.now():
+                    real_user = date.user1
+                try:
+                    last_initial = real_user.last_name[0]
+                except TypeError:
+                    last_initial = ''
+                user_json = {
+                    'fb_user_id': user.pk,
+                    'first_name': real_user.first_name + ' ' + last_initial + '/' + user.first_name[0:2]
+                }
+                fake_user_json.append(user_json)
+                fake_user_json.sort(key=lambda k: k['name'])
     return JsonResponse(fake_user_json, safe=False)
 
 
