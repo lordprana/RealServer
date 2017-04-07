@@ -527,16 +527,14 @@ def fake_users(request):
             if date:
                 if date.user1.is_fake_user and not date.user2.is_fake_user and date.expires_at > timezone.now():
                     real_user = date.user2
-                    date_status = date.user2_likes
+                    date_status = date.user2_likes + ' ' + date.user1_likes
                 elif not date.user1.is_fake_user and date.user2.is_fake_user and date.expires_at > timezone.now():
                     real_user = date.user1
-                    date_status = date.user1_likes
-                if date.user1_likes == DateStatus.LIKES.value and date.user2_likes == DateStatus.LIKES.value:
-                    date_status = 'm'
+                    date_status = date.user1_likes + ' ' + date.user2_likes
                 try:
                     last_sent_message = date.message_set.order_by('-index')[0]
                     if last_sent_message.sent_by == real_user and not last_sent_message.read:
-                        date_status = 'msg'
+                        date_status = 'm'
                 except IndexError:
                     pass
                 try:
