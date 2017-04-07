@@ -527,15 +527,25 @@ def fake_users(request):
             if date:
                 if date.user1.is_fake_user and not date.user2.is_fake_user and date.expires_at > timezone.now():
                     real_user = date.user2
+                    date_status = date.user2_likes
                 elif not date.user1.is_fake_user and date.user2.is_fake_user and date.expires_at > timezone.now():
                     real_user = date.user1
+                    date_status = date.user1_likes
+                if date.user1_likes == DateStatus.LIKES.value and date.user2_likes == DateStatus.LIKES.value:
+                    date_status = 'm'
+                try:
+                    last_sent_message = date.message_set.order_by('-index')[0]
+                    if last_sent_message.sent_by == real_user and not last_sent_message.read:
+                        date_status = 'msg'
+                except IndexError:
+                    pass
                 try:
                     last_initial = real_user.last_name[0]
                 except TypeError:
                     last_initial = ''
                 user_json = {
                     'fb_user_id': user.pk,
-                    'first_name': real_user.first_name + ' ' + last_initial + '/' + user.first_name[0:2]
+                    'first_name': real_user.first_name + ' ' + last_initial + '/' + user.first_name[0:4] + ' ' + date_status
                 }
                 fake_user_json.append(user_json)
                 fake_user_json.sort(key=lambda k: k['first_name'])
