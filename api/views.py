@@ -520,12 +520,24 @@ def fake_users(request):
         (Q(sat_date__user1__is_fake_user=True) & Q(sat_date__user2__is_fake_user=False) & Q(sat_date__expires_at__gt=timezone.now()))
     ).filter(is_fake_user=True).order_by('first_name')
     fake_user_json = []
+    days = ['sun', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat']
     for user in fake_users:
-        user_json = {
-            'fb_user_id': user.pk,
-            'first_name': user.first_name
-        }
-        fake_user_json.append(user_json)
+        for day in days:
+            date = getattr(user, day + '_date')
+            if date.user1.is_fake_user and not date.user2.is_fake_user and date.expires_at > timezone.now():
+                real_user = date.user2
+            elif not date.user1.is_fake_user and date.user2.is_fake_user and date.expires_at > timezone.now():
+                real_user = date.user1
+            try:
+                last_initial = real_user.last_name[0]
+            except TypeError:
+                last_initial = ''
+            user_json = {
+                'fb_user_id': user.pk,
+                'first_name': real_user.first_name + ' ' + last_initial + '/' + user.first_name[0:2]
+            }
+            fake_user_json.append(user_json)
+            fake_user_json.sort(key=lambda k: k['name'])
     return JsonResponse(fake_user_json, safe=False)
 
 
