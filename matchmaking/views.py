@@ -6,13 +6,16 @@ from django.db import transaction
 from django.utils import timezone
 from api.auth import custom_authenticate
 from api.models import User, SexualPreference, Gender, Status
+from api.fake_user import generate_fake_user
 from matchmaking.yelp import getPlacesFromYelp, TOP_RATED, getPlaceHoursFromYelp
 from matchmaking import models
 from RealServer import facebook
 from RealServer.tools import convertLocalTimeToUTC
 from messaging.models import Message
+from RealServer.settings import FAKE_USERS
 import datetime
 import json
+import random
 import requests
 from pytz import timezone as pytz_timezone
 import pytz
@@ -400,3 +403,19 @@ def date(request, user, day):
             return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
         else:
             return JsonResponse(json.dumps(None), safe=False)
+
+def create_fake_date(user, day, date_id=None):
+    # Used for testing
+    if FAKE_USERS and not user.is_fake_user:
+        if user.interested_in == SexualPreference.WOMEN.value:
+            generate_fake_user(SexualPreference.WOMEN.value, user.latitude, user.longitude)
+        elif user.interested_in == SexualPreference.MEN.value:
+            generate_fake_user(SexualPreference.MEN.value, user.latitude, user.longitude)
+        elif user.interested_in == SexualPreference.BISEXUAL.value:
+            if random.randint(0, 1):
+                generate_fake_user(SexualPreference.MEN.value, user.latitude, user.longitude)
+            else:
+                generate_fake_user(SexualPreference.WOMEN.value, user.latitude, user.longitude)
+
+
+    return date(None, user, day)
