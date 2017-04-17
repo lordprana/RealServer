@@ -16,6 +16,10 @@ import sys
 from datetime import timedelta
 
 
+@periodic_task(run_every=timedelta(seconds=10))
+def print_test():
+    print('test')
+
 @periodic_task(run_every=crontab(minute=0, hour=8))
 def refreshPlaceHours():
     print('Refreshing place hours from Yelp')
