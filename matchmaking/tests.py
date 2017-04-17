@@ -196,15 +196,20 @@ class MatchMakingTestCase(TestCase):
 
     def test_generate_date_of_date_from_day(self):
         # This test must be rewritten for current time
-        date = generateDateOfDateFromDay('thur')
-        self.assertEqual(date.day, 26)
-        self.assertEqual(date.month, 1)
-        date = generateDateOfDateFromDay('mon')
-        self.assertEqual(date.day, 30)
-        self.assertEqual(date.month, 1)
-        date = generateDateOfDateFromDay('wed')
-        self.assertEqual(date.day, 1)
-        self.assertEqual(date.month, 2)
+        NOW_FOR_TESTING = datetime(year=2017, month=1, day=26, hour=0, minute=0, second=0)
+        def mocked_now():
+            return NOW_FOR_TESTING
+
+        with mock.patch('django.utils.timezone.now', side_effect=mocked_now):
+            date = generateDateOfDateFromDay('thur')
+            self.assertEqual(date.day, 26)
+            self.assertEqual(date.month, 1)
+            date = generateDateOfDateFromDay('mon')
+            self.assertEqual(date.day, 30)
+            self.assertEqual(date.month, 1)
+            date = generateDateOfDateFromDay('wed')
+            self.assertEqual(date.day, 1)
+            self.assertEqual(date.month, 2)
 
     def test_generate_random_time_for_date(self):
         # Test if only an hour window

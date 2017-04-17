@@ -66,14 +66,15 @@ class UserTestCase(TestCase):
         os.environ['AWS_SECRET_ACCESS_KEY'] = 'xBjhBPWks/IxGm89l1oHQ9GE0ZE27jRTreX5yIon'
         os.environ['S3_BUCKET'] = 'realdatingbucket'
         fb_user_id = '2959531196950'
-        fb_auth_token = 'EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum'
+        # If this test is failing, update fb_auth_token at https://developers.facebook.com/tools/accesstoken/
+        fb_auth_token = 'EAACEFGIZCorABAOc28JxWVtNvXJR1wy3mlLO3tvgrN9UFEZAUIzCnt6OCbTsA2V3ZBwHANvUmsfb4DMeSYj0tmid6mZBVZCM9Lai4YcT3XA0rJQ7WXe0ZBvVYJKkXq9v9Ab3M6ZBBcJ2wItPk2ZBiKle'
         data = {
             'fb_user_id': fb_user_id,
-            'fb_auth_token': fb_auth_token
+            'fb_auth_token': fb_auth_token,
+            'timezone': 'US/Central'
         }
         self.assertEqual(User.objects.all().count(), 0)
         self.assertEqual(Token.objects.all().count(), 0)
-        print("In tests")
         response = self.c.post('/users', data=json.dumps(data), content_type='application/json')
         self.assertEqual(User.objects.all().count(), 1)
         self.assertEqual(Token.objects.all().count(), 1)
@@ -425,7 +426,7 @@ class UserTestCase(TestCase):
                               self.real_auth_token.key)
         json_response = json.loads(response.content)
         # Check that json values equal default values specified in User model
-        self.assertEqual(json_response['search_radius'], 24)
+        self.assertEqual(json_response['search_radius'], 10)
         self.assertEqual(json_response['min_age_preference'], 18)
         self.assertEqual(json_response['max_age_preference'], 35)
         self.assertEqual(json_response['max_price'], 2)
@@ -481,8 +482,8 @@ class DateTestCase(TestCase):
             date = Date(user1=self.user1, user2=self.user2,
                         expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
                                             tzinfo=pytz.UTC),
-                        day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                        category=DateCategories.COFFEE.value, date_of_date=dt_date(year=2017,month=1, day=20))
+                        day='fri', start_time=time(hour=18), place_id='sample-id', category=DateCategories.COFFEE.value,
+                        date_of_date=dt_date(year=2017,month=1, day=20))
             date.original_expires_at = date.expires_at
             date.user2_likes = DateStatus.UNDECIDED.value
             date.save()
@@ -615,8 +616,7 @@ class DateTestCase(TestCase):
         date2 = Date(user1=self.user1, user2=self.user2,
                      expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
                                          tzinfo=pytz.UTC),
-                     day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                     category=DateCategories.COFFEE.value)
+                     day='fri', start_time=time(hour=18), place_id='sample-id', category=DateCategories.COFFEE.value)
         date2.original_expires_at = date2.expires_at
         date2.user1_likes = DateStatus.LIKES.value
         date2.user2_likes = DateStatus.LIKES.value
