@@ -4,18 +4,18 @@ from __future__ import absolute_import, unicode_literals
 #from celery import shared_task
 from RealServer.celery import app
 
+from celery.task import periodic_task
+
 from api.models import User
 from api.notifications import sendPassNotification, sendUpcomingDateNotification
+from datetime import timedelta
 from matchmaking.models import Date
 import sys
 
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(10.0, test.s('hello'))
 
-@app.task
-def test(arg):
-    print(arg)
+@periodic_task(run_every=timedelta(seconds=10))
+def test():
+    print('Hello')
 
 @app.task
 def notifyUserPassedOn(user1_id, user2_id, date_id):
