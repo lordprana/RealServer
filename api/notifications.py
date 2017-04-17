@@ -109,9 +109,13 @@ def sendMessageNotification(messenger_user, receiver_user, date):
 
     devices = FCMDevice.objects.filter(user=receiver_user)
     for device in devices:
+        message_body = messenger_user.first_name + ' sent you a message.'
         request_body = {
+            'notification': {
+                'body': message_body
+            },
             'data': {
-                'message': messenger_user.first_name + ' sent you a message.',
+                'message': message_body,
                 'type': 'message',
                 'date_id': date.pk
             },
