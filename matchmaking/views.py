@@ -79,15 +79,17 @@ def generateDateOfDateFromDay(day):
         current_day = date_of_date.weekday()
     return date_of_date
 
-def generateRandomTimeForDate(user, match, day, category, location_times):
-    if not location_times:
-        return None
-
+def generateRandomTimeForDate(user, match, day, category, place_hours):
     # Find correct values for day
     user_start_time = getattr(user, day + '_start_time')
     user_end_time = getattr(user, day + '_end_time')
     match_start_time = getattr(match, day + '_start_time')
     match_end_time = getattr(match, day + '_end_time')
+    place_start_time = getattr(place_hours, day + '_start_time')
+    place_end_time = getattr(place_hours, day + '_end_time')
+
+    if not place_start_time and not place_end_time:
+        return None
 
     # Find proper values to use for time interval
     if user_start_time < match_start_time:
@@ -96,8 +98,8 @@ def generateRandomTimeForDate(user, match, day, category, location_times):
         date_start_time = user_start_time
     if date_start_time < models.Date.appropriate_times[category]['start']:
         date_start_time = models.Date.appropriate_times[category]['start']
-    if date_start_time < location_times['start']:
-        date_start_time = location_times['start']
+    if date_start_time < place_start_time:
+        date_start_time = place_start_time
 
     if user_end_time > match_end_time:
         date_end_time = match_end_time
@@ -105,8 +107,8 @@ def generateRandomTimeForDate(user, match, day, category, location_times):
         date_end_time = user_end_time
     if date_end_time > models.Date.appropriate_times[category]['end']:
         date_end_time = models.Date.appropriate_times[category]['end']
-    if date_end_time > location_times['end']:
-        date_end_time = location_times['end']
+    if date_end_time > place_end_time:
+        date_end_time = place_end_time
 
     # Randomly choose within the time interval with intervals of 1800 seconds (30 minutes)
     date_earliest_start_td = datetime.datetime.combine(datetime.date.min, date_start_time) - datetime.datetime.min
@@ -239,8 +241,8 @@ def makeDate(user, day, potential_matches):
 
                             # Generate an appropriate start time for date, taking into account user's times, match's
                             # times, category times, and open hours of the place
-                            open_times = getPlaceHoursFromYelp(place['id'])
-                            time = generateRandomTimeForDate(user, match, day, interests[category_index], open_times[day])
+                            place_hours = getPlaceHoursFromYelp(place['id'])
+                            time = generateRandomTimeForDate(user, match, day, interests[category_index], place_hours)
                             # Time will be None if the business, category time, user time and match time do not overlap
                             # for at least one hour
                             if not time:

@@ -69,12 +69,30 @@ class Date(models.Model):
         }
     }
 
+class MutualFriend(models.Model):
+    first_name = models.CharField(max_length=200)
+    picture = models.URLField()
+    date = models.ForeignKey(Date)
+
+class YelpBusinessHours(models.Model):
+    place_id = models.CharField(max_length=300)
+    mon_start_time = models.TimeField(null=True)
+    mon_end_time = models.TimeField(null=True)
+    tue_start_time = models.TimeField(null=True)
+    tue_end_time = models.TimeField(null=True)
+    wed_start_time = models.TimeField(null=True)
+    wed_end_time = models.TimeField(null=True)
+    thur_start_time = models.TimeField(null=True)
+    thur_end_time = models.TimeField(null=True)
+    fri_start_time = models.TimeField(null=True)
+    fri_end_time = models.TimeField(null=True)
+    sat_start_time = models.TimeField(null=True)
+    sat_end_time = models.TimeField(null=True)
+    sun_start_time = models.TimeField(null=True)
+    sun_end_time = models.TimeField(null=True)
+
 class YelpAccessToken(models.Model):
     access_token = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
 
-class MutualFriend(models.Model):
-    first_name = models.CharField(max_length=200)
-    picture = models.URLField()
-    date = models.ForeignKey(Date)

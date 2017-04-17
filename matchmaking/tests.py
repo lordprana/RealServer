@@ -10,7 +10,7 @@ from matchmaking.views import filterBySexualPreference, filterPassedMatches, fil
     generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes, filterByLatitudeLongitude,\
     filterByUserStatus
 from matchmaking.yelp import getPlacesFromYelp, getPlaceHoursFromYelp
-from matchmaking.models import YelpAccessToken, Date, DateStatus
+from matchmaking.models import YelpAccessToken, Date, DateStatus, YelpBusinessHours
 from datetime import datetime, timedelta, time
 from django.utils import timezone
 
@@ -217,7 +217,7 @@ class MatchMakingTestCase(TestCase):
         man.sun_end_time = time(hour=22, minute=0)
         man.save()
         open_times = getPlaceHoursFromYelp('barcadia-dallas')
-        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', open_times['sun'])
+        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', open_times)
         self.assertEqual(random_time, man.sun_start_time)
 
         # Test if large range
@@ -225,7 +225,7 @@ class MatchMakingTestCase(TestCase):
         man.sun_end_time = time(hour=22, minute=0)
         man.save()
         open_times = getPlaceHoursFromYelp('barcadia-dallas')
-        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', open_times['sun'])
+        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', open_times)
         self.assertGreaterEqual(random_time, woman.sun_start_time)
         self.assertLessEqual(random_time, time(hour=21, minute=0))
 
@@ -238,7 +238,7 @@ class MatchMakingTestCase(TestCase):
         man.save()
 
         open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
-        random_time = generateRandomTimeForDate(woman, man, 'mon', 'museums', open_times['mon'])
+        random_time = generateRandomTimeForDate(woman, man, 'mon', 'museums', open_times)
         self.assertEqual(random_time, None)
 
         # Test if times are not compatible
@@ -249,7 +249,7 @@ class MatchMakingTestCase(TestCase):
         man.tue_end_time = time(hour=22, minute=0)
         man.save()
         open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
-        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', open_times['tue'])
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', open_times)
         self.assertEqual(random_time, None)
 
         # Test if times are not compatible, but there is 30 minutes of overlap
@@ -260,7 +260,7 @@ class MatchMakingTestCase(TestCase):
         man.tue_end_time = time(hour=22, minute=0)
         man.save()
         open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
-        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', open_times['tue'])
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', open_times)
         self.assertEqual(random_time, None)
 
         # Test if place has no hours (always open)
@@ -271,7 +271,7 @@ class MatchMakingTestCase(TestCase):
         man.tue_end_time = time(hour=22, minute=0)
         man.save()
         open_times = getPlaceHoursFromYelp('white-rock-lake-dallas')
-        random_time = generateRandomTimeForDate(woman, man, 'tue', 'parks', open_times['tue'])
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'parks', open_times)
         self.assertGreaterEqual(random_time, man.tue_start_time)
         self.assertLessEqual(random_time, time(hour=19, minute=0))
 
@@ -587,5 +587,43 @@ class YelpTestCase(TestCase):
         list = getPlacesFromYelp(self.user, 'coffee')
         self.assertNotEqual(len(list), 0)
         self.assertEqual(YelpAccessToken.objects.all().count(), 2)
+
+    def test_get_place_hours(self):
+        # Request of place id 'meadows-museum-dallas'
+        request_json = {u'is_claimed': True, u'rating': 4.5, u'review_count': 23, u'name': u'Meadows Museum', u'photos': [u'https://s3-media3.fl.yelpcdn.com/bphoto/swJAMC7-34PxByWT-ZmwBw/o.jpg', u'https://s3-media4.fl.yelpcdn.com/bphoto/-QVXX9eaMO50koRcItldWw/o.jpg', u'https://s3-media1.fl.yelpcdn.com/bphoto/fQ3b_iP7e9EchVqmJNFc7Q/o.jpg'], u'url': u'https://www.yelp.com/biz/meadows-museum-dallas?adjust_creative=s7-DcAMdseJJmTHuki81Wg&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_lookup&utm_source=s7-DcAMdseJJmTHuki81Wg', u'transactions': [], u'coordinates': {u'latitude': 32.8397891146511, u'longitude': -96.7795944213867}, u'hours': [{u'hours_type': u'REGULAR', u'open': [{u'is_overnight': False, u'end': u'1700', u'day': 1, u'start': u'1000'}, {u'is_overnight': False, u'end': u'1700', u'day': 2, u'start': u'1000'}, {u'is_overnight': False, u'end': u'2100', u'day': 3, u'start': u'1000'}, {u'is_overnight': False, u'end': u'1700', u'day': 4, u'start': u'1000'}, {u'is_overnight': False, u'end': u'1700', u'day': 5, u'start': u'1000'}, {u'is_overnight': False, u'end': u'1700', u'day': 6, u'start': u'1300'}], u'is_open_now': False}], u'phone': u'+12147682516', u'image_url': u'https://s3-media3.fl.yelpcdn.com/bphoto/swJAMC7-34PxByWT-ZmwBw/o.jpg', u'categories': [{u'alias': u'museums', u'title': u'Museums'}], u'display_phone': u'(214) 768-2516', u'id': u'meadows-museum-dallas', u'is_closed': False, u'location': {u'cross_streets': u'', u'city': u'Dallas', u'display_address': [u'5900 Bishop Blvd', u'Southern Methodist University', u'Dallas, TX 75205'], u'country': u'US', u'address2': u'', u'address3': u'Southern Methodist University', u'state': u'TX', u'address1': u'5900 Bishop Blvd', u'zip_code': u'75205'}}
+        class MockedResponse(object):
+            def json(self):
+                return request_json
+            status_code = 200
+        def mocked_get(a, headers=None):
+            return MockedResponse()
+        with mock.patch('requests.get', side_effect=mocked_get) as request_call_count:
+            place_id = 'meadows-museum-dallas'
+            self.assertEqual(YelpBusinessHours.objects.filter(place_id=place_id).count(), 0)
+            getPlaceHoursFromYelp(place_id)
+            self.assertEqual(request_call_count.call_count, 1)
+            self.assertEqual(YelpBusinessHours.objects.filter(place_id=place_id).count(), 1)
+            hours = YelpBusinessHours.objects.get(place_id=place_id)
+            self.assertEqual(hours.mon_start_time, None)
+            self.assertEqual(hours.mon_end_time, None)
+            self.assertEqual(hours.tue_start_time, time(hour=10))
+            self.assertEqual(hours.tue_end_time, time(hour=17))
+            self.assertEqual(hours.wed_start_time, time(hour=10))
+            self.assertEqual(hours.wed_end_time, time(hour=17))
+            self.assertEqual(hours.thur_start_time, time(hour=10))
+            self.assertEqual(hours.thur_end_time, time(hour=21))
+            self.assertEqual(hours.fri_start_time, time(hour=10))
+            self.assertEqual(hours.fri_end_time, time(hour=17))
+            self.assertEqual(hours.sat_start_time, time(hour=10))
+            self.assertEqual(hours.sat_end_time, time(hour=17))
+            self.assertEqual(hours.sun_start_time, time(hour=13))
+            self.assertEqual(hours.sun_end_time, time(hour=17))
+
+            # Ensure request is not called again, now that place_id entry exists in database
+            getPlaceHoursFromYelp(place_id)
+            self.assertEqual(request_call_count.call_count, 1)
+
+
+
 
 
