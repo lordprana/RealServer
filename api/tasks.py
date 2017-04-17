@@ -9,14 +9,21 @@ from celery.task.schedules import crontab
 
 from api.models import User
 from api.notifications import sendPassNotification, sendUpcomingDateNotification
-from datetime import timedelta
-from matchmaking.models import Date
+from matchmaking.models import Date, YelpBusinessHours
+from matchmaking.yelp import refreshPlaceHoursOnNetwork
+
 import sys
+from datetime import timedelta
 
 
 @periodic_task(run_every=crontab(minute=0, hour=8))
-def test():
-    print('Hello')
+def refreshPlaceHours():
+    print('Refreshing place hours from Yelp')
+    businesses = YelpBusinessHours.objects.all()
+    for b in businesses:
+        place_hours = refreshPlaceHoursOnNetwork(b.place_id)
+        place_hours.save()
+
 
 @app.task
 def notifyUserPassedOn(user1_id, user2_id, date_id):
