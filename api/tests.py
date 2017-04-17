@@ -16,7 +16,7 @@ from api.hardcoded_dates import getHardcodedDates
 from api.models import User, SexualPreference, Gender, BlockedReports, Status, FCMDevice
 from api.tasks import notifyUserPassedOn
 from matchmaking.models import Date, DateStatus, DateCategories
-
+from matchmaking.yelp import YelpBusinessDetails
 
 # Create your tests here.
 class AuthenticationTestCase(TestCase):
@@ -583,6 +583,7 @@ class DateTestCase(TestCase):
                     day='fri', start_time=time(hour=18), place_id='sample-id', category=DateCategories.COFFEE.value)
         date.original_expires_at = date.expires_at
         date.save()
+        details = YelpBusinessDetails.objects.create(place_id=date.place_id, place_name='Sample')
         response = self.c.get('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk) + '?real_auth_token=' + self.real_auth_token1.key)
         self.assertEqual(json.loads(response.content)['date_id'], date.pk)
 
