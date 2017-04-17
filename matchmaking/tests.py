@@ -9,8 +9,8 @@ from api.models import User, Gender, SexualPreference, Status
 from matchmaking.views import filterBySexualPreference, filterPassedMatches, filterTimeAvailableUsers, makeDate,\
     generateRandomTimeForDate, date, generateDateOfDateFromDay, filterByAppropriateCategoryTimes, filterByLatitudeLongitude,\
     filterByUserStatus
-from matchmaking.yelp import getPlacesFromYelp, getPlaceHoursFromYelp
-from matchmaking.models import YelpAccessToken, Date, DateStatus, YelpBusinessHours
+from matchmaking.yelp import getPlacesFromYelp, getPlaceDetailsFromYelp
+from matchmaking.models import YelpAccessToken, Date, DateStatus, YelpBusinessDetails
 from datetime import datetime, timedelta, time
 from django.utils import timezone
 
@@ -216,16 +216,16 @@ class MatchMakingTestCase(TestCase):
         man.sun_start_time = time(hour=21, minute=0)
         man.sun_end_time = time(hour=22, minute=0)
         man.save()
-        open_times = getPlaceHoursFromYelp('barcadia-dallas')
-        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', open_times)
+        place_details = getPlaceDetailsFromYelp('barcadia-dallas')
+        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', place_details)
         self.assertEqual(random_time, man.sun_start_time)
 
         # Test if large range
         man.sun_start_time = time(hour=12, minute=0)
         man.sun_end_time = time(hour=22, minute=0)
         man.save()
-        open_times = getPlaceHoursFromYelp('barcadia-dallas')
-        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', open_times)
+        place_details = getPlaceDetailsFromYelp('barcadia-dallas')
+        random_time = generateRandomTimeForDate(woman,man,'sun', 'drinks', place_details)
         self.assertGreaterEqual(random_time, woman.sun_start_time)
         self.assertLessEqual(random_time, time(hour=21, minute=0))
 
@@ -237,8 +237,8 @@ class MatchMakingTestCase(TestCase):
         man.mon_end_time = time(hour=22, minute=0)
         man.save()
 
-        open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
-        random_time = generateRandomTimeForDate(woman, man, 'mon', 'museums', open_times)
+        place_details = getPlaceDetailsFromYelp('dallas-museum-of-art-dallas')
+        random_time = generateRandomTimeForDate(woman, man, 'mon', 'museums', place_details)
         self.assertEqual(random_time, None)
 
         # Test if times are not compatible
@@ -248,8 +248,8 @@ class MatchMakingTestCase(TestCase):
         man.tue_start_time = time(hour=21, minute=0)
         man.tue_end_time = time(hour=22, minute=0)
         man.save()
-        open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
-        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', open_times)
+        place_details = getPlaceDetailsFromYelp('dallas-museum-of-art-dallas')
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', place_details)
         self.assertEqual(random_time, None)
 
         # Test if times are not compatible, but there is 30 minutes of overlap
@@ -259,8 +259,8 @@ class MatchMakingTestCase(TestCase):
         man.tue_start_time = time(hour=12, minute=0)
         man.tue_end_time = time(hour=22, minute=0)
         man.save()
-        open_times = getPlaceHoursFromYelp('dallas-museum-of-art-dallas')
-        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', open_times)
+        place_details = getPlaceDetailsFromYelp('dallas-museum-of-art-dallas')
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'museums', place_details)
         self.assertEqual(random_time, None)
 
         # Test if place has no hours (always open)
@@ -270,8 +270,8 @@ class MatchMakingTestCase(TestCase):
         man.tue_start_time = time(hour=13, minute=0)
         man.tue_end_time = time(hour=22, minute=0)
         man.save()
-        open_times = getPlaceHoursFromYelp('white-rock-lake-dallas')
-        random_time = generateRandomTimeForDate(woman, man, 'tue', 'parks', open_times)
+        place_details = getPlaceDetailsFromYelp('white-rock-lake-dallas')
+        random_time = generateRandomTimeForDate(woman, man, 'tue', 'parks', place_details)
         self.assertGreaterEqual(random_time, man.tue_start_time)
         self.assertLessEqual(random_time, time(hour=19, minute=0))
 
@@ -309,10 +309,10 @@ class MatchMakingTestCase(TestCase):
         self.assertEqual(date.user1, woman)
         self.assertEqual(date.user2, man)
         self.assertEqual(date.day, 'wed')
-        # timezone.now() is UTC. User timezone is US/Eastern. To reconcile, we must make the hour of timezone.now() 5.
-        self.assertEqual(date.expires_at, (timezone.now() + timedelta(days=1)).replace(hour=5, minute=0,
+        # timezone.now() is UTC. User timezone is US/Eastern. To reconcile, we must make the hour of timezone.now() 4.
+        self.assertEqual(date.expires_at, (timezone.now() + timedelta(days=1)).replace(hour=4, minute=0,
                                                                                             second=0, microsecond=0))
-        self.assertEqual(date.original_expires_at, (timezone.now() + timedelta(days=1)).replace(hour=5, minute=0,
+        self.assertEqual(date.original_expires_at, (timezone.now() + timedelta(days=1)).replace(hour=4, minute=0,
                                                                                             second=0, microsecond=0))
         self.assertTrue(date.start_time >= woman.wed_start_time)
         self.assertTrue(date.start_time <= time(hour=21, minute=0))
@@ -599,28 +599,28 @@ class YelpTestCase(TestCase):
             return MockedResponse()
         with mock.patch('requests.get', side_effect=mocked_get) as request_call_count:
             place_id = 'meadows-museum-dallas'
-            self.assertEqual(YelpBusinessHours.objects.filter(place_id=place_id).count(), 0)
-            getPlaceHoursFromYelp(place_id)
+            self.assertEqual(YelpBusinessDetails.objects.filter(place_id=place_id).count(), 0)
+            getPlaceDetailsFromYelp(place_id)
             self.assertEqual(request_call_count.call_count, 1)
-            self.assertEqual(YelpBusinessHours.objects.filter(place_id=place_id).count(), 1)
-            hours = YelpBusinessHours.objects.get(place_id=place_id)
-            self.assertEqual(hours.mon_start_time, None)
-            self.assertEqual(hours.mon_end_time, None)
-            self.assertEqual(hours.tue_start_time, time(hour=10))
-            self.assertEqual(hours.tue_end_time, time(hour=17))
-            self.assertEqual(hours.wed_start_time, time(hour=10))
-            self.assertEqual(hours.wed_end_time, time(hour=17))
-            self.assertEqual(hours.thur_start_time, time(hour=10))
-            self.assertEqual(hours.thur_end_time, time(hour=21))
-            self.assertEqual(hours.fri_start_time, time(hour=10))
-            self.assertEqual(hours.fri_end_time, time(hour=17))
-            self.assertEqual(hours.sat_start_time, time(hour=10))
-            self.assertEqual(hours.sat_end_time, time(hour=17))
-            self.assertEqual(hours.sun_start_time, time(hour=13))
-            self.assertEqual(hours.sun_end_time, time(hour=17))
+            self.assertEqual(YelpBusinessDetails.objects.filter(place_id=place_id).count(), 1)
+            details = YelpBusinessDetails.objects.get(place_id=place_id)
+            self.assertEqual(details.mon_start_time, None)
+            self.assertEqual(details.mon_end_time, None)
+            self.assertEqual(details.tue_start_time, time(hour=10))
+            self.assertEqual(details.tue_end_time, time(hour=17))
+            self.assertEqual(details.wed_start_time, time(hour=10))
+            self.assertEqual(details.wed_end_time, time(hour=17))
+            self.assertEqual(details.thur_start_time, time(hour=10))
+            self.assertEqual(details.thur_end_time, time(hour=21))
+            self.assertEqual(details.fri_start_time, time(hour=10))
+            self.assertEqual(details.fri_end_time, time(hour=17))
+            self.assertEqual(details.sat_start_time, time(hour=10))
+            self.assertEqual(details.sat_end_time, time(hour=17))
+            self.assertEqual(details.sun_start_time, time(hour=13))
+            self.assertEqual(details.sun_end_time, time(hour=17))
 
             # Ensure request is not called again, now that place_id entry exists in database
-            getPlaceHoursFromYelp(place_id)
+            getPlaceDetailsFromYelp(place_id)
             self.assertEqual(request_call_count.call_count, 1)
 
 

@@ -459,7 +459,7 @@ class DateTestCase(TestCase):
     def test_date_patch_status(self):
         # Test both users like each other
         date = Date(user1=self.user1, user2=self.user2, expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0, tzinfo=pytz.UTC),
-                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
+                    day='fri', start_time=time(hour=18), place_id='sample-id',
                     category=DateCategories.COFFEE.value, date_of_date=dt_date(year=2017,month=1, day=20))
         date.original_expires_at = date.expires_at
         date.user2_likes = DateStatus.LIKES.value
@@ -579,8 +579,7 @@ class DateTestCase(TestCase):
         date = Date(user1=self.user1, user2=self.user2,
                     expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
                                         tzinfo=pytz.UTC),
-                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                    category=DateCategories.COFFEE.value)
+                    day='fri', start_time=time(hour=18), place_id='sample-id', category=DateCategories.COFFEE.value)
         date.original_expires_at = date.expires_at
         date.save()
         response = self.c.get('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk) + '?real_auth_token=' + self.real_auth_token1.key)
@@ -591,8 +590,7 @@ class DateTestCase(TestCase):
         date = Date(user1=self.user1, user2=self.user2,
                     expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
                                         tzinfo=pytz.UTC),
-                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                    category=DateCategories.COFFEE.value)
+                    day='fri', start_time=time(hour=18), place_id='sample-id', category=DateCategories.COFFEE.value)
         date.original_expires_at = date.expires_at
         date.user2_likes = DateStatus.LIKES.value
         date.save()
@@ -608,8 +606,7 @@ class DateTestCase(TestCase):
         date1 = Date(user1=self.user1, user2=self.user2,
                     expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
                                         tzinfo=pytz.UTC),
-                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                    category=DateCategories.COFFEE.value)
+                    day='fri', start_time=time(hour=18), place_id='sample-id', category=DateCategories.COFFEE.value)
         date1.original_expires_at = date1.expires_at
         date1.user1_likes = DateStatus.LIKES.value
         date1.user2_likes = DateStatus.LIKES.value
@@ -636,8 +633,7 @@ class DateTestCase(TestCase):
         date = Date(user1=self.user1, user2=self.user2,
                     expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
                                         tzinfo=pytz.UTC),
-                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                    category=DateCategories.COFFEE.value)
+                    day='fri', start_time=time(hour=18), place_id='sample-id', category=DateCategories.COFFEE.value)
         date.original_expires_at = date.expires_at - timedelta(days=1)
         date.user1_likes = DateStatus.LIKES.value
         date.user2_likes = DateStatus.LIKES.value
@@ -663,8 +659,7 @@ class ReportAndBlockTestCase(TestCase):
     def test_report_and_block(self):
         date = Date(user1=self.user1, user2=self.user2,
                     expires_at=timezone.now()+timedelta(hours=24),
-                    day='fri', start_time=time(hour=18), place_id='sample-id', place_name='Sample Place',
-                    category=DateCategories.COFFEE.value)
+                    day='fri', start_time=time(hour=18), place_id='sample-id', category=DateCategories.COFFEE.value)
         date.original_expires_at = date.expires_at
         date.user1_likes = DateStatus.LIKES.value
         date.user2_likes = DateStatus.LIKES.value

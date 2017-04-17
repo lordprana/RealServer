@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 from RealServer.settings import YELP_APP_ID, YELP_APP_SECRET
-from matchmaking.models import YelpAccessToken, YelpBusinessHours
+from matchmaking.models import YelpAccessToken, YelpBusinessDetails
 
 CATEGORY_MAPPING = {
     'drinks': 'bars',
@@ -57,7 +57,7 @@ def getPlacesFromYelp(user, category):
                 return_list.append(item)
     return return_list
 
-def refreshPlaceHoursOnNetwork(id):
+def refreshPlaceDetailsOnNetwork(id):
     access_token = YelpAccessToken.objects.filter(expires_at__gt=timezone.now())
     if access_token.count() == 0:
         token = refreshAccessToken()
@@ -71,13 +71,13 @@ def refreshPlaceHoursOnNetwork(id):
     response_json = response.json()
     hours = {}
     days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']
-    place_hours = YelpBusinessHours(place_id=id)
+    place_details = YelpBusinessDetails(place_id=id, place_name=response_json['name'])
     # If there is no hours parameter, it means the location is always open, like a park, so we set the start and end
     # times to be available all day. If there is an hours parameter, parse appropriately.
     if not response_json.get('hours', None):
         for i in range(0, 7):
-            setattr(place_hours, days[i] + '_start_time', time(hour=6))
-            setattr(place_hours, days[i] + '_end_time', time(hour=23, minute=59, second=59))
+            setattr(place_details, days[i] + '_start_time', time(hour=6))
+            setattr(place_details, days[i] + '_end_time', time(hour=23, minute=59, second=59))
             # hours[days[i]] = {}
             # hours[days[i]]['start'] = time(hour=6)
             # hours[days[i]]['end'] = time(hour=23, minute=59, second=59)
@@ -91,30 +91,30 @@ def refreshPlaceHoursOnNetwork(id):
             for j in range(0, len(yelp_hours)):
                 if yelp_hours[j]['day'] == i:
                     # hours[days[i]]['start'] = datetime.strptime(yelp_hours[j]['start'], '%H%M').time()
-                    setattr(place_hours, days[i] + '_start_time', datetime.strptime(yelp_hours[j]['start'], '%H%M').time())
+                    setattr(place_details, days[i] + '_start_time', datetime.strptime(yelp_hours[j]['start'], '%H%M').time())
                     # is_overnight means the hours are overnight. For matching purposes, we set the endtime to the last
                     # second of the current day.
                     if yelp_hours[j]['is_overnight']:
                         # hours[days[i]]['end'] = time(hour=23, minute=59, second=59)
-                        setattr(place_hours, days[i] + '_end_time', time(hour=23, minute=59, second=59))
+                        setattr(place_details, days[i] + '_end_time', time(hour=23, minute=59, second=59))
                     else:
                         # hours[days[i]]['end'] = datetime.strptime(yelp_hours[j]['end'], '%H%M').time()
-                        setattr(place_hours, days[i] + '_end_time', datetime.strptime(yelp_hours[j]['end'], '%H%M').time())
+                        setattr(place_details, days[i] + '_end_time', datetime.strptime(yelp_hours[j]['end'], '%H%M').time())
                         # Midnight is late on current day, not early on current day, so this condition fixes comparing times when trying
                         # to generate a random time for the date
                         # if hours[days[i]]['end'] == time(hour=0, minute=0, second=0):
                         # hours[days[i]]['end'] = time(hour=23, minute=59, second=59)
-                        if getattr(place_hours, days[i] + '_end_time') == time(hour=0, minute=0, second=0):
-                            setattr(place_hours, days[i] + '_end_time', time(hour=23, minute=59, second=59))
-    return place_hours
+                        if getattr(place_details, days[i] + '_end_time') == time(hour=0, minute=0, second=0):
+                            setattr(place_details, days[i] + '_end_time', time(hour=23, minute=59, second=59))
+    return place_details
 
-def getPlaceHoursFromYelp(id):
+def getPlaceDetailsFromYelp(id):
     try:
-        place_hours = YelpBusinessHours.objects.get(place_id=id)
-        return place_hours
+        place_details = YelpBusinessDetails.objects.get(place_id=id)
+        return place_details
     except ObjectDoesNotExist:
         pass # Code below handles when there is no place matching place id in database
 
-    place_hours = refreshPlaceHoursOnNetwork(id)
-    place_hours.save()
-    return place_hours
+    place_details = refreshPlaceDetailsOnNetwork(id)
+    place_details.save()
+    return place_details

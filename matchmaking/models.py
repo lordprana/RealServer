@@ -31,7 +31,6 @@ class Date(models.Model):
     user1_likes = models.CharField(max_length=1, default=DateStatus.UNDECIDED.value)
     user2_likes = models.CharField(max_length=1, default=DateStatus.UNDECIDED.value)
     place_id = models.CharField(max_length=300)
-    place_name = models.CharField(max_length=300)
     category = models.CharField(max_length=20)
     inspected_match = models.BooleanField(default=False)
     passed_user_notified = models.BooleanField(default=False)
@@ -74,8 +73,9 @@ class MutualFriend(models.Model):
     picture = models.URLField()
     date = models.ForeignKey(Date)
 
-class YelpBusinessHours(models.Model):
+class YelpBusinessDetails(models.Model):
     place_id = models.CharField(max_length=300, primary_key=True)
+    place_name = models.CharField(max_length=300)
     mon_start_time = models.TimeField(null=True)
     mon_end_time = models.TimeField(null=True)
     tue_start_time = models.TimeField(null=True)

@@ -7,7 +7,7 @@ from django.utils import timezone
 from api.auth import custom_authenticate
 from api.models import User, SexualPreference, Gender, Status
 from api.fake_user import generate_fake_user
-from matchmaking.yelp import getPlacesFromYelp, TOP_RATED, getPlaceHoursFromYelp
+from matchmaking.yelp import getPlacesFromYelp, TOP_RATED, getPlaceDetailsFromYelp
 from matchmaking import models
 from RealServer import facebook
 from RealServer.tools import convertLocalTimeToUTC
@@ -241,7 +241,7 @@ def makeDate(user, day, potential_matches):
 
                             # Generate an appropriate start time for date, taking into account user's times, match's
                             # times, category times, and open hours of the place
-                            place_hours = getPlaceHoursFromYelp(place['id'])
+                            place_hours = getPlaceDetailsFromYelp(place['id'])
                             time = generateRandomTimeForDate(user, match, day, interests[category_index], place_hours)
                             # Time will be None if the business, category time, user time and match time do not overlap
                             # for at least one hour
@@ -305,6 +305,7 @@ def convertDateToJson(user,date):
         'place':
             {
                 'place_id': date.place_id,
+                'place_name': getPlaceDetailsFromYelp(date.place_id).place_name
             }
     }
 
