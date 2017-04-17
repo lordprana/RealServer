@@ -5,6 +5,7 @@ from __future__ import absolute_import, unicode_literals
 from RealServer.celery import app
 
 from celery.task import periodic_task
+from celery.task.schedules import crontab
 
 from api.models import User
 from api.notifications import sendPassNotification, sendUpcomingDateNotification
@@ -13,7 +14,7 @@ from matchmaking.models import Date
 import sys
 
 
-@periodic_task(run_every=timedelta(seconds=10))
+@periodic_task(run_every=crontab(minute=0, hour=8))
 def test():
     print('Hello')
 

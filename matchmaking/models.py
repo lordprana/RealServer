@@ -75,7 +75,7 @@ class MutualFriend(models.Model):
     date = models.ForeignKey(Date)
 
 class YelpBusinessHours(models.Model):
-    place_id = models.CharField(max_length=300)
+    place_id = models.CharField(max_length=300, primary_key=True)
     mon_start_time = models.TimeField(null=True)
     mon_end_time = models.TimeField(null=True)
     tue_start_time = models.TimeField(null=True)
