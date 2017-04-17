@@ -9,7 +9,13 @@ from api.notifications import sendPassNotification, sendUpcomingDateNotification
 from matchmaking.models import Date
 import sys
 
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(10.0, test.s('hello'))
 
+@app.task
+def test(arg):
+    print(arg)
 
 @app.task
 def notifyUserPassedOn(user1_id, user2_id, date_id):
