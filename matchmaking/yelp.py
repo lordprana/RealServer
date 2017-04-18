@@ -71,7 +71,7 @@ def refreshPlaceDetailsOnNetwork(id):
     response_json = response.json()
     hours = {}
     days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat', 'sun']
-    place_details = YelpBusinessDetails(place_id=id, place_name=response_json['name'])
+    place_details = YelpBusinessDetails(place_id=id, place_name=response_json['name'], place_url=response_json['url'])
     # If there is no hours parameter, it means the location is always open, like a park, so we set the start and end
     # times to be available all day. If there is an hours parameter, parse appropriately.
     if not response_json.get('hours', None):

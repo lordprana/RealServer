@@ -76,6 +76,7 @@ class MutualFriend(models.Model):
 class YelpBusinessDetails(models.Model):
     place_id = models.CharField(max_length=300, primary_key=True)
     place_name = models.CharField(max_length=300)
+    place_url = models.CharField(max_length=300)
     mon_start_time = models.TimeField(null=True)
     mon_end_time = models.TimeField(null=True)
     tue_start_time = models.TimeField(null=True)

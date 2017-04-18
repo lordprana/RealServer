@@ -291,6 +291,7 @@ def makeDate(user, day, potential_matches):
 
 def convertDateToJson(user,date):
 
+    place_details = getPlaceDetailsFromYelp(date.place_id)
     # Add fields that don't have ambiguity around user
     json = {
         'date_id': date.pk,
@@ -305,7 +306,8 @@ def convertDateToJson(user,date):
         'place':
             {
                 'place_id': date.place_id,
-                'place_name': getPlaceDetailsFromYelp(date.place_id).place_name
+                'place_name': place_details.place_name,
+                'place_url': place_details.place_url
             }
     }
 
