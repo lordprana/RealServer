@@ -37,6 +37,7 @@ def sendNotification(message, type, date_id, device):
     response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
     json_response = json.loads(response.content)
     handleNotificationResponse(json_response, device)
+    print(json_response)
     # If Unavailable, try to resend one more time
     if json_response['results'][0].get('error', None) == 'Unavailable':
         response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
