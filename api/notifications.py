@@ -6,6 +6,8 @@ from RealServer.settings import FCM_SERVER_API_KEY
 from api.models import OperatingSystem, Status
 
 def sendNotification(message, type, date_id, device):
+    print("This is a test of the notification system")
+    print(device.operating_system)
     if device.operating_system == OperatingSystem.ANDROID.value:
         request_body = {
             'data': {
@@ -31,6 +33,7 @@ def sendNotification(message, type, date_id, device):
         'Content-Type': 'application/json',
         'Authorization': 'key=' + FCM_SERVER_API_KEY
     }
+    print(request_body)
     response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
     json_response = json.loads(response.content)
     handleNotificationResponse(json_response, device)
