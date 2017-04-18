@@ -20,6 +20,10 @@ class Status(Enum):
     FINISHED_PROFILE = 'finished_profile'
     INACTIVE = 'inactive'
 
+class OperatingSystem(Enum):
+    ANDROID = 'a'
+    iOS = 'i'
+
 # Create your models here.
 class User(AbstractBaseUser):
     USERNAME_FIELD = 'fb_user_id'
@@ -129,3 +133,4 @@ class BlockedReports(models.Model):
 class FCMDevice(models.Model):
     registration_token = models.CharField(max_length=300)
     user = models.ForeignKey(User)
+    operating_system = models.CharField(max_length=2)

@@ -3,164 +3,42 @@ from matchmaking.models import DateCategories
 import requests
 import json
 from RealServer.settings import FCM_SERVER_API_KEY
+from api.models import OperatingSystem
 
-def sendMatchNotification(request_user, match_user, date):
-    # Don't send message if user has specified notification preference in settings
-    if not match_user.new_matches_notification:
-        return
-
-    devices = FCMDevice.objects.filter(user=match_user)
-    for device in devices:
+def sendNotification(message, type, date_id, device):
+    if device.operating_system == OperatingSystem.ANDROID.value:
         request_body = {
             'data': {
-                'message': request_user.first_name + ' made it Real!',
-                'type': 'match',
-                'date_id': date.pk
+                'message': message,
+                'type': type,
+                'date_id': date_id
             },
             'to': device.registration_token,
         }
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=' + FCM_SERVER_API_KEY
-        }
-        response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-        json_response = json.loads(response.content)
-        handleNotificationResponse(json_response, device)
-        # If Unavailable, try to resend one more time
-        if json_response['results'][0].get('error', None) == 'Unavailable':
-            response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-            json_response = json.loads(response.content)
-            handleNotificationResponse(json_response, device)
-
-def sendLikeNotification(request_user, like_user, date):
-    # Don't send message if user has specified notification preference in settings
-    if not like_user.new_likes_notification:
-        return
-
-    devices = FCMDevice.objects.filter(user=like_user)
-    # Change body depending on date category
-    if date.category == DateCategories.FOOD.value:
-        request_text = request_user.first_name + ' wants to grab a bite with you!'
-    elif date.category == DateCategories.COFFEE.value:
-        request_text = request_user.first_name + ' wants to grab a coffee with you!'
-    elif date.category == DateCategories.DRINKS.value:
-        request_text = request_user.first_name + ' wants to grab a drink with you!'
-    elif date.category == DateCategories.PARKS.value:
-        request_text = request_user.first_name + ' wants to explore a park with you!'
-    elif date.category == DateCategories.MUSEUMS.value:
-        request_text = request_user.first_name + ' wants to check out a museum with you!'
-    elif date.category == DateCategories.FUN.value:
-        request_text = request_user.first_name + ' wants to try something fun with you!'
-
-    for device in devices:
-        request_body = {
-            'data': {
-                'message': request_text,
-                'type': 'like',
-                'date_id': date.pk
-            },
-            'to': device.registration_token,
-        }
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=' + FCM_SERVER_API_KEY
-        }
-        response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-        json_response = json.loads(response.content)
-        handleNotificationResponse(json_response, device)
-        # If Unavailable, try to resend one more time
-        if json_response['results'][0].get('error', None) == 'Unavailable':
-            response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-            json_response = json.loads(response.content)
-            handleNotificationResponse(json_response, device)
-
-def sendPassNotification(passer_user, passed_user, date):
-    # Don't send message if user has specified notification preference in settings
-    if not passed_user.pass_notification:
-        return
-
-    devices = FCMDevice.objects.filter(user=passed_user)
-    for device in devices:
-        request_body = {
-            'data': {
-                'message': passer_user.first_name + ' has passed on your date.',
-                'type': 'pass',
-                'date_id': date.pk
-            },
-            'to': device.registration_token,
-        }
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=' + FCM_SERVER_API_KEY
-        }
-        response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-        json_response = json.loads(response.content)
-        handleNotificationResponse(json_response, device)
-        # If Unavailable, try to resend one more time
-        if json_response['results'][0].get('error', None) == 'Unavailable':
-            response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-            json_response = json.loads(response.content)
-            handleNotificationResponse(json_response, device)
-
-def sendMessageNotification(messenger_user, receiver_user, date):
-    # Don't send message if user has specified notification preference in settings
-    if not receiver_user.new_messages_notification:
-        return
-
-    devices = FCMDevice.objects.filter(user=receiver_user)
-    for device in devices:
-        message_body = messenger_user.first_name + ' sent you a message.'
+    elif device.operating_system == OperatingSystem.iOS.value:
         request_body = {
             'notification': {
-                'body': message_body
+                'body': message
             },
             'data': {
-                'message': message_body,
-                'type': 'message',
-                'date_id': date.pk
+                'message': message,
+                'type': type,
+                'date_id': date_id
             },
             'to': device.registration_token,
         }
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=' + FCM_SERVER_API_KEY
-        }
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'key=' + FCM_SERVER_API_KEY
+    }
+    response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
+    json_response = json.loads(response.content)
+    handleNotificationResponse(json_response, device)
+    # If Unavailable, try to resend one more time
+    if json_response['results'][0].get('error', None) == 'Unavailable':
         response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
         json_response = json.loads(response.content)
         handleNotificationResponse(json_response, device)
-        # If Unavailable, try to resend one more time
-        if json_response['results'][0].get('error', None) == 'Unavailable':
-            response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-            json_response = json.loads(response.content)
-            handleNotificationResponse(json_response, device)
-
-def sendUpcomingDateNotification(messenger_user, receiver_user, date):
-    # Don't send message if user has specified notification preference in settings
-    if not receiver_user.new_messages_notification:
-        return
-
-    devices = FCMDevice.objects.filter(user=receiver_user)
-    for device in devices:
-        request_body = {
-            'data': {
-                'message': 'You have a date with ' + messenger_user.first_name + ' tomorrow!',
-                'type': 'reminder',
-                'date_id': date.pk
-            },
-            'to': device.registration_token,
-        }
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=' + FCM_SERVER_API_KEY
-        }
-        response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-        json_response = json.loads(response.content)
-        handleNotificationResponse(json_response, device)
-        # If Unavailable, try to resend one more time
-        if json_response['results'][0].get('error', None) == 'Unavailable':
-            response = requests.post('https://fcm.googleapis.com/fcm/send', data=json.dumps(request_body), headers=headers)
-            json_response = json.loads(response.content)
-            handleNotificationResponse(json_response, device)
 
 def handleNotificationResponse(json_response, device):
     if json_response['results'][0].get('error', None) == 'Unavailable':
@@ -175,3 +53,73 @@ def handleNotificationResponse(json_response, device):
         return True
     else:
         return True
+
+def sendMatchNotification(request_user, match_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not match_user.new_matches_notification:
+        return
+
+    devices = FCMDevice.objects.filter(user=match_user)
+    for device in devices:
+        message = request_user.first_name + ' made it Real!'
+        type = 'match'
+        sendNotification(message, type, date.pk, device)
+
+def sendLikeNotification(request_user, like_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not like_user.new_likes_notification:
+        return
+
+    devices = FCMDevice.objects.filter(user=like_user)
+    # Change body depending on date category
+    if date.category == DateCategories.FOOD.value:
+        message = request_user.first_name + ' wants to grab a bite with you!'
+    elif date.category == DateCategories.COFFEE.value:
+        message = request_user.first_name + ' wants to grab a coffee with you!'
+    elif date.category == DateCategories.DRINKS.value:
+        message = request_user.first_name + ' wants to grab a drink with you!'
+    elif date.category == DateCategories.PARKS.value:
+        message = request_user.first_name + ' wants to explore a park with you!'
+    elif date.category == DateCategories.MUSEUMS.value:
+        message = request_user.first_name + ' wants to check out a museum with you!'
+    elif date.category == DateCategories.FUN.value:
+        message = request_user.first_name + ' wants to try something fun with you!'
+
+    for device in devices:
+        type = 'like'
+        sendNotification(message, type, date.pk, device)
+
+def sendPassNotification(passer_user, passed_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not passed_user.pass_notification:
+        return
+
+    devices = FCMDevice.objects.filter(user=passed_user)
+    for device in devices:
+        message = passer_user.first_name + ' has passed on your date.'
+        type = 'pass'
+        sendNotification(message, type, date.pk, device)
+
+def sendMessageNotification(messenger_user, receiver_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not receiver_user.new_messages_notification:
+        return
+
+    devices = FCMDevice.objects.filter(user=receiver_user)
+    for device in devices:
+        message = messenger_user.first_name + ' sent you a message.'
+        type = 'message'
+        sendNotification(message, type, date.pk, device)
+
+def sendUpcomingDateNotification(messenger_user, receiver_user, date):
+    # Don't send message if user has specified notification preference in settings
+    if not receiver_user.new_messages_notification:
+        return
+
+    devices = FCMDevice.objects.filter(user=receiver_user)
+    for device in devices:
+        message = 'You have a date with ' + messenger_user.first_name + ' tomorrow!'
+        type = 'reminder'
+        sendNotification(message, type, date.pk, device)
+
+

@@ -495,9 +495,10 @@ def register_fcm_device(request, user):
     except:
         return HttpResponse(status=400)
     registration_token = json_data.get('registration_token', None)
-    if not registration_token:
+    operating_system = json_data.get('operating_system', None)
+    if not registration_token or not operating_system:
         return HttpResponse(status=400)
-    FCMDevice.objects.get_or_create(registration_token=registration_token, user=user)
+    FCMDevice.objects.get_or_create(registration_token=registration_token, user=user, operating_system=operating_system)
     return HttpResponse(status=200)
 
 @csrf_exempt
