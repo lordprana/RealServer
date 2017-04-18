@@ -3,7 +3,7 @@ from matchmaking.models import DateCategories
 import requests
 import json
 from RealServer.settings import FCM_SERVER_API_KEY
-from api.models import OperatingSystem
+from api.models import OperatingSystem, Status
 
 def sendNotification(message, type, date_id, device):
     if device.operating_system == OperatingSystem.ANDROID.value:
@@ -58,6 +58,9 @@ def sendMatchNotification(request_user, match_user, date):
     # Don't send message if user has specified notification preference in settings
     if not match_user.new_matches_notification:
         return
+    # Don't send messages if user has logged out of the app
+    if match_user.status == Status.INACTIVE.value:
+        return
 
     devices = FCMDevice.objects.filter(user=match_user)
     for device in devices:
@@ -68,6 +71,9 @@ def sendMatchNotification(request_user, match_user, date):
 def sendLikeNotification(request_user, like_user, date):
     # Don't send message if user has specified notification preference in settings
     if not like_user.new_likes_notification:
+        return
+    # Don't send messages if user has logged out of the app
+    if like_user.status == Status.INACTIVE.value:
         return
 
     devices = FCMDevice.objects.filter(user=like_user)
@@ -93,6 +99,9 @@ def sendPassNotification(passer_user, passed_user, date):
     # Don't send message if user has specified notification preference in settings
     if not passed_user.pass_notification:
         return
+    # Don't send messages if user has logged out of the app
+    if passed_user.status == Status.INACTIVE.value:
+        return
 
     devices = FCMDevice.objects.filter(user=passed_user)
     for device in devices:
@@ -104,6 +113,9 @@ def sendMessageNotification(messenger_user, receiver_user, date):
     # Don't send message if user has specified notification preference in settings
     if not receiver_user.new_messages_notification:
         return
+    # Don't send messages if user has logged out of the app
+    if receiver_user.status == Status.INACTIVE.value:
+        return
 
     devices = FCMDevice.objects.filter(user=receiver_user)
     for device in devices:
@@ -114,6 +126,9 @@ def sendMessageNotification(messenger_user, receiver_user, date):
 def sendUpcomingDateNotification(messenger_user, receiver_user, date):
     # Don't send message if user has specified notification preference in settings
     if not receiver_user.new_messages_notification:
+        return
+    # Don't send messages if user has logged out of the app
+    if receiver_user.status == Status.INACTIVE.value:
         return
 
     devices = FCMDevice.objects.filter(user=receiver_user)
