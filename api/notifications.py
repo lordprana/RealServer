@@ -18,7 +18,8 @@ def sendNotification(message, type, date_id, device):
     elif device.operating_system == OperatingSystem.iOS.value:
         request_body = {
             'notification': {
-                'body': message
+                'body': message,
+                'sound': 'default'
             },
             'data': {
                 'message': message,
