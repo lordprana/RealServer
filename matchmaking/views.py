@@ -269,7 +269,7 @@ def makeDate(user, day, potential_matches):
                             match.save()
                             # Log date impressions
                             print('User {0}: date impression at {1}'.format(user.pk, date.place_id))
-                            print('User {1}: date impression at {1}'.format(match.pk, date.place_id))
+                            print('User {0}: date impression at {1}'.format(match.pk, date.place_id))
 
                             # Get Mutual Friends
                             mutual_friends_json = facebook.getMutualFriends(user, potential_match)
