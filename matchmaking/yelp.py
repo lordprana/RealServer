@@ -15,7 +15,7 @@ CATEGORY_MAPPING = {
     'fun': 'active'
 }
 
-TOP_RATED = 10
+TOP_RATED = 20
 
 def refreshAccessToken():
     request_url = 'https://api.yelp.com/oauth2/token'
