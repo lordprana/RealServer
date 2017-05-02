@@ -331,6 +331,8 @@ def generate_fake_user(gender, latitude, longitude):
         fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_square'
     fake_user.age = random.randint(18,35)
     fake_user.interested_in = SexualPreference.BISEXUAL.value
+    fake_user.min_age_preference = 18
+    fake_user.max_age_preference = 100
     fake_user.occupation = random.choice(occupations)
     fake_user.education = random.choice(schools)
     about_length = random.randint(0,5)
