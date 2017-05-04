@@ -320,21 +320,26 @@ def generate_fake_user(gender, latitude, longitude):
         fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_portrait'
         fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_square'
     elif gender == Gender.WOMAN.value:
-        fake_user.first_name = random.choice(female_names)
+        #fake_user.first_name = random.choice(female_names)
+        fake_user.first_name = 'Lily'
         fake_user.gender = Gender. WOMAN.value
-        pic_number = str(random.randint(1, 21))
+        #pic_number = str(random.randint(1, 21))
+        pic_number = 22
         fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_portrait'
         fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_square'
-        fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_portrait'
-        fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_square'
-        fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_portrait'
-        fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_square'
-    fake_user.age = random.randint(18,35)
+        #fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_portrait'
+        #fake_user.picture2_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_square'
+        #fake_user.picture3_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_portrait'
+        #fake_user.picture3_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/3_square'
+    #fake_user.age = random.randint(18,35)
+    fake_user.age = 23
     fake_user.interested_in = SexualPreference.BISEXUAL.value
     fake_user.min_age_preference = 18
     fake_user.max_age_preference = 100
-    fake_user.occupation = random.choice(occupations)
-    fake_user.education = random.choice(schools)
+    #fake_user.occupation = random.choice(occupations)
+    fake_user.occupation = 'Personal trainer'
+    #fake_user.education = random.choice(schools)
+    fake_user.education = 'LSU'
     about_length = random.randint(0,5)
     if about_length:
         fake_user.about = ' '.join(get_sentences(about_length))
