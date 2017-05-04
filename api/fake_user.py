@@ -324,7 +324,7 @@ def generate_fake_user(gender, latitude, longitude):
         fake_user.first_name = 'Lily'
         fake_user.gender = Gender. WOMAN.value
         #pic_number = str(random.randint(1, 21))
-        pic_number = 22
+        pic_number = str(22)
         fake_user.picture1_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_portrait'
         fake_user.picture1_square_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/1_square'
         #fake_user.picture2_portrait_url = 'http://realdatingbucket.s3.amazonaws.com/fake_user/' + gender + '/' + pic_number + '/2_portrait'
