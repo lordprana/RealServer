@@ -88,6 +88,7 @@ class UserTestCase(TestCase):
         self.assertEqual(user.gender, Gender.MAN.value)
         self.assertEqual(user.education, 'Yale University')
         self.assertEqual(user.occupation, 'Certified Yoga & Meditation Teacher')
+        self.assertEqual(user.email, 'matthew.gaba.2@gmail.com')
         self.assertEqual(user.age, 27)
         self.assertEqual(user.interested_in, SexualPreference.WOMEN.value)
         self.assertTrue('realdatingbucket.s3.amazonaws.com' in user.picture1_square_url)

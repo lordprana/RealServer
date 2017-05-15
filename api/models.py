@@ -35,6 +35,7 @@ class User(AbstractBaseUser):
 
     first_name = models.CharField(max_length=200, null=True)
     last_name = models.CharField(max_length=200, null=True)
+    email = models.EmailField(null=True)
     age = models.IntegerField(null=True)
     gender = models.CharField(max_length=1, null=True)
     interested_in = models.CharField(max_length=1, null=True)

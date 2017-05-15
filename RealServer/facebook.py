@@ -40,7 +40,7 @@ def getUserInfo(user):
     request_url = 'https://graph.facebook.com/v2.8/' + user.fb_user_id + \
                   '?access_token=' + user.most_recent_fb_auth_token + \
                   '&appsecret_proof=' + app_secret_proof + \
-                  '&fields=birthday,education,gender,interested_in,first_name,last_name,work'
+                  '&fields=birthday,education,gender,interested_in,first_name,last_name,work,email'
     return requests.get(request_url).json()
 
 def getUserProfilePicture(user):
