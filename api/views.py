@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from  RealServer.tools import nextDayOfWeekToDatetime, cropImage, cropImageToSquare, cropImageByAspectRatio, \
     cropImageByAspectRatioAndCoordinates, convertLocalTimeToUTC
+from RealServer.send_email import sendLoggingEmail
 from RealServer.aws import s3_generate_presigned_post, s3_delete_file
 from django.db import transaction
 from django.db.models import Q
@@ -180,6 +181,14 @@ def user(request,user):
             # user status.
             elif key == 'education':
                 user.status = Status.FINISHED_PROFILE.value
+
+                # Send logging email to report new user signed up
+                email_first = user.first_name if user.first_name else ''
+                email_last = user.last_name if user.last_name else ''
+                email_email = user.email if user.email else ''
+                logging_email_body = 'key: ' + user.pk + '\nname: ' + email_first + ' ' + email_last + '\nemail: ' + email_email
+                logging_email_subject = 'User signed up'
+                sendLoggingEmail(logging_email_subject, logging_email_body)
             elif re.search('^picture', key) and re.search('_url$', key):
                 pass
                 """
