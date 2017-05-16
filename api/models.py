@@ -132,6 +132,9 @@ class BlockedReports(models.Model):
     report_content = models.CharField(max_length=10000)
 
 class FCMDevice(models.Model):
-    registration_token = models.CharField(max_length=300, unique=True)
+    registration_token = models.CharField(max_length=300)
     user = models.ForeignKey(User)
     operating_system = models.CharField(max_length=2)
+
+    class Meta:
+        unique_together = ('registration_token', 'user', 'operating_system')
