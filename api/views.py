@@ -180,15 +180,16 @@ def user(request,user):
             # Education is provided in the last step of setting up a profile, so if it's here, we know to change the
             # user status.
             elif key == 'education':
-                user.status = Status.FINISHED_PROFILE.value
+                if user.status != Status.FINISHED_PROFILE.value:
+                    user.status = Status.FINISHED_PROFILE.value
 
-                # Send logging email to report new user signed up
-                email_first = user.first_name if user.first_name else ''
-                email_last = user.last_name if user.last_name else ''
-                email_email = user.email if user.email else ''
-                logging_email_body = 'key: ' + user.pk + '\nname: ' + email_first + ' ' + email_last + '\nemail: ' + email_email
-                logging_email_subject = 'User signed up'
-                sendLoggingEmail(logging_email_subject, logging_email_body)
+                    # Send logging email to report new user signed up
+                    email_first = user.first_name if user.first_name else ''
+                    email_last = user.last_name if user.last_name else ''
+                    email_email = user.email if user.email else ''
+                    logging_email_body = 'key: ' + user.pk + '\nname: ' + email_first + ' ' + email_last + '\nemail: ' + email_email
+                    logging_email_subject = 'User signed up'
+                    sendLoggingEmail(logging_email_subject, logging_email_body)
             elif re.search('^picture', key) and re.search('_url$', key):
                 pass
                 """
