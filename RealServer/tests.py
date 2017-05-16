@@ -9,6 +9,7 @@ from RealServer import aws
 from api.models import User
 from tools import nextDayOfWeekToDatetime, cropImageToSquare, cropImageByAspectRatio, \
     cropImageByAspectRatioAndCoordinates, cropImage, convertLocalTimeToUTC
+from send_email import sendLoggingEmail
 import os
 import pytz
 
@@ -160,3 +161,8 @@ class ToolsTest(TestCase):
         image = cropImageByAspectRatioAndCoordinates(image, 1, 1, 300, 300, aspect_width, aspect_height)
         w, h = image.size
         self.assertEqual(round(aspect_width / aspect_height, 2), round(float(w) / float(h), 2))
+
+class EmailTest(TestCase):
+    # This test must be verified by checking realation email
+    def test_send_one_email(self):
+        sendLoggingEmail('This is the test subject','This is a test email message')
