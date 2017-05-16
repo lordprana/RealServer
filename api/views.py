@@ -348,6 +348,7 @@ def date(request, user, date_id=None):
                 match_user_object.save()
             # If both users like each other, then set the date to expire at the last minute on the day of the date
             if status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.LIKES.value:
+                print('User {0} matched with User {1}'.format(getattr(date, request_user).pk, getattr(date, match_user).pk))
                 date.expires_at = datetime.datetime.combine(date.date_of_date, datetime.time(hour=23, minute=59,
                                                                                              second=0, microsecond=0,
                                                                                              tzinfo=None))

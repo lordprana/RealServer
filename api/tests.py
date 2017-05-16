@@ -495,7 +495,7 @@ class DateTestCase(TestCase):
             response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
             date = Date.objects.get(pk=date.pk)
             self.assertEqual(date.expires_at.replace(second=0, microsecond=0),
-                             pytz_timezone(self.user1.timezone).localize(datetime(year=2017, month=1, day=20, hour=17, minute=30)))
+                             pytz_timezone(self.user1.timezone).localize(datetime(year=2017, month=1, day=20, hour=16, minute=0)))
 
             # Test user 1 likes, user 2 undecided with date occuring more than a day away
             with mock.patch('django.utils.timezone.now', side_effect=mocked_now):
@@ -531,7 +531,7 @@ class DateTestCase(TestCase):
             response = self.c.patch('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk), json.dumps(data))
             date = Date.objects.get(pk=date.pk)
             self.assertEqual(date.expires_at.replace(second=0, microsecond=0),
-                             pytz_timezone(self.user1.timezone).localize(datetime(year=2017, month=1, day=20, hour=17, minute=30)))
+                             pytz_timezone(self.user1.timezone).localize(datetime(year=2017, month=1, day=20, hour=16, minute=0)))
             notifyUserPassedOn(user1_id=self.user1.fb_user_id, user2_id=self.user2.fb_user_id, date_id=date.pk)
             date = Date.objects.get(pk=date.pk)
             self.assertEqual(date.expires_at, date.original_expires_at)
