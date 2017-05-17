@@ -190,6 +190,7 @@ def user(request,user):
                     logging_email_body = 'key: ' + user.pk + '\nname: ' + email_first + ' ' + email_last + '\nemail: ' + email_email
                     logging_email_subject = 'User signed up'
                     sendLoggingEmail(logging_email_subject, logging_email_body)
+                    print('User {0} completed profile'.format(user.pk))
             elif re.search('^picture', key) and re.search('_url$', key):
                 pass
                 """
