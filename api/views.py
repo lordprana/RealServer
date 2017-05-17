@@ -223,19 +223,20 @@ def user(request,user):
             elif key == 'latitude':
                 if json_data['latitude'] == 0:
                     value = user.latitude if user.latitude else 0
-                if not user.registration_city:
-                    try:
-                        latlng = [json_data['latitude'], json_data['longitude']]
-                    except:
-                        return HttpResponse(status=400)
-                    g = geocoder.mapbox(latlng, method='reverse', key=MAPBOX_API_KEY)
-                    if g.status_code == 200:
-                        if g.city and g.state:
-                            user.registration_city = g.city
-                            user.registration_state = g.state
-                            radius = DEFAULT_RADIUS.get(user.registration_city + ', ' + user.registration_state, None)
-                            if radius:
-                                user.search_radius = radius
+                else:
+                    if not user.registration_city:
+                        try:
+                            latlng = [json_data['latitude'], json_data['longitude']]
+                        except:
+                            return HttpResponse(status=400)
+                        g = geocoder.mapbox(latlng, method='reverse', key=MAPBOX_API_KEY)
+                        if g.status_code == 200:
+                            if g.city and g.state:
+                                user.registration_city = g.city
+                                user.registration_state = g.state
+                                radius = DEFAULT_RADIUS.get(user.registration_city + ', ' + user.registration_state, None)
+                                if radius:
+                                    user.search_radius = radius
             elif key == 'longitude':
                 if json_data['longitude'] == 0:
                     value = user.longitude if user.longitude else 0
