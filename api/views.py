@@ -538,10 +538,10 @@ def fake_users(request):
         for day in days:
             date = getattr(user, day + '_date')
             if date:
-                if date.user1.is_fake_user and not date.user2.is_fake_user and date.expires_at > timezone.now():
+                if date.user1.is_fake_user and not date.user2.is_fake_user:
                     real_user = date.user2
                     date_status = date.user2_likes + ' ' + date.user1_likes
-                elif not date.user1.is_fake_user and date.user2.is_fake_user and date.expires_at > timezone.now():
+                elif not date.user1.is_fake_user and date.user2.is_fake_user:
                     real_user = date.user1
                     date_status = date.user1_likes + ' ' + date.user2_likes
                 try:
