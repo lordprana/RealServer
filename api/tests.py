@@ -2,6 +2,7 @@ import json
 from datetime import time, datetime, timedelta
 from datetime import date as dt_date
 import os
+from decimal import *
 
 import pytz
 from pytz import timezone as pytz_timezone
@@ -388,6 +389,21 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.picture3_square_url, data['picture3_square_url'])
         self.assertEqual(load_user.picture4_portrait_url, data['picture4_portrait_url'])
         self.assertEqual(load_user.picture4_square_url, data['picture4_square_url'])
+
+        # Test correct value set when latitude and longitude are 0
+        self.user.latitude = Decimal(32.897000).quantize(Decimal(10) ** -6)
+        self.user.longitude = Decimal(-96.746000).quantize(Decimal(10) ** -6)
+        self.user.save()
+        data = {
+            'real_auth_token': self.real_auth_token.key,
+            'latitude': 0,
+            'longitude': 0
+        }
+        response = self.c.patch('/users/' + self.user.fb_user_id, json.dumps(data))
+        load_user = User.objects.get(pk=self.user.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Decimal(load_user.latitude), self.user.latitude)
+        self.assertEqual(Decimal(load_user.longitude), self.user.longitude)
 
 
     def test_register_device(self):

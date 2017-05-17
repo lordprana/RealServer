@@ -221,6 +221,8 @@ def user(request,user):
                         user.fb_user_id + '/' + key[:8] + '_portrait.jpg')
                 """
             elif key == 'latitude':
+                if json_data['latitude'] == 0:
+                    value = user.latitude if user.latitude else 0
                 if not user.registration_city:
                     try:
                         latlng = [json_data['latitude'], json_data['longitude']]
@@ -234,6 +236,9 @@ def user(request,user):
                             radius = DEFAULT_RADIUS.get(user.registration_city + ', ' + user.registration_state, None)
                             if radius:
                                 user.search_radius = radius
+            elif key == 'longitude':
+                if json_data['longitude'] == 0:
+                    value = user.longitude if user.longitude else 0
             setattr(user, key, value)
         user.save()
         # Delete unused pictures
