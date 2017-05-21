@@ -173,6 +173,7 @@ def users(request, user):
 def user(request,user):
     if request.method == 'PATCH':
         json_data = json.loads(request.body)
+        print('PATCH User ' + user.pk + ': ' + json_data.__str__())
         temp_user = User.objects.get(pk=user.pk)
         for key, value in json_data.iteritems():
             if key == 'real_auth_token':
