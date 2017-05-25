@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.authtoken.models import Token
 from api.auth import custom_authenticate
-from api.tasks import notifyUserPassedOn, notifyUpcomingDate
+from api.tasks import notifyUserPassedOn, notifyUpcomingDate, notifySelfie
 from api import hardcoded_dates
 from api.models import User, BlockedReports, Gender, Status, SexualPreference, FCMDevice
 from api.fake_user import generate_fake_user
@@ -370,6 +370,11 @@ def date(request, user, date_id=None):
                                                                                   getattr(date, match_user).pk,
                                                                                   date.pk),
                                                                                  eta=upcoming_date_reminder_time))
+                selfie_reminder_time = datetime_of_date + datetime.timedelta(minutes=30)
+                transaction.on_commit(lambda: notifySelfie.apply_async((getattr(date, request_user).pk,
+                                                                          getattr(date, match_user).pk,
+                                                                          date.pk),
+                                                                         eta=selfie_reminder_time))
             # If it's a like, but other user has passed notify user after two hours that they've been passed on
             elif status == DateStatus.LIKES.value and getattr(date, match_user+'_likes') == DateStatus.PASS.value:
                 datetime_of_date = pytz_timezone(user.timezone).localize(datetime.datetime.combine(date.date_of_date, date.start_time))

@@ -8,7 +8,7 @@ from celery.task import periodic_task
 from celery.task.schedules import crontab
 
 from api.models import User
-from api.notifications import sendPassNotification, sendUpcomingDateNotification
+from api.notifications import sendPassNotification, sendUpcomingDateNotification, sendSelfieNotification
 from matchmaking.models import Date, YelpBusinessDetails
 from matchmaking.yelp import refreshPlaceDetailsOnNetwork
 
@@ -47,3 +47,11 @@ def notifyUpcomingDate(user1_id, user2_id, date_id):
     date = Date.objects.get(pk=date_id)
     sendUpcomingDateNotification(user1, user2, date)
     sendUpcomingDateNotification(user2, user1, date)
+
+@app.task
+def notifySelfie(user1_id, user2_id, date_id):
+    user1 = User.objects.get(pk=user1_id)
+    user2 = User.objects.get(pk=user2_id)
+    date = Date.objects.get(pk=date_id)
+    sendSelfieNotification(user1, user2, date)
+    sendSelfieNotification(user2, user1, date)

@@ -138,4 +138,15 @@ def sendUpcomingDateNotification(messenger_user, receiver_user, date):
         type = 'reminder'
         sendNotification(message, type, date.pk, device)
 
+def sendSelfieNotification(date_user, receiver_user, date):
+    # Don't send messages if user has logged out of the app
+    if receiver_user.status == Status.INACTIVE.value:
+        return
+
+    devices = FCMDevice.objects.filter(user=receiver_user)
+    for device in devices:
+        message = 'Having fun? Take a selfie with ' + date_user.first_name + ' and share with hashtag #realation!'
+        type = 'selfie'
+        sendNotification(message, type, date.pk, device)
+
 
