@@ -455,6 +455,21 @@ def report_and_block(request, user):
 
             BlockedReports.objects.create(blocking_user=user, blocked_user=blocked_user, associated_date=date,
                                           report_content=request_json['report_content'])
+
+            email_first_user = user.first_name if user.first_name else ''
+            email_last_user = user.last_name if user.last_name else ''
+            email_first_blocked = blocked_user.first_name if blocked_user.first_name else ''
+            email_last_blocked = blocked_user.last_name if blocked_user.last_name else ''
+            logging_email_body = 'blocking_user\n'+ \
+                                 'key: ' + user.pk + '\n' + \
+                                 'name: ' + email_first_user + ' ' + email_last_user + '\n' + \
+                                 'blocked_user\n' + \
+                                 'key: ' + blocked_user.pk + '\n' + \
+                                 'name: ' + email_first_blocked + ' ' + email_last_blocked +'\n' + \
+                                 'report_content:\n' + \
+                                 request_json['report_content']
+            logging_email_subject = 'User blocked'
+            sendLoggingEmail(logging_email_subject, logging_email_body)
             return HttpResponse(status=200)
         except:
             return HttpResponse(status=400)
