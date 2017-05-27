@@ -77,20 +77,29 @@ def sendLikeNotification(request_user, like_user, date):
     if like_user.status == Status.INACTIVE.value:
         return
 
+    days = {'fri': 'Friday',
+            'sat': 'Saturday',
+            'sun': 'Sunday',
+            'mon': 'Monday',
+            'tue': 'Tuesday',
+            'wed': 'Wednesday',
+            'thur': 'Thursday'}
+
     devices = FCMDevice.objects.filter(user=like_user)
     # Change body depending on date category
     if date.category == DateCategories.FOOD.value:
-        message = request_user.first_name + ' wants to grab a bite with you!'
+        message = request_user.first_name + ' wants to grab a bite with you'
     elif date.category == DateCategories.COFFEE.value:
-        message = request_user.first_name + ' wants to grab a coffee with you!'
+        message = request_user.first_name + ' wants to grab a coffee with you'
     elif date.category == DateCategories.DRINKS.value:
-        message = request_user.first_name + ' wants to grab a drink with you!'
+        message = request_user.first_name + ' wants to grab a drink with you'
     elif date.category == DateCategories.PARKS.value:
-        message = request_user.first_name + ' wants to explore a park with you!'
+        message = request_user.first_name + ' wants to explore a park with you'
     elif date.category == DateCategories.MUSEUMS.value:
-        message = request_user.first_name + ' wants to check out a museum with you!'
+        message = request_user.first_name + ' wants to check out a museum with you'
     elif date.category == DateCategories.FUN.value:
-        message = request_user.first_name + ' wants to try something fun with you!'
+        message = request_user.first_name + ' wants to try something fun with you'
+    message = message + ' on ' + days[date.day] + '!'
 
     for device in devices:
         type = 'like'
