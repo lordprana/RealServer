@@ -310,7 +310,9 @@ def convertDateToJson(user,date):
             {
                 'place_id': date.place_id,
                 'place_name': place_details.place_name,
-                'place_url': place_details.place_url
+                'place_url': place_details.place_url,
+                'place_latitude': place_details.latitude,
+                'place_longitude': place_details.longitude
             }
     }
 

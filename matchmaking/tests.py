@@ -1,6 +1,7 @@
 import json
 import mock
 import pytz
+from decimal import *
 
 from django.test import TestCase
 from model_mommy.recipe import Recipe, seq
@@ -593,7 +594,7 @@ class YelpTestCase(TestCase):
         self.assertNotEqual(len(list), 0)
         self.assertEqual(YelpAccessToken.objects.all().count(), 2)
 
-    def test_get_place_hours(self):
+    def test_refresh_place_details(self):
         # Request of place id 'meadows-museum-dallas'
         request_json = {u'is_claimed': True, u'rating': 4.5, u'review_count': 23, u'name': u'Meadows Museum', u'photos': [u'https://s3-media3.fl.yelpcdn.com/bphoto/swJAMC7-34PxByWT-ZmwBw/o.jpg', u'https://s3-media4.fl.yelpcdn.com/bphoto/-QVXX9eaMO50koRcItldWw/o.jpg', u'https://s3-media1.fl.yelpcdn.com/bphoto/fQ3b_iP7e9EchVqmJNFc7Q/o.jpg'], u'url': u'https://www.yelp.com/biz/meadows-museum-dallas?adjust_creative=s7-DcAMdseJJmTHuki81Wg&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_lookup&utm_source=s7-DcAMdseJJmTHuki81Wg', u'transactions': [], u'coordinates': {u'latitude': 32.8397891146511, u'longitude': -96.7795944213867}, u'hours': [{u'hours_type': u'REGULAR', u'open': [{u'is_overnight': False, u'end': u'1700', u'day': 1, u'start': u'1000'}, {u'is_overnight': False, u'end': u'1700', u'day': 2, u'start': u'1000'}, {u'is_overnight': False, u'end': u'2100', u'day': 3, u'start': u'1000'}, {u'is_overnight': False, u'end': u'1700', u'day': 4, u'start': u'1000'}, {u'is_overnight': False, u'end': u'1700', u'day': 5, u'start': u'1000'}, {u'is_overnight': False, u'end': u'1700', u'day': 6, u'start': u'1300'}], u'is_open_now': False}], u'phone': u'+12147682516', u'image_url': u'https://s3-media3.fl.yelpcdn.com/bphoto/swJAMC7-34PxByWT-ZmwBw/o.jpg', u'categories': [{u'alias': u'museums', u'title': u'Museums'}], u'display_phone': u'(214) 768-2516', u'id': u'meadows-museum-dallas', u'is_closed': False, u'location': {u'cross_streets': u'', u'city': u'Dallas', u'display_address': [u'5900 Bishop Blvd', u'Southern Methodist University', u'Dallas, TX 75205'], u'country': u'US', u'address2': u'', u'address3': u'Southern Methodist University', u'state': u'TX', u'address1': u'5900 Bishop Blvd', u'zip_code': u'75205'}}
         class MockedResponse(object):
@@ -623,6 +624,8 @@ class YelpTestCase(TestCase):
             self.assertEqual(details.sat_end_time, time(hour=17))
             self.assertEqual(details.sun_start_time, time(hour=13))
             self.assertEqual(details.sun_end_time, time(hour=17))
+            self.assertEqual(details.latitude, Decimal('32.839789'))
+            self.assertEqual(details.longitude, Decimal('-96.779594'))
 
             # Ensure request is not called again, now that place_id entry exists in database
             getPlaceDetailsFromYelp(place_id)

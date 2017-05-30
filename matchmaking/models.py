@@ -77,6 +77,8 @@ class YelpBusinessDetails(models.Model):
     place_id = models.CharField(max_length=300, primary_key=True)
     place_name = models.CharField(max_length=300)
     place_url = models.CharField(max_length=300)
+    latitude = models.DecimalField(decimal_places=6, max_digits=13)
+    longitude = models.DecimalField(decimal_places=6, max_digits=13)
     mon_start_time = models.TimeField(null=True)
     mon_end_time = models.TimeField(null=True)
     tue_start_time = models.TimeField(null=True)
