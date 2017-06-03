@@ -7,7 +7,7 @@ from api.models import User, BlockedReports, Gender, Status, SexualPreference, F
 from api.fake_user import generate_fake_user
 from api.hardcoded_dates import getHardcodedDates
 from matchmaking import views as matchmaking
-from matchmaking.models import Date, DateStatus
+from matchmaking.models import Date, DateStatus, YelpBusinessDetails
 from api.notifications import sendMatchNotification, sendLikeNotification
 from api.default_radius_by_city import DEFAULT_RADIUS
 from django.http import JsonResponse, HttpResponse
@@ -30,6 +30,7 @@ import random
 import string
 import os
 import geocoder
+from geopy.distance import great_circle
 import pytz
 from pytz import timezone as pytz_timezone
 from RealServer.settings import MAPBOX_API_KEY, FAKE_USERS
@@ -590,4 +591,42 @@ def fake_users(request):
                 fake_user_json.sort(key=lambda k: k['first_name'])
     return JsonResponse(fake_user_json, safe=False)
 
+@csrf_exempt
+@custom_authenticate
+@transaction.atomic
+def check_date_location(request, user, date_id):
+    try:
+        date = Date.objects.select_for_update().get(pk=date_id)
+        json_data = json.loads(request.body)
+    except:
+        return HttpResponse(status=400)
+    user_latitude = json_data.get('latitude', None)
+    user_longitude = json_data.get('longitude', None)
+    if not user_latitude or not user_longitude:
+        return HttpResponse(status=400)
+
+    if date.user1 == user:
+        user = 'user1'
+        match = 'user2'
+    else:
+        user = 'user2'
+        match = 'user1'
+    setattr(date, user + '_latitude', user_latitude)
+    setattr(date, user + '_longitude', user_longitude)
+    match_latitude = getattr(date, match + '_latitude')
+    match_longitude = getattr(date, match + '_longitude')
+    user_coordinates = (user_latitude, user_longitude)
+    match_coordinates = (match_latitude, match_longitude)
+
+    # Set distance between users
+    if match_latitude != None and match_longitude != None:
+        date.distance_between_users = great_circle(user_coordinates, match_coordinates).miles
+
+    # Set distance to location
+    business = YelpBusinessDetails.objects.get(pk=date.place_id)
+    business_coordinates = (business.latitude, business.longitude)
+    distance_from_date_location = great_circle(user_coordinates, business_coordinates).miles
+    setattr(date, user + '_distance_from_date_location', distance_from_date_location)
+    date.save()
+    return HttpResponse(status=200)
 

@@ -10,14 +10,14 @@ import mock
 from django.test import TestCase, Client
 from django.utils import dateparse, timezone
 from rest_framework.authtoken.models import Token
+from geopy.distance import great_circle
 
 from RealServer import settings
 from api.auth import AuthenticationBackend
 from api.hardcoded_dates import getHardcodedDates
 from api.models import User, SexualPreference, Gender, BlockedReports, Status, FCMDevice
 from api.tasks import notifyUserPassedOn
-from matchmaking.models import Date, DateStatus, DateCategories
-from matchmaking.yelp import YelpBusinessDetails
+from matchmaking.models import Date, DateStatus, DateCategories, YelpBusinessDetails
 
 # Create your tests here.
 class AuthenticationTestCase(TestCase):
@@ -663,6 +663,63 @@ class DateTestCase(TestCase):
         self.assertEqual(date.expires_at, date.original_expires_at)
         self.assertEqual(date.user1.passed_matches.count(), 1)
         self.assertEqual(date.user2.passed_matches.count(), 1)
+
+    def test_check_date_location(self):
+        business = YelpBusinessDetails(place_id='sample-place', place_name='sample', place_url='www.sample.com',
+                                       latitude=41.308959, longitude=-72.933374)
+        business.save()
+        date = Date(user1=self.user1, user2=self.user2,
+                     expires_at=datetime(year=2017, month=1, day=15, hour=15, minute=12, second=0, microsecond=0,
+                                         tzinfo=pytz.UTC),
+                     day='fri', start_time=time(hour=18), place_id='sample-place', category=DateCategories.COFFEE.value)
+        date.original_expires_at = date.expires_at
+        date.save()
+
+        # Test user1 sends location first
+        data1 = {
+            'real_auth_token': self.real_auth_token1.key,
+            'latitude': 41.31,
+            'longitude': -72.94
+        }
+        response = self.c.post('/users/' + self.user1.fb_user_id + '/dates/' + str(date.pk) + '/check_date_location', data=json.dumps(data1),
+                               content_type='application/json')
+        date = Date.objects.get(pk=date.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(float(date.user1_latitude), data1['latitude'])
+        self.assertEqual(float(date.user1_longitude), data1['longitude'])
+        self.assertEqual(date.user2_latitude, None)
+        self.assertEqual(date.user2_longitude, None)
+
+        user1_distance_from_date_location = great_circle((data1['latitude'], data1['longitude']),
+                                                         (business.latitude, business.longitude)).miles
+        self.assertEqual(round(date.user1_distance_from_date_location, 4), round(user1_distance_from_date_location, 4))
+        self.assertEqual(date.user2_distance_from_date_location, None)
+        self.assertEqual(date.distance_between_users, None)
+
+        # Test user2 sends location after user1
+        data2 = {
+            'real_auth_token': self.real_auth_token2.key,
+            'latitude': 41.33,
+            'longitude': -72.97
+        }
+        response = self.c.post('/users/' + self.user2.fb_user_id + '/dates/' + str(date.pk) + '/check_date_location', data=json.dumps(data2),
+                               content_type='application/json')
+        date = Date.objects.get(pk=date.pk)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(float(date.user1_latitude), data1['latitude'])
+        self.assertEqual(float(date.user1_longitude), data1['longitude'])
+        self.assertEqual(float(date.user2_latitude), data2['latitude'])
+        self.assertEqual(float(date.user2_longitude), data2['longitude'])
+
+        user1_distance_from_date_location = great_circle((data1['latitude'], data1['longitude']),
+                                                         (business.latitude, business.longitude)).miles
+        user2_distance_from_date_location = great_circle((data2['latitude'], data2['longitude']),
+                                                         (business.latitude, business.longitude)).miles
+        distance_between_users = great_circle((data1['latitude'], data1['longitude']),
+                                              (data2['latitude'], data2['longitude'])).miles
+        self.assertEqual(round(date.user1_distance_from_date_location, 4), round(user1_distance_from_date_location, 4))
+        self.assertEqual(round(date.user2_distance_from_date_location, 4), round(user2_distance_from_date_location, 4))
+        self.assertEqual(round(date.distance_between_users, 4), round(distance_between_users, 4))
 
 class ReportAndBlockTestCase(TestCase):
     def setUp(self):

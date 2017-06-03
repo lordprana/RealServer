@@ -35,6 +35,15 @@ class Date(models.Model):
     inspected_match = models.BooleanField(default=False)
     passed_user_notified = models.BooleanField(default=False)
 
+    user1_latitude = models.DecimalField(null=True, decimal_places=6, max_digits=13)
+    user1_longitude = models.DecimalField(null=True, decimal_places=6, max_digits=13)
+    user1_distance_from_date_location = models.FloatField(null=True)
+    user2_latitude = models.DecimalField(null=True, decimal_places=6, max_digits=13)
+    user2_longitude = models.DecimalField(null=True, decimal_places=6, max_digits=13)
+    user2_distance_from_date_location = models.FloatField(null=True)
+    distance_between_users = models.FloatField(null=True)
+
+
     appropriate_times = {
         'drinks':
         {

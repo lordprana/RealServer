@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^users/(?P<user_id>\w{1,300})/date/?$', views.date),
     url(r'^users/(?P<user_id>\w{1,300})/dates/(?P<date_id>\w{1,50})/?$', views.date),
     url(r'^users/(?P<user_id>\w{1,300})/dates/(?P<date_id>\w{1,50})/unmatch/?$', views.unmatch),
+    url(r'^users/(?P<user_id>\w{1,300})/dates/(?P<date_id>\w{1,50})/check_date_location/?$', views.check_date_location),
     url(r'^users/(?P<user_id>\w{1,300})/settings/?$', views.settings),
     url(r'^users/(?P<user_id>\w{1,300})/logout/?$', views.logout),
     url(r'^users/(?P<user_id>\w{1,300})/sign_s3/?$', views.sign_s3),
