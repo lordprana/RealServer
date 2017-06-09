@@ -177,6 +177,7 @@ def makeDate(user, day, potential_matches):
         # Choose a place randomly from TOP_RATED places. If no match found, iterate through places until all options exhausted
         if category_filtered:
             places = getPlacesFromYelp(user, category)
+            print(places)
             if not places:
                 # Check for end loop condition, if not end loop, increment loop
                 if category_index == first_category_index:
@@ -189,6 +190,12 @@ def makeDate(user, day, potential_matches):
             place_index = (first_place_index + 1) % len(places)
             while True:
                 place = places[place_index]
+                # If this place is an excluded business, increment the loop and start again
+                if models.ExcludedBusiness.objects.filter(place_id=place['id']).exists():
+                    if place_index == first_place_index:
+                        break
+                    place_index = (place_index + 1) % len(places)
+                    continue
                 # Filter for users who have a max_price setting greater than price of place
                 price_filtered = category_filtered.filter(max_price__gte=place.get('price', '').count('$'))
 

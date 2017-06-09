@@ -108,3 +108,5 @@ class YelpAccessToken(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
 
+class ExcludedBusiness(models.Model):
+    place_id = models.CharField(max_length=300, primary_key=True)
