@@ -53,6 +53,14 @@ AUTHENTICATION_BACKENDS = ['api.auth.AuthenticationBackend']
 ADMIN_LOGIN = 'admin'
 ADMIN_PASSWORD = '4960Qn9GFLgj'
 
+EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST_USER = 'postmaster@mg.getrealation.com'
+EMAIL_HOST_PASSWORD = '157e5e6334067618386b4ecb2e4dcbb9'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+ADMINS = [('Matthew Gaba', 'server_errors@getrealation.com')]
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
