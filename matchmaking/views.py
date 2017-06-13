@@ -177,7 +177,6 @@ def makeDate(user, day, potential_matches):
         # Choose a place randomly from TOP_RATED places. If no match found, iterate through places until all options exhausted
         if category_filtered:
             places = getPlacesFromYelp(user, category)
-            print(places)
             if not places:
                 # Check for end loop condition, if not end loop, increment loop
                 if category_index == first_category_index:
