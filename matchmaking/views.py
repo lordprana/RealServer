@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q, F
-from django.db import transaction
+from django.db import transaction, DatabaseError
 from django.utils import timezone
 from api.auth import custom_authenticate
 from api.models import User, SexualPreference, Gender, Status
@@ -229,7 +229,10 @@ def makeDate(user, day, potential_matches):
                     place_coordinates = (place['coordinates']['latitude'], place['coordinates']['longitude'])
                     if great_circle(match_coordinates, place_coordinates).miles < potential_match.search_radius:
                         with transaction.atomic():
-                            match = User.objects.select_for_update().get(pk=potential_match.pk)
+                            try:
+                                match = User.objects.select_for_update(nowait=True).get(pk=potential_match.pk)
+                            except DatabaseError:
+                                continue
                             # Only match if user is not already matched with match this week
                             if (user.sun_date and (user.sun_date.user1 == match or user.sun_date.user2 == match)) or\
                                 (user.mon_date and (user.mon_date.user1 == match or user.mon_date.user2 == match)) or\
