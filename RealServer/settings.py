@@ -45,8 +45,8 @@ FAKE_USERS = False
 
 # Application definition
 
-FB_APP_ID = '145223082549936'
-FB_APP_SECRET = 'e03cc02eb74e7a8e2ec53c5667b98aaa'
+FB_APP_ID = '1894005397514557'
+FB_APP_SECRET = '80c021b16aa06157410638a08d57824a'
 
 AUTH_USER_MODEL = 'api.User'
 AUTHENTICATION_BACKENDS = ['api.auth.AuthenticationBackend']
