@@ -421,7 +421,7 @@ def date(request, user, day):
         potential_matches = filterByLatitudeLongitude(user, potential_matches)
         makeDate(user, day, potential_matches)
         user = User.objects.get(pk=user.pk)
-        if getattr(user, day + '_date'):
+        if getattr(user, day + '_date') and getattr(user, day + '_date').expires_at >= timezone.now():
             return JsonResponse(convertDateToJson(user, getattr(user, day + '_date')), safe=False)
         else:
             return JsonResponse(json.dumps(None), safe=False)
