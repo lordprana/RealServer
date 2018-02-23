@@ -7,10 +7,6 @@ import re
 from boto.s3.connection import S3Connection, Bucket, Key
 
 def s3_generate_presigned_post(file_type, user, file_name=None):
-  os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
-  os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
-  os.environ['S3_BUCKET'] = 'realdatingbucket'
-
   S3_BUCKET = os.environ.get('S3_BUCKET')
 
   # Generate a random name for the file

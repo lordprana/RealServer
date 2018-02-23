@@ -45,9 +45,6 @@ class FacebookTests(TestCase):
 
 class AWSTest(TestCase):
     def test_s3_delete_file(self):
-        os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
-        os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
-        os.environ['S3_BUCKET'] = 'realdatingbucket'
         # Change the line below to test if real deleting happens.
         aws.s3_delete_file('realdatingbucket.s3.amazonaws.com/2959531196950/ataxfmkygcul')
 

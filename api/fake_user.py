@@ -370,10 +370,6 @@ def generate_fake_user(gender, latitude, longitude):
     return fake_user
 
 def crop_fake_user_picture_and_upload_to_s3(file_path, user_num, pic_num, gender):
-    os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
-    os.environ['AWS_SECRET_ACCESS_KEY'] = 'xBjhBPWks/IxGm89l1oHQ9GE0ZE27jRTreX5yIon'
-    os.environ['S3_BUCKET'] = 'realdatingbucket'
-
     image = Image.open(file_path)
     square_user_picture = cropImageToSquare(image)
     s3_file_path = 'fake_user/' + gender + '/' + user_num + '/' + pic_num + '_square'

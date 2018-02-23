@@ -1,0 +1,4 @@
+*.pyc
+RealServer/.idea
+env
+AmazonCredentials
