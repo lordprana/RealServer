@@ -63,9 +63,6 @@ class UserTestCase(TestCase):
         self.c = Client()
 
     def test_create_user(self):
-        os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
-        os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
-        os.environ['S3_BUCKET'] = 'realdatingbucket'
         fb_user_id = '2959531196950'
         # If this test is failing, update fb_auth_token at https://developers.facebook.com/tools/accesstoken/
         fb_auth_token = 'EAACEFGIZCorABAOc28JxWVtNvXJR1wy3mlLO3tvgrN9UFEZAUIzCnt6OCbTsA2V3ZBwHANvUmsfb4DMeSYj0tmid6mZBVZCM9Lai4YcT3XA0rJQ7WXe0ZBvVYJKkXq9v9Ab3M6ZBBcJ2wItPk2ZBiKle'
@@ -330,9 +327,6 @@ class UserTestCase(TestCase):
         self.assertEqual(load_user.status, Status.FINISHED_PROFILE.value)
 
         # Test new picture patch. Requires manual verification on S3 that files were deleted
-        os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
-        os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
-        os.environ['S3_BUCKET'] = 'realdatingbucket'
         data = {
             'real_auth_token': self.real_auth_token.key,
             'picture1_portrait_url': 'https://realdatingbucket.s3.amazonaws.com/2959531196950/aytsnqnjcfqb',
@@ -421,9 +415,6 @@ class UserTestCase(TestCase):
         self.assertNotEqual(device, None)
 
     def test_sign_s3(self):
-        os.environ['AWS_ACCESS_KEY_ID'] = 'AKIAI4755USWAQYAFTUA'
-        os.environ['AWS_SECRET_ACCESS_KEY'] = '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'
-        os.environ['S3_BUCKET'] = 'realdatingbucket'
         self.user = User.objects.create(fb_user_id='2959531196950',
                                         most_recent_fb_auth_token="EAACEFGIZCorABAELkmH1UiKQaJi8IJYA8oPBUHcJ7MggYxZBoYI8XOOUlh9IIhTamaDIyYrPSQmkYM4ChfPI8u2OT7LjJYTseQFF4O9J7xH40iQZAjAXGCgzi27pkM468GUOV6mJwKE3qLqdpum")
         self.real_auth_token = Token.objects.create(user=self.user)
