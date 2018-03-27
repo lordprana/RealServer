@@ -37,16 +37,16 @@ else:
 
 ALLOWED_HOSTS = ['*']
 
-AWS_ACCESS_KEY_ID = 'AKIAI4755USWAQYAFTUA'
-AWS_SECRET_ACCESS_KEY = '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'
-S3_BUCKET = 'realdatingbucket'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_KEY')
+S3_BUCKET = os.environ.get('S3_BUCKET')
 
 FAKE_USERS = False
 
 # Application definition
 
-FB_APP_ID = '145223082549936'
-FB_APP_SECRET = '773a591e201001d587bf8a8dd4e1b802'
+FB_APP_ID = os.environ.get('FB_APP_ID')
+FB_APP_SECRET = os.environ.get('FB_APP_SECRET')
 
 AUTH_USER_MODEL = 'api.User'
 AUTHENTICATION_BACKENDS = ['api.auth.AuthenticationBackend']
