@@ -29,10 +29,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = False
 #DEBUG = config('DEBUG', default=False, cast=bool)
 
-if DEBUG:
-    SECRET_KEY = 'a6k!h$u$49@o#at@7-!=5^_)(a7c13$48n@@r2v-ge4ae9e3v7'
-else:
-    SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = os.environ['SECRET_KEY']
 
 
 ALLOWED_HOSTS = ['*']
